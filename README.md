@@ -54,6 +54,17 @@ It's trivially auditable. Anyone who wants to verify the security claim, can rea
 
 If you do find a bug, please open a issue. Let's have a look.
 
+## Recon
+
+SurfView transmits this user-agent: 
+
+`"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"`
+
+Which is nearly indistinguishable from a regular Chromium, or Goolge Chrome install.
+
+The user-agent can be changed in `main.js`
+
+
 ## Limitations
 
 Where the real risk still is:
