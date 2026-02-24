@@ -98,7 +98,7 @@ ipcMain.handle('render-url', async (_event, rawUrl) => {
         '--disk-cache-size=0',
         '--media-cache-size=0',
 		// note: --no-sandbox and --disable-setuid-sandbox are intentionally
-		// omitted to keep Chromium's process sandbox fully active.
+		// omitted to keep Chromium's process sandbox fully active. (before: testing)
       ],
     });
 
