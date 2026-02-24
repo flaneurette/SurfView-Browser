@@ -43,6 +43,8 @@ No script ever runs in your session.
 
 It's trivially auditable. Anyone who wants to verify the security claim, can read the ~500 lines in `src/*.js` and either agrees, or finds a bug. No 35 million line Chromium codebase to wade through.
 
+If you do find a bug, please open a issue. Let's have a look.
+
 ## Limitations
 
 Where the real risk still is:
