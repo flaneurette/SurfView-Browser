@@ -1,7 +1,7 @@
 # SurfView Browser
 
 A security-focused browser that renders web pages as static images.
-No JavaScript executes. No DOM. No exploits. Just pixels.
+No JavaScript executes. No exploits. Just pixels.
 
 <img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/SurfView-UX.png">
 
