@@ -25,7 +25,7 @@ Download your preferred version from the Releases page and install it.
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.0-1/SurfView.Setup.0.1.0.exe)
 
-[Windows x64 portable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.0-1/SurfView-0.1.0-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.0-1/SurfView-0.1.0-win.zip)
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
