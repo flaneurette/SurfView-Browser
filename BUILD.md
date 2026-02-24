@@ -5,7 +5,7 @@
 - [Node.js](https://nodejs.org) version 18 or higher
 - [npm](https://npmjs.com) (comes with Node.js)
 - Git
-- NSIS (required for installers)
+- [NSIS](https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download?use_mirror=altushost-swe&download) (required for installers)
 
 No need to install Chrome or Chromium separately. The build process
 downloads a bundled Chromium automatically via Puppeteer.
