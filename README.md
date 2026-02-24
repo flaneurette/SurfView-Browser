@@ -3,8 +3,9 @@
 A security-focused browser that renders web pages as static images.
 No JavaScript executes. No DOM. No exploits. Just pixels.
 
-It does two things very well:
+It does three things very well:
 
+- Spawns a ephemeral process 
 - Renders a website as a static image.
 - Generates a sidebar with sanitized page links.
 
