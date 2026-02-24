@@ -91,8 +91,6 @@ ipcMain.handle('render-url', async (_event, rawUrl) => {
     browser = await puppeteer.launch({
       headless: 'new',
       args: [
-        // '--no-sandbox',
-        // '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
         // no persistent state
