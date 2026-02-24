@@ -21,6 +21,9 @@ What it genuinely protects against
 
 Download your preferred version from the Releases page and install it.
 
+Windows x64: https://github.com/flaneurette/SurfView-Browser/releases/tag/v1.0-1
+
+
 #### 🏄 Build from source
 
 Or roll your own:
