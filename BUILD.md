@@ -5,6 +5,7 @@
 - [Node.js](https://nodejs.org) version 18 or higher
 - [npm](https://npmjs.com) (comes with Node.js)
 - Git
+- NSIS (required for installers)
 
 No need to install Chrome or Chromium separately. The build process
 downloads a bundled Chromium automatically via Puppeteer.
