@@ -1,14 +1,20 @@
 # SurfView Browser
 
+<img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/SurfView-UX.png">
+
 A security-focused browser that renders web pages as static images.
 No JavaScript executes. No DOM. No exploits. Just pixels.
 
 ## Ways to Surf
 
 #### 🏄 Run the installer
+
 Download your preferred version from the Releases page and install it.
 
 #### 🏄 Build from source
+
+Or roll your own:
+
 See [BUILD.md](BUILD.md)
 
 ## How it works
