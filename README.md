@@ -15,7 +15,7 @@ It also features a "live mode" toggle, if you want to go insecure, like Firefox,
 What it genuinely protects against
 
 - JavaScript execution - fully blocked at the Puppeteer level
-- XSS, drive-by downloads, malicious iframes - all dead
+- XSS, XSRF, 3rd party content, drive-by downloads, malicious iframes - all dead
 - CSS-based tracking and fingerprinting - neutered
 - Malicious font/media exploits that need a live DOM - gone
 - Cookie theft, session hijacking via scripts - not possible
