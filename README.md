@@ -21,6 +21,8 @@ What it genuinely protects against
 
 Download your preferred version from the Releases page and install it.
 
+##### v1.0-1 - Hang loose
+
 Windows x64: https://github.com/flaneurette/SurfView-Browser/releases/tag/v1.0-1
 
 Linux coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
