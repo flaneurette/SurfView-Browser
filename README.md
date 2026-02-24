@@ -3,9 +3,14 @@
 A security-focused browser that renders web pages as static images.
 No JavaScript executes. No DOM. No exploits. Just pixels.
 
+It does two things very well:
+
+- Renders a website as a static image.
+- Generates a sidebar with sanitized page links.
+
 <img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/SurfView-UX.png">
 
-Also features a "live mode", if you want to go insecure, like Firefox, Edge or Chrome.
+It also features a "live mode" toggle, if you want to go insecure, like Firefox, Edge or Chrome.
 
 What it genuinely protects against
 
