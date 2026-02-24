@@ -39,6 +39,10 @@ extracted from the DOM, and the Chromium process is immediately killed.
 The user sees a static image of the page and a sanitized link list.
 No script ever runs in your session.
 
+## Security
+
+It's trivially auditable. Anyone who wants to verify the security claim, can read the ~500 lines in `src/*.js` and either agrees, or finds a bug. No 35 million line Chromium codebase to wade through.
+
 ## Limitations
 
 Where the real risk still is:
