@@ -23,9 +23,11 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.0 SurfView - Hang loose
 
-Windows x64: https://github.com/flaneurette/SurfView-Browser/releases/tag/v1.0-1
+Windows x64: https://github.com/flaneurette/SurfView-Browser/releases/download/v1.0-1/SurfView.Setup.0.1.0.exe
 
-Linux coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
+Windows x64 portable: https://github.com/flaneurette/SurfView-Browser/releases/download/v1.0-1/SurfView-0.1.0-win.zip
+
+Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
 #### 🏄 Build from source
 
