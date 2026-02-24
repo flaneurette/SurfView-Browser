@@ -88,8 +88,6 @@ ipcMain.handle('render-url', async (_event, rawUrl) => {
   let browser = null;
 
   try {
-    const chromePath = getChromePath();
-
     browser = await puppeteer.launch({
       headless: 'new',
       args: [
@@ -107,7 +105,12 @@ ipcMain.handle('render-url', async (_event, rawUrl) => {
     const page = await browser.newPage();
 
     // viewport width matches a standard desktop render
-    await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 1 });
+    await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 2 });
+
+    // spoof a real Chrome user agent so sites don't block headless requests
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36'
+    );
 
     // block all javascript from executing
     await page.setJavaScriptEnabled(false);
