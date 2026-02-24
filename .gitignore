@@ -1,0 +1,30 @@
+# dependencies
+node_modules/
+dist/
+
+# puppeteer chromium download cache
+.local-chromium/
+.cache/
+
+# electron-builder cache
+electron-builder-cache/
+
+# logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# os files
+.DS_Store
+Thumbs.db
+
+# editor directories
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.yaml
+*.yml
+*.blockmap
