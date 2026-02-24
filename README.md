@@ -1,11 +1,19 @@
 # SurfView Browser
 
 A security-focused browser that renders web pages as static images.
-No JavaScript executes. No exploits. Just pixels.
+No JavaScript executes. No DOM. No exploits. Just pixels.
 
 <img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/SurfView-UX.png">
 
 Also features a "live mode", if you want to go insecure, like Firefox, Edge or Chrome.
+
+What it genuinely protects against
+
+- JavaScript execution - fully blocked at the Puppeteer level
+- XSS, drive-by downloads, malicious iframes - all dead
+- CSS-based tracking and fingerprinting - neutered
+- Malicious font/media exploits that need a live DOM - gone
+- Cookie theft, session hijacking via scripts - not possible
 
 ## Ways to Surf
 
@@ -26,6 +34,18 @@ fully disabled. The page is rendered to a PNG screenshot, all links are
 extracted from the DOM, and the Chromium process is immediately killed.
 The user sees a static image of the page and a sanitized link list.
 No script ever runs in your session.
+
+## mLimitations
+
+Where the real risk still 
+
+The Chromium parser itself. Even with JS disabled, Chromium still has to parse HTML, CSS, and render images. Every one of those parsers has had CVEs. 
+A maliciously crafted PNG or CSS file could theoretically exploit the renderer process before the screenshot is even taken. This is the honest weak point.
+
+How much does that matter?
+
+Chromium's renderer already runs in a sandbox. If it gets exploited, the attacker is inside a sandboxed process that we then immediately kill. 
+They'd need a sandbox escape on top of the parser exploit to reach your system. That's a much harder attack chain than today's typical JS exploit.
 
 ## Motivation
 
