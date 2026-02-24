@@ -26,7 +26,7 @@ What it genuinely protects against
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.0 SurfView - Hang loose
+#### v1.0-1 SurfView - Hang loose
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.0-1/SurfView.Setup.0.1.0.exe)
 
