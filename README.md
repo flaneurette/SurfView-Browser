@@ -39,9 +39,9 @@ extracted from the DOM, and the Chromium process is immediately killed.
 The user sees a static image of the page and a sanitized link list.
 No script ever runs in your session.
 
-## mLimitations
+## Limitations
 
-Where the real risk still 
+Where the real risk still is:
 
 The Chromium parser itself. Even with JS disabled, Chromium still has to parse HTML, CSS, and render images. Every one of those parsers has had CVEs. 
 A maliciously crafted PNG or CSS file could theoretically exploit the renderer process before the screenshot is even taken. This is the honest weak point.
