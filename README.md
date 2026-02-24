@@ -12,6 +12,8 @@ It does two things very well:
 
 It also features a "live mode" toggle, if you want to go insecure, like Firefox, Edge or Chrome.
 
+SurfView uses 2 sandboxes, and incognito mode for extra security.
+
 What it genuinely protects against
 
 - JavaScript execution - fully blocked at the Puppeteer level
@@ -76,6 +78,16 @@ How much does that matter?
 
 Chromium's renderer already runs in a sandbox. If it gets exploited, the attacker is inside a sandboxed process that we then immediately kill. 
 They'd need a sandbox escape on top of the parser exploit to reach your system. That's a much harder attack chain than today's typical JS exploit.
+
+A successful attack would need to:
+
+- Exploit the Chromium parser through a malicious page
+- Then escape Chromium's process sandbox (unlikely)
+- Then break through Electron's sandbox (very unlikely)
+- Do something useful in a sandbox, before the entire Puppeteer process gets killed (which is immediately) 
+
+That's a four step chain. In practice, that's extremely unlikely.
+
 
 ## Motivation
 
