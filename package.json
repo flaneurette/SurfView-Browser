@@ -1,6 +1,6 @@
 {
   "name": "surfview",
-  "version": "1.2.2",
+  "version": "1.2.4",
   "description": "A secure browser that renders pages as static images",
   "main": "src/main.js",
   "scripts": {
