@@ -1,6 +1,6 @@
 {
   "name": "surfview",
-  "version": "0.1.2",
+  "version": "1.2.2",
   "description": "A secure browser that renders pages as static images",
   "main": "src/main.js",
   "scripts": {
@@ -19,25 +19,29 @@
   "build": {
     "appId": "com.surfview.app",
     "productName": "SurfView",
+	"icon": "assets/ico.ico",
     "directories": {
       "output": "dist"
     },
     "files": [
       "src/**/*",
+	  "assets/**/*",
       "package.json",
       "node_modules/puppeteer/.local-chromium/**/*",
       "node_modules/puppeteer-core/**/*",
       "node_modules/puppeteer/**/*"
     ],
-    "win": {
-      "target": ["nsis", "zip"]
-	  
-    },
-    "mac": {
-      "target": "dmg"
-    },
-    "linux": {
-      "target": "AppImage"
-    }
+	"win": {
+	  "icon": "assets/ico.ico",
+	  "target": ["nsis", "zip"]
+	},
+	"mac": {
+	  "icon": "assets/ico.icns",
+	  "target": "dmg"
+	},
+	"linux": {
+	  "icon": "assets/ico.png",
+	  "target": "AppImage"
+	}
   }
 }
