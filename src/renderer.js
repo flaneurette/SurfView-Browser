@@ -374,7 +374,7 @@
         var url = String(raw).trim();
 
         // block dangerous schemes entirely
-        var blocked = /^(javascript|data|vbscript|file|about|chrome|blob):/i;
+        var blocked = /^(javascript|data|vbscript|file|about|mailto|settings|chrome|blob):/i;
         if (blocked.test(url)) return null;
 
         // ensure http or https scheme
@@ -390,9 +390,10 @@
             }
 		// strip null bytes and control characters after normalization
 		var stripped = parsed.href.replace(/[\x00-\x1F\x7F]/g, '');
-		// extra encoded
-		var enc = ['%00','%1F'];
-		stripped = stripped.replace(enc, '');
+		var enc = ['%00', '%1F', '%0D', '%0A'];
+		enc.forEach(function(code) {
+		  stripped = stripped.replace(new RegExp(code, 'gi'), '');
+		});
 		return stripped;
         } catch (e) {
             return null;

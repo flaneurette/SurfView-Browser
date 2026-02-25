@@ -14,7 +14,7 @@
 	  let url = String(raw).trim();
 
 	  // block dangerous schemes entirely
-	  if (/^(javascript|data|vbscript|file|about|chrome|blob):/i.test(url)) {
+	  if (/^(javascript|data|vbscript|file|about|chrome|settings|mailto|blob):/i.test(url)) {
 		return null;
 	  }
 
@@ -32,9 +32,11 @@
 		}
 		// strip null bytes and control characters after normalization
 		var stripped = parsed.href.replace(/[\x00-\x1F\x7F]/g, '');
-		// extra encoded
-		var enc = ['%00','%1F'];
-		stripped = stripped.replace(enc, '');
+		var enc = ['%00', '%1F', '%0D', '%0A'];
+		enc.forEach(function(code) {
+		  stripped = stripped.replace(new RegExp(code, 'gi'), '');
+		});
+
 		return stripped;
 	  } catch(e) {
 		return null;
@@ -177,7 +179,8 @@
 			const linkUrl = new URL(safeHref);
 			const pageUrl = new URL(url);
 			if (safeHref.startsWith('mailto:')) {
-			  type = 'mailto';
+				// not allowing, phishing risk.
+			  continue;
 			} else if (safeHref.startsWith('#') || (linkUrl.pathname === pageUrl.pathname && linkUrl.hash)) {
 			  type = 'anchor';
 			} else if (linkUrl.hostname !== pageUrl.hostname) {
