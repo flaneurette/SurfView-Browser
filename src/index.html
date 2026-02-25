@@ -3,10 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
-  content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src data: blob:; script-src 'self';">
+  content="default-src 'none'; style-src 'unsafe-inline' img-src data: blob:; script-src 'self';">
 <title>SurfView</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap');
+
+
+  @font-face {
+    font-family: 'IBM Plex Mono';
+    font-weight: 400;
+    src: url('fonts/IBMPlexMono-Regular.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'IBM Plex Mono';
+    font-weight: 500;
+    src: url('fonts/IBMPlexMono-Medium.woff2') format('woff2');
+  }
+  @font-face {
+    font-family: 'IBM Plex Sans';
+    font-weight: 300;
+    src: url('fonts/IBMPlexSans-Light.ttf') format('ttf');
+  }
+  @font-face {
+    font-family: 'IBM Plex Sans';
+    font-weight: 400;
+    src: url('fonts/IBMPlexSans-Regular.ttf') format('ttf');
+  }
+  @font-face {
+    font-family: 'IBM Plex Sans';
+    font-weight: 500;
+    src: url('fonts/IBMPlexSans-Medium.ttf') format('ttf');
+  }
 
   *, *::before, *::after {
     box-sizing: border-box;
