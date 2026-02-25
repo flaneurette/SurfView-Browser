@@ -18,7 +18,7 @@
 	  'Chrome/' + (process.versions.chrome || '124.0.0.0'),
 	  'Safari/537.36',
 	].join(' ');
-
+	
 	// -- sanitize a url, returns null if invalid or unsafe -----------------
 	// mirrors the sanitizeUrl function in renderer.js
 	// main.js must validate independently - never trust renderer input
