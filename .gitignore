@@ -28,3 +28,6 @@ Thumbs.db
 *.yaml
 *.yml
 *.blockmap
+
+# Tests
+test.js
