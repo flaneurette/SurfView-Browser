@@ -151,7 +151,7 @@
 		  encoding: 'base64',
 		});
 
-		// -- extract links from the DOM before killing the page
+		// -- extract links from the DOM before closing the page
 		const links = await page.evaluate(() => {
 		  const anchors = Array.from(document.querySelectorAll('a[href]'));
 		  return anchors.map((a) => {
@@ -219,7 +219,7 @@
 	  } catch (err) {
 		return { ok: false, error: err.message };
 	  } finally {
-		// always kill the browser, even on error
+		// always close the browser, even on error
 		if (browser) {
 		  try { await browser.close(); } catch (_) {}
 		}

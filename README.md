@@ -47,7 +47,7 @@ See [BUILD.md](BUILD.md)
 
 SurfView fetches a URL using a headless Chromium instance with JavaScript
 fully disabled. The page is rendered to a PNG screenshot, all links are
-extracted from the DOM, and the Chromium process is immediately killed.
+extracted from the DOM, and the Chromium process is immediately closed.
 The user sees a static image of the page and a sanitized link list.
 No script ever runs in your session.
 
@@ -85,7 +85,7 @@ A successful attack would need to:
 - Exploit the Chromium parser through a malicious page
 - Then escape Chromium's process sandbox (unlikely)
 - Then break through Electron's sandbox (very unlikely)
-- Do something useful in a sandbox, before the entire Puppeteer process gets killed (which is immediately) 
+- Do something useful in a sandbox, before the entire Puppeteer process gets closed (which is immediately) 
 
 That's a four step chain. In practice, that's extremely unlikely.
 
