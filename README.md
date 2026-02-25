@@ -29,7 +29,7 @@ What it genuinely protects against
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.2-0 SurfView - Duck dive
+#### v1.2-0 SurfView - Duck Dive
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-0/SurfView.Setup.1.2.2.exe)
 
