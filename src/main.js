@@ -1,11 +1,23 @@
-	// src/main.js
+// src/main.js
 	// Electron main process.
 	// All network access and rendering happens here.
 	// The renderer process only ever receives pixels and structured data.
 
-	const { app, BrowserWindow, ipcMain, shell } = require('electron');
+	const { app, BrowserWindow, ipcMain, shell, session } = require('electron');
 	const path = require('path');
 	const puppeteer = require('puppeteer');
+
+	// -- spoofed user agent ------------------------------------------------
+	// process.versions.chrome is set by Electron and reflects the actual
+	// bundled Chromium version. We build the UA once here and reuse it in
+	// both the session (live webview) and Puppeteer (image mode) so the
+	// app never leaks its identity via either code path.
+	const SPOOFED_UA = [
+	  'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+	  'AppleWebKit/537.36 (KHTML, like Gecko)',
+	  'Chrome/' + (process.versions.chrome || '124.0.0.0'),
+	  'Safari/537.36',
+	].join(' ');
 
 	// -- sanitize a url, returns null if invalid or unsafe -----------------
 	// mirrors the sanitizeUrl function in renderer.js
@@ -69,7 +81,12 @@
 	  mainWindow.webContents.on('will-navigate', (e) => e.preventDefault());
 	}
 
-	app.whenReady().then(createWindow);
+	app.whenReady().then(() => {
+  // override UA on the default session so every webview request uses
+  // the spoofed string instead of the Electron/surfview default
+  session.defaultSession.setUserAgent(SPOOFED_UA);
+  createWindow();
+});
 
 	app.on('window-all-closed', () => {
 	  if (process.platform !== 'darwin') app.quit();
@@ -110,13 +127,8 @@
 		// viewport width matches a standard desktop render
 		await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 2 });
 
-		// use the actual bundled Chromium version in the user agent
-		// so it matches what is really running
-		const browserVersion = await browser.version();
-		const majorVersion = (browserVersion.match(/\/(\d+)\./) || [])[1] || '124';
-		await page.setUserAgent(
-		  `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${majorVersion}.0.0.0 Safari/537.36`
-		);
+		// use the shared spoofed UA - same string used by the live webview session
+		await page.setUserAgent(SPOOFED_UA);
 
 		// block all javascript from executing
 		await page.setJavaScriptEnabled(false);

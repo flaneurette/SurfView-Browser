@@ -10,7 +10,9 @@
     "build-linux": "electron-builder --linux"
   },
   "dependencies": {
-    "puppeteer": "^24.37.5"
+    "puppeteer": "^24.37.5",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2"
   },
   "devDependencies": {
     "electron": "^40.6.0",
@@ -19,29 +21,32 @@
   "build": {
     "appId": "com.surfview.app",
     "productName": "SurfView",
-	"icon": "assets/ico.ico",
+    "icon": "assets/ico.ico",
     "directories": {
       "output": "dist"
     },
     "files": [
       "src/**/*",
-	  "assets/**/*",
+      "assets/**/*",
       "package.json",
       "node_modules/puppeteer/.local-chromium/**/*",
       "node_modules/puppeteer-core/**/*",
       "node_modules/puppeteer/**/*"
     ],
-	"win": {
-	  "icon": "assets/ico.ico",
-	  "target": ["nsis", "zip"]
-	},
-	"mac": {
-	  "icon": "assets/ico.icns",
-	  "target": "dmg"
-	},
-	"linux": {
-	  "icon": "assets/ico.png",
-	  "target": "AppImage"
-	}
+    "win": {
+      "icon": "assets/ico.ico",
+      "target": [
+        "nsis",
+        "zip"
+      ]
+    },
+    "mac": {
+      "icon": "assets/ico.icns",
+      "target": "dmg"
+    },
+    "linux": {
+      "icon": "assets/ico.png",
+      "target": "AppImage"
+    }
   }
 }
