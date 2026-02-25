@@ -82,11 +82,11 @@
 	}
 
 	app.whenReady().then(() => {
-  // override UA on the default session so every webview request uses
-  // the spoofed string instead of the Electron/surfview default
-  session.defaultSession.setUserAgent(SPOOFED_UA);
-  createWindow();
-});
+	  // override UA on the default session so every webview request uses
+	  // the spoofed string instead of the Electron/surfview default
+	  session.defaultSession.setUserAgent(SPOOFED_UA);
+	  createWindow();
+	});
 
 	app.on('window-all-closed', () => {
 	  if (process.platform !== 'darwin') app.quit();
