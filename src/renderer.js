@@ -82,7 +82,7 @@
 
   // -- webview navigation events: keep url bar in sync
   liveWebview.addEventListener('did-navigate', function(e) {
-    var url = e.url;
+    var url = escHtml(e.url);
     if (url && url !== 'about:blank') {
       urlInput.value = url.replace(/^https?:\/\//i, '');
       try {
@@ -99,7 +99,7 @@
   });
 
   liveWebview.addEventListener('page-title-updated', function(e) {
-    statusTitle.textContent = e.title ? '- ' + e.title : '';
+    statusTitle.textContent = e.title ? '- ' + escHtml(e.title) : '';
   });
 
   // -- filter + tabs
@@ -247,7 +247,7 @@
     }).catch(function(err) {
       loading = false;
       setLoadingUi(false);
-      showError(err.message || 'Unknown error');
+      showError(escHtml(err.message) || 'Unknown error');
     });
   }
 
@@ -281,18 +281,18 @@
 
     try {
       var domain = new URL('https://' + result.url.replace(/^https?:\/\//, '')).hostname;
-      statusDomain.textContent = domain;
+      statusDomain.textContent = escHtml(domain);
     } catch(e) {
-      statusDomain.textContent = result.url || '';
+      statusDomain.textContent = escHtml(result.url) || '';
     }
-
-    statusTitle.textContent = result.title ? '- ' + result.title : '';
-    statusTime.textContent = result.renderMs + 'ms';
+	
+    statusTitle.textContent = result.title ? '- ' + escHtml(result.title) : '';
+    statusTime.textContent = escHtml(result.renderMs) + 'ms';
   }
 
   function showError(msg) {
     loadingState.className = 'loading-state';
-    errorMsg.textContent = msg;
+    errorMsg.textContent = escHtml(msg);
     errorState.className = 'error-state active';
     statusDomain.textContent = 'error';
   }
@@ -343,7 +343,7 @@
 
       var displayHref = link.href.length > 42 ? link.href.slice(0, 40) + '...' : link.href;
 
-      html += '<div class="link-item" data-href="' + escAttr(link.href) + '" data-type="' + link.type + '">'
+      html += '<div class="link-item" data-href="' + escAttr(link.href) + '" data-type="' + escHtml(link.type) + '">'
         + '<div class="link-type-dot ' + dotClass + '"></div>'
         + '<div class="link-content">'
         + '<div class="link-label">' + escHtml(link.label) + '</div>'
