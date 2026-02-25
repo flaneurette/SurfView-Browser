@@ -388,8 +388,12 @@
             if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
                 return null;
             }
-            // strip null bytes and control characters after normalization
-            return parsed.href.replace(/[\x00-\x1F\x7F]/g, '');
+		// strip null bytes and control characters after normalization
+		var stripped = parsed.href.replace(/[\x00-\x1F\x7F]/g, '');
+		// extra encoded
+		var enc = ['%00','%1F'];
+		stripped = stripped.replace(enc, '');
+		return stripped;
         } catch (e) {
             return null;
         }
