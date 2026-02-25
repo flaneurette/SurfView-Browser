@@ -77,7 +77,7 @@ A maliciously crafted PNG or CSS file could theoretically exploit the renderer p
 
 How much does that matter?
 
-Chromium's renderer already runs in a sandbox. If it gets exploited, the attacker is inside a sandboxed process that we then immediately kill. 
+Chromium's renderer already runs in a sandbox. If it gets exploited, the attacker is inside a sandboxed process that we then immediately close. 
 They'd need a sandbox escape on top of the parser exploit to reach your system. That's a much harder attack chain than today's typical JS exploit.
 
 A successful attack would need to:
