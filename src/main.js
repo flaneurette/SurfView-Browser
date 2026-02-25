@@ -135,6 +135,24 @@
 
 		// block resource types we do not need for a screenshot
 		await page.setRequestInterception(true);
+		
+		// Try hiding consent css, as it messes up the screenshot.
+		await page.addStyleTag({
+		  content: `
+			[class*="modal"], [id*="modal"],
+			[class*="dialog"], [id*="dialog"],
+			[class*="overlay"], [id*="overlay"],
+			[class*="cookie"], [id*="cookie"],
+			[class*="consent"], [class*="gdpr"],
+			[class*="privacy"], [class*="popup"], [class*="modal"],
+			[class*="overlay"], [class*="banner"],
+			[id*="consent"], [id*="gdpr"], [id*="privacy"],
+			#onetrust-consent-sdk, .cc-window, .cookielaw-banner,
+			.cookie-notice, .cookie-popup, .gdpr-popup {
+			  display: none !important;
+			}
+		  `
+		});
 		page.on('request', (req) => {
 		  const type = req.resourceType();
 		  // allow: document, stylesheet, image, font
@@ -148,6 +166,47 @@
 		});
 
 		const t0 = Date.now();
+
+		// ---- cookie handling: follow (redirect) chain and harvest cookies ----
+		// for security, we only capture server-side set cookies, not javascript cookies! after capture, we empty the cookie jar.
+		// we do this because many sites check server side cookies, for consent cookies, session cookies and check if it's a bot or not.
+		// do a lightweight navigation to collect any consent/session cookies
+		// the server sets before we do the real page load. only cookies that
+		// belong to the original hostname or its parent domain are replayed -
+		// anything set by third-party redirect destinations is discarded.
+		const originalHost = new URL(url).hostname;
+		const baseDomain = originalHost.split('.').slice(-2).join('.');
+		const cookiePage = await browser.newPage();
+		try {
+		  await cookiePage.setUserAgent(SPOOFED_UA);
+		  await cookiePage.setJavaScriptEnabled(false);
+		  await cookiePage.setRequestInterception(true);
+		  cookiePage.on('request', (req) => {
+			if (req.resourceType() === 'document') {
+			  req.continue();
+			} else {
+			  req.abort();
+			}
+		  });
+		  try {
+			await cookiePage.goto(url, {
+			  waitUntil: 'domcontentloaded',
+			  timeout: 5000,
+			});
+		  } catch (_) {
+			// ignore navigation errors, we just want whatever cookies were set
+		  }
+		  const safeCookies = (await cookiePage.cookies()).filter(c => {
+			const cookieDomain = c.domain.replace(/^\./, '');
+			return cookieDomain === baseDomain || cookieDomain.endsWith('.' + baseDomain);
+		  });
+		  if (safeCookies.length > 0) {
+			await page.setCookie(...safeCookies);
+		  }
+		} finally {
+		  await cookiePage.close();
+		}
+		// -- end cookie handling
 
 		await page.goto(url, {
 		  waitUntil: 'networkidle2',
