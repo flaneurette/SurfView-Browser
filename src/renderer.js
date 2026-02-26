@@ -228,7 +228,7 @@
             setLoadingUi(false);
 
             if (!result.ok) {
-                showError(result.error);
+                showError(escHtml(result.error));
                 return;
             }
 
