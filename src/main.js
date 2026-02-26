@@ -210,7 +210,7 @@
 			// ignore navigation errors, we just want whatever cookies were set
 		  }
 		  const safeCookies = (await cookiePage.cookies()).filter(c => {
-			const cookieDomain = escHtml(c.domain.replaceAll(/^\./gim, ''));
+			const cookieDomain = c.domain.replaceAll(/^\./gim, '');
 			return cookieDomain === baseDomain || cookieDomain.endsWith('.' + baseDomain);
 		  });
 		  if (safeCookies.length > 0) {
@@ -238,7 +238,7 @@
 		// extract links from the DOM before closing the page
 		const links = await page.evaluate(() => {
 		  const anchors = Array.from(document.querySelectorAll('a[href]'));
-		  return anchors.map((a) => {
+		  return anchors.map((a) => { 
 			const href = a.href; // already resolved to absolute by the browser
 			const label = (a.innerText || a.getAttribute('aria-label') || a.getAttribute('title') || '').trim();
 			return { href, label };
