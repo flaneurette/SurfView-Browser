@@ -381,6 +381,7 @@
 
     // sanitize a url, returns null if invalid or unsafe
     function sanitizeUrl(raw) {
+		
         var url = String(raw).trim();
 
         // block dangerous schemes entirely
