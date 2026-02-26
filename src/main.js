@@ -12,6 +12,7 @@
 	// bundled Chromium version. We build the UA once here and reuse it in
 	// both the session (live webview) and Puppeteer (image mode) so the
 	// app never leaks its identity via either code path.
+	
 	const SPOOFED_UA = [
 	  'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
 	  'AppleWebKit/537.36 (KHTML, like Gecko)',
@@ -31,6 +32,7 @@
 	// mirrors the sanitizeUrl function in renderer.js
 	// main.js must validate independently - never trust renderer input
 	function sanitizeUrl(raw) {
+		
 	  let url = String(raw).trim();
 
 	  // block dangerous schemes entirely
