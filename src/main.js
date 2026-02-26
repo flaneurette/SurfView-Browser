@@ -63,7 +63,7 @@
 	  }
 	}
 
-	// main window -------------------------------------------------------
+	// main window
 	let mainWindow = null;
 
 	function createWindow() {
@@ -104,7 +104,7 @@
 	  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 	});
 
-	// renderer request: render a URL ------------------------------------
+	// renderer request: render a URL
 	ipcMain.handle('render-url', async (_event, rawUrl) => {
 
 	  // sanitize and validate in main process independently of renderer
