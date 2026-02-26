@@ -401,7 +401,7 @@
 		  stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
 		});
 		return stripped;
-        } catch (e) {
+        } catch (e) { 
             return null;
         } 
     }
