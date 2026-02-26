@@ -157,7 +157,7 @@
             shieldDot.style.boxShadow = '0 0 6px var(--accent)';
             shieldLabel.textContent = 'SAFE MODE';
             modeLabel.textContent = 'image mode';
-            statusSafe.className = 'status-item status-ok';
+            statusSafe.className = 'status-item status-ok'; 
             statusSafe.textContent = '+ scripts blocked';
         } else {
             shieldBadge.style.borderColor = 'rgba(240,74,106,0.2)';
