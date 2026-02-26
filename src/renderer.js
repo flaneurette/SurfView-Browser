@@ -338,7 +338,7 @@
             var safeHref = sanitizeUrl(link.href);
             if (!safeHref) return;
 
-            var dotClass = 'dot-' + link.type;
+            var dotClass = 'dot-' + escHtml(link.type);
             var badge = '';
             if (link.type === 'external') badge = '<span class="link-badge badge-ext">ext</span>';
             else if (link.type === 'mailto') badge = '<span class="link-badge badge-mail">mail</span>';
@@ -348,7 +348,7 @@
             var displayHref = safeHref.length > 42 ? safeHref.slice(0, 40) + '...' : safeHref;
 
             html += '<div class="link-item" data-href="' + escAttr(safeHref) + '" data-type="' + escAttr(link.type) + '">' +
-                '<div class="link-type-dot ' + dotClass + '"></div>' +
+                '<div class="link-type-dot ' + escHtml(dotClass) + '"></div>' +
                 '<div class="link-content">' +
                 '<div class="link-label">' + escHtml(link.label) + '</div>' +
                 '<div class="link-url">' + escHtml(displayHref) + '</div>' +
