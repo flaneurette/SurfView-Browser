@@ -43,6 +43,12 @@
     var modeLabel = document.getElementById('modeLabel');
     var imageModeToggle = document.getElementById('imageModeToggle');
 
+	try {
+		// focus urlbar by default.
+		urlInput.focus();
+		} catch(e) {
+	}
+	
     // -- url bar events
     urlInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') loadUrl(urlInput.value);
@@ -82,7 +88,7 @@
     liveWebview.addEventListener('did-navigate', function(e) {
         var url = sanitizeUrl(e.url);
         if (!url || url === 'about:blank') return;
-        urlInput.value = url.replace(/^https?:\/\//i, '');
+        urlInput.value = url.replace(/^https?:\/\//gi, '');
         try {
             statusDomain.textContent = new URL(url).hostname;
         } catch (_) {}
@@ -91,7 +97,7 @@
     liveWebview.addEventListener('did-navigate-in-page', function(e) {
         var url = sanitizeUrl(e.url);
         if (!url || url === 'about:blank') return;
-        urlInput.value = url.replace(/^https?:\/\//i, '');
+        urlInput.value = url.replace(/^https?:\/\//gi, '');
     });
 
     liveWebview.addEventListener('page-title-updated', function(e) {
@@ -183,7 +189,7 @@
         }
 
         // strip scheme for display only - history always stores full https:// url
-        urlInput.value = url.replace(/^https?:\/\//i, '');
+        urlInput.value = url.replace(/^https?:\/\//gi, '');
 
         // in live mode just point the webview at the url directly
         if (!imageModeEnabled) {
@@ -402,10 +408,10 @@
 
     function escHtml(s) {
         return String(s)
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;');
+            .replaceAll(/&/g, '&amp;')
+            .replaceAll(/</g, '&lt;')
+            .replaceAll(/>/g, '&gt;')
+            .replaceAll(/"/g, '&quot;');
     }
 
     function escAttr(s) {
