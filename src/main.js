@@ -7,7 +7,7 @@
 	const path = require('path');
 	const puppeteer = require('puppeteer');
 
-	// spoofed user agent ------------------------------------------------
+	// spoofed user agent 
 	// process.versions.chrome is set by Electron and reflects the actual
 	// bundled Chromium version. We build the UA once here and reuse it in
 	// both the session (live webview) and Puppeteer (image mode) so the
