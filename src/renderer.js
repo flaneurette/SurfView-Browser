@@ -49,7 +49,7 @@
 		} catch(e) {
 	}
 	
-    // -- url bar events
+    // url bar events
     urlInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') loadUrl(urlInput.value);
     });
@@ -84,7 +84,7 @@
         document.getElementById('liveWarning').style.display = 'none';
     });
 
-    // -- webview navigation events: keep url bar in sync
+    // webview navigation events: keep url bar in sync
     liveWebview.addEventListener('did-navigate', function(e) {
         var url = sanitizeUrl(e.url);
         if (!url || url === 'about:blank') return;
@@ -104,7 +104,7 @@
         statusTitle.textContent = e.title ? '- ' + escHtml(e.title) : '';
     });
 
-    // -- filter + tabs
+    // filter + tabs
     filterInput.addEventListener('input', renderLinks);
 
     document.querySelectorAll('.panel-tab').forEach(function(tab) {
@@ -118,7 +118,7 @@
         });
     });
 
-    // -- image mode toggle
+    // image mode toggle
     imageModeToggle.addEventListener('change', function() {
         imageModeEnabled = this.checked;
         var rawUrl = urlInput.value.trim();
@@ -171,7 +171,7 @@
         }
     }
 
-    // -- keyboard shortcut: Ctrl+L / Cmd+L to focus url bar
+    // keyboard shortcut: Ctrl+L / Cmd+L to focus url bar
     document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
             e.preventDefault();
@@ -180,7 +180,7 @@
         }
     });
 
-    // -- main load function
+    // main load function
     function loadUrl(raw, isNavigation) {
         var url = sanitizeUrl(raw);
         if (!url) {
@@ -303,7 +303,7 @@
         btnFwd.disabled = navIndex >= navHistory.length - 1;
     }
 
-    // -- link panel
+    // link panel
     function setLinks(links) { 
         allLinks = links || [];
         linkCount.textContent = allLinks.length;
@@ -375,7 +375,7 @@
         });
     }
 
-    // -- sanitize a url, returns null if invalid or unsafe
+    // sanitize a url, returns null if invalid or unsafe
     function sanitizeUrl(raw) {
         var url = String(raw).trim();
 
@@ -418,7 +418,7 @@
         return String(s).replaceAll(/"/gi, '&quot;').replaceAll(/'/gi, '&#39;');
     }
 
-    // -- resize handle
+    // resize handle
     var resizing = false;
     var resizeStartX = 0;
     var panelStartW = 280;
