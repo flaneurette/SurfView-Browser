@@ -111,6 +111,7 @@
 
 	  // sanitize and validate in main process independently of renderer
 	  const url = sanitizeUrl(rawUrl);
+	  
 	  if (!url) {
 		return { ok: false, error: 'Invalid or unsafe URL.' };
 	  }
@@ -184,9 +185,11 @@
 		// the server sets before we do the real page load. only cookies that
 		// belong to the original hostname or its parent domain are replayed
 		// anything set by third-party redirect destinations is discarded.
+		
 		const originalHost = new URL(url).hostname;
 		const baseDomain = originalHost.split('.').slice(-2).join('.');
 		const cookiePage = await browser.newPage();
+		
 		try {
 		  await cookiePage.setUserAgent(SPOOFED_UA);
 		  await cookiePage.setJavaScriptEnabled(false);
@@ -207,7 +210,7 @@
 			// ignore navigation errors, we just want whatever cookies were set
 		  }
 		  const safeCookies = (await cookiePage.cookies()).filter(c => {
-			const cookieDomain = c.domain.replaceAll(/^\./gim, '');
+			const cookieDomain = escHtml(c.domain.replaceAll(/^\./gim, ''));
 			return cookieDomain === baseDomain || cookieDomain.endsWith('.' + baseDomain);
 		  });
 		  if (safeCookies.length > 0) {
