@@ -408,14 +408,14 @@
 
     function escHtml(s) {
         return String(s)
-            .replaceAll(/&/g, '&amp;')
-            .replaceAll(/</g, '&lt;')
-            .replaceAll(/>/g, '&gt;')
-            .replaceAll(/"/g, '&quot;');
+            .replaceAll(/&/gi, '&amp;')
+            .replaceAll(/</gi, '&lt;')
+            .replaceAll(/>/gi, '&gt;')
+            .replaceAll(/"/gi, '&quot;');
     }
 
     function escAttr(s) {
-        return String(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        return String(s).replace(/"/gi, '&quot;').replace(/'/g, '&#39;');
     }
 
     // -- resize handle
