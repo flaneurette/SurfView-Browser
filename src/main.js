@@ -236,7 +236,7 @@
 		  return anchors.map((a) => {
 			const href = a.href; // already resolved to absolute by the browser
 			const label = (a.innerText || a.getAttribute('aria-label') || a.getAttribute('title') || '').trim();
-			return { href, escHtml(label) };
+			return { href, label };
 		  });
 		});
 
@@ -279,7 +279,7 @@
 
 		  cleanLinks.push({
 			href: safeHref,
-			label: (link.label || safeHref).slice(0, 120),
+			label: (escHtml(link.label) || safeHref).slice(0, 120),
 			type,
 		  });
 		}
