@@ -18,7 +18,15 @@
 	  'Chrome/' + (process.versions.chrome || '124.0.0.0'),
 	  'Safari/537.36',
 	].join(' ');
-	
+
+    function escHtml(s) {
+        return String(s)
+            .replaceAll(/&/gi, '&amp;')
+            .replaceAll(/</gi, '&lt;')
+            .replaceAll(/>/gi, '&gt;')
+            .replaceAll(/"/gi, '&quot;');
+    }
+
 	// sanitize a url, returns null if invalid or unsafe
 	// mirrors the sanitizeUrl function in renderer.js
 	// main.js must validate independently - never trust renderer input
@@ -228,7 +236,7 @@
 		  return anchors.map((a) => {
 			const href = a.href; // already resolved to absolute by the browser
 			const label = (a.innerText || a.getAttribute('aria-label') || a.getAttribute('title') || '').trim();
-			return { href, label };
+			return { href, escHtml(label) };
 		  });
 		});
 
