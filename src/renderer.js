@@ -304,7 +304,7 @@
     }
 
     // -- link panel
-    function setLinks(links) {
+    function setLinks(links) { 
         allLinks = links || [];
         linkCount.textContent = allLinks.length;
         statusLinks.textContent = allLinks.length + ' links';
