@@ -1,4 +1,4 @@
-// src/main.js
+	// src/main.js
 	// Electron main process.
 	// All network access and rendering happens here.
 	// The renderer process only ever receives pixels and structured data.
@@ -19,7 +19,7 @@
 	  'Safari/537.36',
 	].join(' ');
 	
-	// sanitize a url, returns null if invalid or unsafe -----------------
+	// sanitize a url, returns null if invalid or unsafe
 	// mirrors the sanitizeUrl function in renderer.js
 	// main.js must validate independently - never trust renderer input
 	function sanitizeUrl(raw) {
