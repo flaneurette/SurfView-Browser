@@ -6,7 +6,7 @@
 (function() {
     'use strict';
 
-    // -- state
+    // state
     var allLinks = [];
     var currentTab = 'all';
     var navHistory = [];
@@ -14,7 +14,7 @@
     var loading = false;
     var imageModeEnabled = true;
 
-    // -- elements
+    // elements
     var urlInput = document.getElementById('urlInput');
     var btnRender = document.getElementById('btnRender');
     var btnBack = document.getElementById('btnBack');
