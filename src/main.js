@@ -294,7 +294,7 @@
 		return {
 		  ok: true,
 		  imageBase64: screenshotBuffer,
-		  links: cleanLinks,
+		  links: cleanLinks, 
 		  title: escHtml(pageTitle),
 		  url: escHtml(page.url()), // final URL after any redirects
 		  renderMs, 
@@ -311,7 +311,7 @@
 	});
 
 	// renderer request: open a URL in the system browser
-	// used for "open in real browser" fallback
+	// used for "open in real browser" fallback 
 	ipcMain.handle('open-external', async (_event, rawUrl) => {
 	  const url = sanitizeUrl(rawUrl);
 	  if (!url) return;
