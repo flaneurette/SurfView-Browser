@@ -306,7 +306,7 @@
 		// always close the browser, even on error
 		if (browser) {
 		  try { await browser.close(); } catch (_) {}
-		}
+		} 
 	  }
 	});
 
