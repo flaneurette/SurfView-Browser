@@ -337,6 +337,7 @@
         }
 
         var html = '';
+		
         filtered.forEach(function(link) {
             var safeHref = sanitizeUrl(link.href);
             if (!safeHref) return;
