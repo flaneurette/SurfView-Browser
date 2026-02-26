@@ -284,7 +284,7 @@
 		  links: cleanLinks,
 		  title: pageTitle,
 		  url: page.url(), // final URL after any redirects
-		  renderMs,
+		  renderMs, 
 		};
 
 	  } catch (err) {
