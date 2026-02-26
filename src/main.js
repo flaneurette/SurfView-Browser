@@ -7,7 +7,7 @@
 	const path = require('path');
 	const puppeteer = require('puppeteer');
 
-	// -- spoofed user agent ------------------------------------------------
+	// spoofed user agent ------------------------------------------------
 	// process.versions.chrome is set by Electron and reflects the actual
 	// bundled Chromium version. We build the UA once here and reuse it in
 	// both the session (live webview) and Puppeteer (image mode) so the
@@ -19,7 +19,7 @@
 	  'Safari/537.36',
 	].join(' ');
 	
-	// -- sanitize a url, returns null if invalid or unsafe -----------------
+	// sanitize a url, returns null if invalid or unsafe -----------------
 	// mirrors the sanitizeUrl function in renderer.js
 	// main.js must validate independently - never trust renderer input
 	function sanitizeUrl(raw) {
@@ -55,7 +55,7 @@
 	  }
 	}
 
-	// -- main window -------------------------------------------------------
+	// main window -------------------------------------------------------
 	let mainWindow = null;
 
 	function createWindow() {
@@ -96,7 +96,7 @@
 	  if (BrowserWindow.getAllWindows().length === 0) createWindow();
 	});
 
-	// -- renderer request: render a URL ------------------------------------
+	// renderer request: render a URL ------------------------------------
 	ipcMain.handle('render-url', async (_event, rawUrl) => {
 
 	  // sanitize and validate in main process independently of renderer
@@ -167,7 +167,7 @@
 
 		const t0 = Date.now();
 
-		// ---- cookie handling: follow (redirect) chain and harvest cookies ----
+		// --cookie handling: follow (redirect) chain and harvest cookies ----
 		// for security, we only capture server-side set cookies, not javascript cookies! after capture, we empty the cookie jar.
 		// we do this because many sites check server side cookies, for consent cookies, session cookies and check if it's a bot or not.
 		// do a lightweight navigation to collect any consent/session cookies
@@ -206,7 +206,7 @@
 		} finally {
 		  await cookiePage.close();
 		}
-		// -- end cookie handling
+		// end cookie handling
 
 		await page.goto(url, {
 		  waitUntil: 'networkidle2',
@@ -215,14 +215,14 @@
 
 		const renderMs = Date.now() - t0;
 
-		// -- screenshot as base64 PNG
+		// screenshot as base64 PNG
 		const screenshotBuffer = await page.screenshot({
 		  type: 'png',
 		  fullPage: true,
 		  encoding: 'base64',
 		});
 
-		// -- extract links from the DOM before closing the page
+		// extract links from the DOM before closing the page
 		const links = await page.evaluate(() => {
 		  const anchors = Array.from(document.querySelectorAll('a[href]'));
 		  return anchors.map((a) => {
@@ -232,7 +232,7 @@
 		  });
 		});
 
-		// -- sanitize and classify links
+		// sanitize and classify links
 		const seenHrefs = new Set();
 		const cleanLinks = [];
 
@@ -297,7 +297,7 @@
 	  }
 	});
 
-	// -- renderer request: open a URL in the system browser ---------------
+	// renderer request: open a URL in the system browser ---------------
 	// used for "open in real browser" fallback
 	ipcMain.handle('open-external', async (_event, rawUrl) => {
 	  const url = sanitizeUrl(rawUrl);
