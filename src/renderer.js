@@ -120,6 +120,7 @@
 
     // image mode toggle
     imageModeToggle.addEventListener('change', function() {
+		
         imageModeEnabled = this.checked;
         var rawUrl = urlInput.value.trim();
 
