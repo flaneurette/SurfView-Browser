@@ -31,9 +31,9 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.2-0 SurfView - Duck Dive
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-4/SurfView.Setup.1.2.4.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-5/SurfView.Setup.1.2.5.exe)
 
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-4/SurfView-1.2.4-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-5/SurfView-1.2.5-win.zip)
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
