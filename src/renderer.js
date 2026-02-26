@@ -88,7 +88,7 @@
     liveWebview.addEventListener('did-navigate', function(e) {
         var url = sanitizeUrl(e.url);
         if (!url || url === 'about:blank') return;
-        urlInput.value = url.replace(/^https?:\/\//gi, '');
+        urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
         try {
             statusDomain.textContent = new URL(url).hostname;
         } catch (_) {}
@@ -97,7 +97,7 @@
     liveWebview.addEventListener('did-navigate-in-page', function(e) {
         var url = sanitizeUrl(e.url);
         if (!url || url === 'about:blank') return;
-        urlInput.value = url.replace(/^https?:\/\//gi, '');
+        urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
     });
 
     liveWebview.addEventListener('page-title-updated', function(e) {
@@ -189,7 +189,7 @@
         }
 
         // strip scheme for display only - history always stores full https:// url
-        urlInput.value = url.replace(/^https?:\/\//gi, '');
+        urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
 
         // in live mode just point the webview at the url directly
         if (!imageModeEnabled) {
