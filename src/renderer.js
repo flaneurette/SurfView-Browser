@@ -415,7 +415,7 @@
     }
 
     function escAttr(s) {
-        return String(s).replace(/"/gi, '&quot;').replace(/'/g, '&#39;');
+        return String(s).replaceAll(/"/gi, '&quot;').replace(/'/g, '&#39;');
     }
 
     // -- resize handle
