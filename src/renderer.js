@@ -398,7 +398,7 @@
 		var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gi, '');
 		var enc = ['%00', '%1F', '%0D', '%0A'];
 		enc.forEach(function(code) {
-		  stripped = stripped.replace(new RegExp(code, 'gi'), '');
+		  stripped = stripped.replaceAll(new RegExp(code, 'gi'), '');
 		});
 		return stripped;
         } catch (e) {
