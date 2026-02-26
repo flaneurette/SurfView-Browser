@@ -330,7 +330,7 @@
                 '<span style="font-size:20px;opacity:0.3">&#9135;</span>' +
                 (allLinks.length === 0 ? 'no links yet' : 'no matches') +
                 '</div>';
-            return;
+            return; 
         }
 
         var html = '';
@@ -403,7 +403,7 @@
 		return stripped;
         } catch (e) {
             return null;
-        }
+        } 
     }
 
     function escHtml(s) {
