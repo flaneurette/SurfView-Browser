@@ -45,7 +45,7 @@
 		// strip null bytes and control characters after normalization
 		var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gi, '');
 		var enc = ['%00', '%1F', '%0D', '%0A'];
-		enc.forEach(function(code) {
+		enc.forEach(function(code) { 
 		  stripped = stripped.replaceAll(new RegExp(code, 'gi'), '');
 		});
 
