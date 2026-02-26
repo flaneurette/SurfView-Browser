@@ -128,7 +128,7 @@
             liveWrap.className = 'live-wrap';
             liveWebview.src = 'about:blank';
             if (rawUrl) {
-                loadUrl(rawUrl, true);
+                loadUrl(sanitizeUrl(rawUrl), true);
             }
         } else {
             setShield(false);
@@ -184,7 +184,7 @@
     function loadUrl(raw, isNavigation) {
         var url = sanitizeUrl(raw);
         if (!url) {
-            showError('Invalid or unsafe URL.');
+            showError('Invalid or unsafe URL.'); 
             return;
         }
 
