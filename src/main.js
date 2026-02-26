@@ -21,10 +21,10 @@
 
     function escHtml(s) {
         return String(s)
-            .replaceAll(/&/gi, '&amp;')
-            .replaceAll(/</gi, '&lt;')
-            .replaceAll(/>/gi, '&gt;')
-            .replaceAll(/"/gi, '&quot;');
+            .replaceAll(/&/gim, '&amp;')
+            .replaceAll(/</gim, '&lt;')
+            .replaceAll(/>/gim, '&gt;')
+            .replaceAll(/"/gim, '&quot;');
     }
 
 	// sanitize a url, returns null if invalid or unsafe
@@ -205,7 +205,7 @@
 			// ignore navigation errors, we just want whatever cookies were set
 		  }
 		  const safeCookies = (await cookiePage.cookies()).filter(c => {
-			const cookieDomain = c.domain.replaceAll(/^\./gi, '');
+			const cookieDomain = c.domain.replaceAll(/^\./gim, '');
 			return cookieDomain === baseDomain || cookieDomain.endsWith('.' + baseDomain);
 		  });
 		  if (safeCookies.length > 0) {
