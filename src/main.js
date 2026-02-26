@@ -218,7 +218,7 @@
 
 		await page.goto(url, {
 		  waitUntil: 'networkidle2',
-		  timeout: 20000,
+		  timeout: 20000, 
 		});
 
 		const renderMs = Date.now() - t0;
