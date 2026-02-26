@@ -305,7 +305,7 @@
 	  }
 	});
 
-	// renderer request: open a URL in the system browser ---------------
+	// renderer request: open a URL in the system browser
 	// used for "open in real browser" fallback
 	ipcMain.handle('open-external', async (_event, rawUrl) => {
 	  const url = sanitizeUrl(rawUrl);
