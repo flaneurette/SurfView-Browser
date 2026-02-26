@@ -183,7 +183,9 @@
 
     // main load function
     function loadUrl(raw, isNavigation) {
+		
         var url = sanitizeUrl(raw);
+		
         if (!url) {
             showError('Invalid or unsafe URL.'); 
             return;
