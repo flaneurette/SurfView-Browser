@@ -408,14 +408,14 @@
 
     function escHtml(s) {
         return String(s)
-            .replaceAll(/&/gi, '&amp;')
-            .replaceAll(/</gi, '&lt;')
-            .replaceAll(/>/gi, '&gt;')
-            .replaceAll(/"/gi, '&quot;');
+            .replaceAll(/&/gim, '&amp;')
+            .replaceAll(/</gim, '&lt;')
+            .replaceAll(/>/gim, '&gt;')
+            .replaceAll(/"/gim, '&quot;');
     }
 
     function escAttr(s) {
-        return String(s).replaceAll(/"/gi, '&quot;').replaceAll(/'/gi, '&#39;');
+        return String(s).replaceAll(/"/gim, '&quot;').replaceAll(/'/gim, '&#39;');
     }
 
     // resize handle

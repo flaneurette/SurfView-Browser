@@ -291,7 +291,7 @@
 		  imageBase64: screenshotBuffer,
 		  links: cleanLinks,
 		  title: escHtml(pageTitle),
-		  url: page.url(), // final URL after any redirects
+		  url: escHtml(page.url()), // final URL after any redirects
 		  renderMs, 
 		};
 
