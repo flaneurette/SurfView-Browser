@@ -180,7 +180,7 @@
 		// we do this because many sites check server side cookies, for consent cookies, session cookies and check if it's a bot or not.
 		// do a lightweight navigation to collect any consent/session cookies
 		// the server sets before we do the real page load. only cookies that
-		// belong to the original hostname or its parent domain are replayed -
+		// belong to the original hostname or its parent domain are replayed
 		// anything set by third-party redirect destinations is discarded.
 		const originalHost = new URL(url).hostname;
 		const baseDomain = originalHost.split('.').slice(-2).join('.');
