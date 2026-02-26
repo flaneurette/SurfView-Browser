@@ -290,7 +290,7 @@
 		  ok: true,
 		  imageBase64: screenshotBuffer,
 		  links: cleanLinks,
-		  title: pageTitle,
+		  title: escHtml(pageTitle),
 		  url: page.url(), // final URL after any redirects
 		  renderMs, 
 		};
