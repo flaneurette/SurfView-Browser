@@ -44,7 +44,7 @@
     var imageModeToggle = document.getElementById('imageModeToggle');
 
 	try {
-		// focus urlbar by default.
+		// focus urlbar by default
 		urlInput.focus();
 		} catch(e) {
 	}
