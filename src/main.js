@@ -175,7 +175,7 @@
 
 		const t0 = Date.now();
 
-		// Cookie handling: follow (redirect) chain and harvest cookies ----
+		// Cookie handling: follow (redirect) chain and harvest cookies
 		// for security, we only capture server-side set cookies, not javascript cookies! after capture, we empty the cookie jar.
 		// we do this because many sites check server side cookies, for consent cookies, session cookies and check if it's a bot or not.
 		// do a lightweight navigation to collect any consent/session cookies
