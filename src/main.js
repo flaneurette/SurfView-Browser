@@ -284,7 +284,7 @@
 
 		  cleanLinks.push({
 			href: safeHref,
-			label: (escHtml(link.label) || safeHref).slice(0, 120),
+			label: (escHtml(link.label) || safeHref).slice(0, 120), 
 			type,
 		  });
 		}
