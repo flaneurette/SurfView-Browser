@@ -275,7 +275,7 @@
         pageImage.src = 'data:image/png;base64,' + result.imageBase64;
 
         setLinks(result.links);
-
+        
         var finalUrl = sanitizeUrl(result.url);
         if (finalUrl) {
             try {
