@@ -49,7 +49,7 @@ SurfView fetches a URL using a headless Chromium instance with JavaScript
 fully disabled. The page is rendered to a PNG screenshot, all links are
 extracted from the DOM, and the Chromium process is immediately closed.
 The user sees a static image of the page and a sanitized link list.
-No script ever runs in your session.
+No script ever runs in your session. 
 
 ## Security
 
@@ -75,7 +75,7 @@ Where the real risk still is:
 The Chromium parser itself. Even with JS disabled, Chromium still has to parse HTML, CSS, and render images. Every one of those parsers has had CVEs. 
 A maliciously crafted PNG or CSS file could theoretically exploit the renderer process before the screenshot is even taken. This is the honest weak point.
 
-How much does that matter?
+How much does that matter? 
 
 Chromium's renderer already runs in a sandbox. If it gets exploited, the attacker is inside a sandboxed process that we then immediately close. 
 They'd need a sandbox escape on top of the parser exploit to reach your system. That's a much harder attack chain than today's typical JS exploit.
