@@ -53,10 +53,10 @@
 		  return null;
 		}
 		// strip null bytes and control characters after normalization
-		var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gi, '');
+		var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gim, '');
 		var enc = ['%00', '%1F', '%0D', '%0A'];
 		enc.forEach(function(code) { 
-		  stripped = stripped.replaceAll(new RegExp(code, 'gi'), '');
+		  stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
 		});
 
 		return stripped;
