@@ -198,6 +198,9 @@
 		
 		try {
 		  await cookiePage.setUserAgent(SPOOFED_UA);
+          await cookiePage.setExtraHTTPHeaders({
+            'Accept-Language': 'en-US,en;q=0.9'
+          });
 		  await cookiePage.setJavaScriptEnabled(false);
 		  await cookiePage.setRequestInterception(true);
 		  cookiePage.on('request', (req) => {
@@ -243,7 +246,8 @@
 
 		// extract links from the DOM before closing the page
 		const links = await page.evaluate(() => {
-		  const anchors = Array.from(document.querySelectorAll('a[href]'));
+		  // const anchors = Array.from(document.querySelectorAll('a[href]'));
+          const anchors = Array.from(document.querySelectorAll('a[href]')).slice(0, 500);
 		  return anchors.map((a) => { 
 			const href = a.href; // already resolved to absolute by the browser
 			const label = (a.innerText || a.getAttribute('aria-label') || a.getAttribute('title') || '').trim();
