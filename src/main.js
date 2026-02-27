@@ -246,7 +246,6 @@
 
 		// extract links from the DOM before closing the page
 		const links = await page.evaluate(() => {
-		  // const anchors = Array.from(document.querySelectorAll('a[href]'));
           const anchors = Array.from(document.querySelectorAll('a[href]')).slice(0, 500);
 		  return anchors.map((a) => { 
 			const href = a.href; // already resolved to absolute by the browser
