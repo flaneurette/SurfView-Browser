@@ -148,7 +148,7 @@
 		// block resource types we do not need for a screenshot
 		await page.setRequestInterception(true);
 	
-        // Make it default us.
+        // Explicitly set language.
         await page.setExtraHTTPHeaders({
             'Accept-Language': 'en-US,en;q=0.9'
         });
