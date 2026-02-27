@@ -93,17 +93,15 @@ That's a four step chain. In practice, that's extremely unlikely.
 
 These checks should not reveal anything, except default user-agent.
 
-coveryourtracks.eff.org - by EFF, shows how unique your fingerprint is
+https://coveryourtracks.eff.org - by EFF, shows how unique your fingerprint is
 
-browserleaks.com - very detailed, covers WebGL, canvas, fonts, WebRTC leaks
+https://browserleaks.com - very detailed, covers WebGL, canvas, fonts, WebRTC leaks
 
-fingerprintjs.com/demo - by the fingerprint.js library authors
+https://fingerprintjs.com/demo - by the fingerprint.js library authors
 
-amiunique.org/fingerprint - academic project, shows how unique you are among their dataset
+https://amiunique.org/fingerprint - academic project, shows how unique you are among their dataset
 
-deviceinfo.me - broad device/browser info dump
-
-ip.guide - simpler, good for IP + basic browser info
+https://deviceinfo.me - broad device/browser info dump
 
 
 ## Motivation
