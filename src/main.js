@@ -123,17 +123,16 @@
 		  headless: 'new',
 		  args: [
 			'--disable-dev-shm-usage',
-			'--disable-gpu',
             '--lang=en-US',
-			// no persistent state
 			'--incognito',
 			'--disk-cache-size=0',
 			'--media-cache-size=0',
-			// note: --no-sandbox and --disable-setuid-sandbox are intentionally
-			// omitted to keep Chromium's process sandbox fully active.
+            '--disable-webrtc',
+            '--disable-features=WebRtcHideLocalIpsWithMdns',
+            '--disable-software-rasterizer',
+            '--window-size=1920,1080',
 		  ],
 		});
-
 		const page = await browser.newPage();
 
 		// viewport width matches a standard desktop render
