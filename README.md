@@ -67,10 +67,11 @@ Which is nearly indistinguishable from a regular Chromium, or Google Chrome inst
 
 The user-agent can be changed in `main.js`, then rebuild.
 
+- SurfView does show `JA3`, just like any Chrome instance.
+
+This is not really a problem, as it's shared amongst countless other chrome users.
 
 ## Limitations
-
-- SurfView does show `JA3`, just like any Chrome instance.
 
 Where the real risk still is:
 
