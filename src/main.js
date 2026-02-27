@@ -133,6 +133,7 @@
             '--window-size=1920,1080',
 		  ],
 		});
+        
 		const page = await browser.newPage();
 
 		// viewport width matches a standard desktop render
