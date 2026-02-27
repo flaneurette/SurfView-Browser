@@ -70,6 +70,8 @@ The user-agent can be changed in `main.js`, then rebuild.
 
 ## Limitations
 
+- SurfView does show `JA3`, just like any Chrome instance.
+
 Where the real risk still is:
 
 The Chromium parser itself. Even with JS disabled, Chromium still has to parse HTML, CSS, and render images. Every one of those parsers has had CVEs. 
