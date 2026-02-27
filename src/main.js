@@ -148,11 +148,11 @@
 		// block resource types we do not need for a screenshot
 		await page.setRequestInterception(true);
 	
+        // Make it default us.
         await page.setExtraHTTPHeaders({
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8'
+            'Accept-Language': 'en-US,en;q=0.9'
         });
-
+	
 		// Try hiding consent css, as it messes up the screenshot.
 		await page.addStyleTag({
 		  content: `
