@@ -137,7 +137,7 @@
 		const page = await browser.newPage();
 
 		// viewport width matches a standard desktop render
-		await page.setViewport({ width: 1280, height: 900, deviceScaleFactor: 2 });
+		await page.setViewport({ width: 1920, height: 1080, deviceScaleFactor: 2 });
 
 		// use the shared spoofed UA - same string used by the live webview session
 		await page.setUserAgent(SPOOFED_UA);
