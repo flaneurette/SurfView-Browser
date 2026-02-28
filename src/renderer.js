@@ -18,6 +18,7 @@
     // elements
     var urlInput = document.getElementById('urlInput');
     var btnRender = document.getElementById('btnRender');
+    var btnBookmark = document.getElementById('btnBookmark');
     var btnBack = document.getElementById('btnBack');
     var btnFwd = document.getElementById('btnFwd');
     var btnReload = document.getElementById('btnReload');
@@ -49,7 +50,12 @@
 		urlInput.focus();
 		} catch(e) {
 	}
-	
+
+    // bookmarking
+    btnBookmark.addEventListener('click', function() {
+        bookmarkUrl(urlInput.value);
+    });
+    
     // url bar events
     urlInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') loadUrl(urlInput.value);
@@ -182,6 +188,105 @@
         }
     });
 
+    // bookmarking urls
+
+    function shortUrl(url) {
+        return url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0]; // domain only
+    }
+   
+    function bookmarkUrl(raw) {
+        
+        if(!raw) return;
+        
+        if(raw.length >=512) {
+            alert("URL length exceeds maximum length of 512 characters. Cannot add bookmark.")
+            return;
+        }
+        
+        if(raw.length <= 2) {
+            alert("URL length is too short. Cannot add bookmark.")
+            return;
+        }
+        
+        var url = sanitizeUrl(raw);
+        url = url.replace(/\/$/, '');
+        url = url.replace('https://','');
+        
+        const dom = document.getElementById('bookmarks-ul');
+        const pipe = document.createElement('li');
+
+        pipe.appendChild(document.createTextNode('/'));
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#';
+        a.onclick = function(e) { e.preventDefault(); loadUrl(url); };
+        a.oncontextmenu = function(e) { 
+            e.preventDefault();
+            removeBookmark(url);
+            e.stopPropagation();
+            window.focus();
+            document.body.focus();
+        };
+        a.appendChild(document.createTextNode(shortUrl(url)));
+        li.appendChild(a);
+        dom.appendChild(pipe);
+        dom.appendChild(li);
+        
+        // write to bookmarks file.
+        var store = jsoncmd(url);
+        
+        return;
+    }
+    
+    function jsoncmd(uri) {
+        window.surfview.saveBookmark(uri)
+    }
+    
+    function loadBookmarks() {
+        window.surfview.readBookmarks().then(function(urls) {
+            const dom = document.getElementById('bookmarks-ul');
+            dom.innerHTML = ''; // clears all existing li's before redraw
+            urls.forEach(function(url) {
+                const pipe = document.createElement('li');
+                pipe.appendChild(document.createTextNode('/'));
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#';
+                a.onclick = function(e) { e.preventDefault(); loadUrl(url); };
+                a.oncontextmenu = function(e) { 
+                    e.preventDefault();
+                    removeBookmark(url);
+                    e.stopPropagation();
+                    window.focus();
+                    document.body.focus(); 
+                };
+                a.appendChild(document.createTextNode(shortUrl(url)));
+                li.appendChild(a);
+                dom.appendChild(pipe);
+                dom.appendChild(li);
+            });
+        });
+    }
+
+    // call it when the page loads
+    loadBookmarks();
+    
+    function removeBookmark(url) {
+        var box = document.getElementById('confirmBox');
+        document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
+        box.style.display = 'block';
+
+        document.getElementById('confirmYes').onclick = function() {
+            box.style.display = 'none';
+            window.surfview.removeBookmark(url).then(function(ok) {
+                if (ok) loadBookmarks();
+            });
+        };
+        document.getElementById('confirmNo').onclick = function() {
+            box.style.display = 'none';
+        };
+    }
+ 
     // main load function
     function loadUrl(raw, isNavigation) {
 		
@@ -385,8 +490,12 @@
 		
         var url = String(raw).trim();
 
+        // pre-strip
+        url = url.replaceAll(/[\x00-\x20\x7F]/gim, '');
+        url = url.replaceAll(/[(){}\[\]`]/g, '');
+        
         // block dangerous schemes entirely
-        var blocked = /^(javascript|data|vbscript|file|about|mailto|settings|chrome|blob):/i;
+        var blocked = /^(javascript|data|vbscript|file|about|mailto|settings|chrome|blob|xlink|navigation|navigator|window):/gi;
         if (blocked.test(url)) return null;
 
         // ensure http or https scheme

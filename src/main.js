@@ -7,6 +7,47 @@
 	const path = require('path');
 	const puppeteer = require('puppeteer');
 
+    const fs = require('fs');
+
+    ipcMain.handle('read-bookmarks', async (_event) => {
+        const filePath = path.join(__dirname, 'data/bookmarks.json');
+        try {
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            if (!Array.isArray(data.url)) return [];
+            return data.url.slice(0, 50); // cap at 50
+        } catch(e) {
+            return []; // corrupted/missing file, return empty
+        }
+    });
+
+    ipcMain.handle('save-bookmark', async (_event, url) => {
+        const filePath = path.join(__dirname, 'data/bookmarks.json');
+        try {
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            if (!Array.isArray(data.url)) data.url = [];
+            if (data.url.length >= 50) return false; // cap
+            if (data.url.includes(url)) return false; // no duplicates
+            data.url.push(url);
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+            return true;
+        } catch(e) {
+            return false;
+        }
+    });
+
+    ipcMain.handle('remove-bookmark', async (_event, url) => {
+        const filePath = path.join(__dirname, 'data/bookmarks.json');
+        try {
+            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            if (!Array.isArray(data.url)) return false;
+            data.url = data.url.filter(u => u !== url);
+            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+            return true;
+        } catch(e) {
+            return false;
+        }
+    });
+   
 	// spoofed user agent 
 	// process.versions.chrome is set by Electron and reflects the actual
 	// bundled Chromium version. We build the UA once here and reuse it in
@@ -34,9 +75,13 @@
 	function sanitizeUrl(raw) {
 		
 	  let url = String(raw).trim();
-
+      
+      // pre-strip
+      url = url.replaceAll(/[\x00-\x20\x7F]/gim, '');
+      url = url.replaceAll(/[(){}\[\]`]/g, '');
+      
 	  // block dangerous schemes entirely
-	  if (/^(javascript|data|vbscript|file|about|chrome|settings|mailto|blob):/i.test(url)) {
+	  if (/^(javascript|data|vbscript|file|about|chrome|settings|mailto|blob|xlink|navigation|navigator|window):/i.test(url)) {
 		return null;
 	  }
 
