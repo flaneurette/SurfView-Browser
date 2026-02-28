@@ -29,7 +29,7 @@ What it genuinely protects against
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.2-0 SurfView - Duck Dive
+#### v1.2-0 SurfView - Shaka
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-9/SurfView.Setup.1.2.9.exe)
 
