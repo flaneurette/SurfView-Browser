@@ -1,4 +1,4 @@
-	// src/main.js
+// src/main.js
 	// Electron main process.
 	// All network access and rendering happens here.
 	// The renderer process only ever receives pixels and structured data.
@@ -9,10 +9,26 @@
 
     const fs = require('fs');
 
+    // Returns the path to bookmarks.json in the user's writable AppData folder.
+    // On first launch, copies the default file from src/data/ if it exists,
+    // otherwise creates an empty one. This ensures bookmarks persist across
+    // app restarts and survive reinstalls.
+    function getBookmarksPath() {
+        const userPath = path.join(app.getPath('userData'), 'bookmarks.json');
+        if (!fs.existsSync(userPath)) {
+            const defaultPath = path.join(__dirname, 'data/bookmarks.json');
+            if (fs.existsSync(defaultPath)) {
+                fs.copyFileSync(defaultPath, userPath);
+            } else {
+                fs.writeFileSync(userPath, JSON.stringify({ url: [] }, null, 2));
+            }
+        }
+        return userPath;
+    }
+
     ipcMain.handle('read-bookmarks', async (_event) => {
-        const filePath = path.join(__dirname, 'data/bookmarks.json');
         try {
-            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
             if (!Array.isArray(data.url)) return [];
             return data.url.slice(0, 50); // cap at 50
         } catch(e) {
@@ -21,14 +37,13 @@
     });
 
     ipcMain.handle('save-bookmark', async (_event, url) => {
-        const filePath = path.join(__dirname, 'data/bookmarks.json');
         try {
-            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
             if (!Array.isArray(data.url)) data.url = [];
             if (data.url.length >= 50) return false; // cap
             if (data.url.includes(url)) return false; // no duplicates
             data.url.push(url);
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
             return true;
         } catch(e) {
             return false;
@@ -36,12 +51,11 @@
     });
 
     ipcMain.handle('remove-bookmark', async (_event, url) => {
-        const filePath = path.join(__dirname, 'data/bookmarks.json');
         try {
-            const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+            const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
             if (!Array.isArray(data.url)) return false;
             data.url = data.url.filter(u => u !== url);
-            fs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
             return true;
         } catch(e) {
             return false;

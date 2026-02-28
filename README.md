@@ -29,11 +29,11 @@ What it genuinely protects against
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.2-0 SurfView - Shaka
+#### v1.3-0 SurfView - Shaka
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-9/SurfView.Setup.1.2.9.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.3-0/SurfView.Setup.1.3.0.exe)
 
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.2-9/SurfView-1.2.9-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.3-0/SurfView-1.3.0-win.zip)
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
