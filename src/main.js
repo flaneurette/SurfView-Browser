@@ -190,6 +190,18 @@
             '--disable-features=WebRtcHideLocalIpsWithMdns',
             '--disable-software-rasterizer',
             '--window-size=1920,1080',
+            // Prevent phoning home
+            '--disable-background-networking',
+            '--disable-sync',
+            '--disable-client-side-phishing-detection',
+            '--disable-component-update',
+            '--disable-default-apps',
+            '--disable-extensions',
+            '--metrics-recording-only',
+            '--no-first-run',
+            '--safebrowsing-disable-auto-update',
+            '--password-store=basic',
+            '--use-mock-keychain',
 		  ],
 		});
         
