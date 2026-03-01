@@ -31,6 +31,7 @@ netsh advfirewall firewall add rule name="Block Google AS15169 2" dir=out action
 netsh advfirewall firewall add rule name="Block Google AS15169 3" dir=out action=block remoteip=173.194.0.0/16
 netsh advfirewall firewall add rule name="Block Google AS15169 4" dir=out action=block remoteip=216.58.192.0/19
 netsh advfirewall firewall add rule name="Block Google AS15169 5" dir=out action=block remoteip=216.239.32.0/19
+netsh advfirewall firewall add rule name="Block Google IPv6 Telemetry" dir=out action=block remoteip=2a00:1450::/32
 ```
 
 Or alternative hosts file for finegrained control, if you can't live without Google search or their `eco-system`:
