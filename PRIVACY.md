@@ -38,7 +38,7 @@ Or alternative hosts file for finegrained control, if you can't live without Goo
 
 ```
 # Block Chrome phoning home
-# ::1 update.googleapis.com
+::1 update.googleapis.com
 ::1 clients1.google.com
 ::1 safebrowsing.googleapis.com
 0.0.0.0 update.googleapis.com
@@ -59,3 +59,5 @@ Or alternative hosts file for finegrained control, if you can't live without Goo
 0.0.0.0 optimizationguide-pa.googleapis.com
 0.0.0.0 content-autofill.googleapis.com
 ```
+
+And monitor it for changes with `tcpview` or `wireshark`.
