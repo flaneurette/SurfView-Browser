@@ -96,9 +96,9 @@ That's a four step chain. In practice, that's extremely unlikely.
 
 SurfView does NOT send telemetry. You can check in the source. Or use: `tcpview` from sysinternals to confirm.
 
-However, as with **all** Chromium based browsers, Google phones home. We set flags to prevent this, but it might not suffice. You might need a dedicated firewall entires or a `hosts` file for this.
+However, as with **all** Chromium based browsers, Google phones home. We set flags to prevent this, but it might not suffice. You might need a dedicated firewall entries or a `hosts` file for this.
 
-Block puppeteer `chrome.exe` from doing telemetry in Windows Firewall:
+Block puppeteer `chrome.exe` from doing telemetry in Windows Firewall. (Requires locating AppData folder):
 
 ```
 netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.250" dir=out action=block remoteip=142.250.0.0/16 program="C:\Users\<USERNAME>\.cache\puppeteer\chrome\win64-<NUMERIC.ID>\chrome-win64\chrome.exe"
