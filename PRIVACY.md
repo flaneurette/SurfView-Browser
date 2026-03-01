@@ -32,7 +32,7 @@ netsh advfirewall firewall add rule name="Block Google AS15169 4" dir=out action
 netsh advfirewall firewall add rule name="Block Google AS15169 5" dir=out action=block remoteip=216.239.32.0/19
 ```
 
-Or alternative hosts file:
+Or alternative hosts file for finegrained control, if you can't live without Google search or their `eco-system`:
 
 ```
 # Block Chrome phoning home
