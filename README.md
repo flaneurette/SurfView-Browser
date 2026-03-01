@@ -100,8 +100,6 @@ However, as with **all** Chromium based browsers, Google phones home. We set fla
 
 Block puppeteer `chrome.exe` from doing telemetry in Windows Firewall:
 
-> NOTE: also blocks Google.com. No disrespect, but it's better to move away from Google and start using a safer seach engine. Like: Ecosia, or something else.
-
 ```
 netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.250" dir=out action=block remoteip=142.250.0.0/16 program="C:\Users\<USERNAME>\.cache\puppeteer\chrome\win64-<NUMERIC.ID>\chrome-win64\chrome.exe"
 netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.251" dir=out action=block remoteip=142.251.0.0/16 program="C:\Users\<USERNAME>\.cache\puppeteer\chrome\win64-<NUMERIC.ID>\chrome-win64\chrome.exe"
@@ -109,12 +107,16 @@ netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.251" dir=ou
 
 Or globally, which is recomended:
 
+> NOTE: also blocks Google.xxx. No disrespect, but it's better to move away from Google and start using a safer seach engine. Like: Ecosia, or something else.
+
 ```
 netsh advfirewall firewall add rule name="Block Google 142.250" dir=out action=block remoteip=142.250.0.0/16
 netsh advfirewall firewall add rule name="Block Google 142.251" dir=out action=block remoteip=142.251.0.0/16
 ```
 
 Or block entire AS:
+
+> NOTE: also blocks Google.xxx. No disrespect, but it's better to move away from Google and start using a safer seach engine. Like: Ecosia, or something else.
 
 ```
 netsh advfirewall firewall add rule name="Block Google AS15169 1" dir=out action=block remoteip=142.250.0.0/15
