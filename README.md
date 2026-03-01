@@ -92,6 +92,59 @@ A successful attack would need to:
 
 That's a four step chain. In practice, that's extremely unlikely.
 
+## Telemetry
+
+SurfView does NOT send telemetry. You can check in the source. Or use: `tcpview` from sysinternals to confirm.
+
+However, as with **all** Chromium based browsers, Google phones home. We set flags to prevent this, but it might not suffice. You might need a dedicated firewall entires or a `hosts` file for this.
+
+Block puppeteer `chrome.exe` from doing telemetry in Windows Firewall:
+
+```
+netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.250" dir=out action=block remoteip=142.250.0.0/16 program="C:\Users\<USERNAME>\.cache\puppeteer\chrome\win64-<NUMERIC.ID>\chrome-win64\chrome.exe"
+netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.251" dir=out action=block remoteip=142.251.0.0/16 program="C:\Users\<USERNAME>\.cache\puppeteer\chrome\win64-<NUMERIC.ID>\chrome-win64\chrome.exe"
+```
+
+Or globally, which is recomended:
+
+```
+netsh advfirewall firewall add rule name="Block Google 142.250" dir=out action=block remoteip=142.250.0.0/16
+netsh advfirewall firewall add rule name="Block Google 142.251" dir=out action=block remoteip=142.251.0.0/16
+```
+
+Or block entire AS:
+
+```
+netsh advfirewall firewall add rule name="Block Google AS15169 1" dir=out action=block remoteip=142.250.0.0/15
+netsh advfirewall firewall add rule name="Block Google AS15169 2" dir=out action=block remoteip=172.217.0.0/16
+netsh advfirewall firewall add rule name="Block Google AS15169 3" dir=out action=block remoteip=173.194.0.0/16
+netsh advfirewall firewall add rule name="Block Google AS15169 4" dir=out action=block remoteip=216.58.192.0/19
+netsh advfirewall firewall add rule name="Block Google AS15169 5" dir=out action=block remoteip=216.239.32.0/19
+```
+
+Or alternative hosts file:
+
+```
+# Block Chrome phoning home
+0.0.0.0 update.googleapis.com
+0.0.0.0 clients1.google.com
+0.0.0.0 clients2.google.com
+0.0.0.0 clients3.google.com
+0.0.0.0 clients4.google.com
+0.0.0.0 safebrowsing.googleapis.com
+0.0.0.0 safebrowsing.google.com
+0.0.0.0 ssl.gstatic.com
+0.0.0.0 ocsp.pki.goog
+0.0.0.0 pki.goog
+0.0.0.0 crl.pki.goog
+0.0.0.0 chrome.google.com
+0.0.0.0 tools.google.com
+# handles updates, better comment it.
+# 0.0.0.0 dl.google.com
+0.0.0.0 optimizationguide-pa.googleapis.com
+0.0.0.0 content-autofill.googleapis.com
+```
+
 ## Checks
 
 These checks should not reveal anything, except default user-agent.
