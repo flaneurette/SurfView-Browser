@@ -116,7 +116,7 @@ model. SurfView takes a different approach: remove execution in the `viewport` e
 
 ## Credits
 
-Created with [Claude AI](https://claude.ai)
+Created by Flaneurette, together with [Claude AI](https://claude.ai) for baseline, code review, analysis, refactoring and second-opinion.
 
 Built on [Node.js](https://nodejs.org) / [npm](https://npmjs.com) /
 [Electron](https://electronjs.org) / [Puppeteer](https://pptr.dev)
