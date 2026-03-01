@@ -18,6 +18,7 @@ Or globally, which is recomended:
 ```
 netsh advfirewall firewall add rule name="Block Google 142.250" dir=out action=block remoteip=142.250.0.0/16
 netsh advfirewall firewall add rule name="Block Google 142.251" dir=out action=block remoteip=142.251.0.0/16
+netsh advfirewall firewall add rule name="Block Google IPv6 Telemetry" dir=out action=block remoteip=2a00:1450::/32
 ```
 
 Or block entire AS:
@@ -36,6 +37,9 @@ Or alternative hosts file for finegrained control, if you can't live without Goo
 
 ```
 # Block Chrome phoning home
+# ::1 update.googleapis.com
+::1 clients1.google.com
+::1 safebrowsing.googleapis.com
 0.0.0.0 update.googleapis.com
 0.0.0.0 clients1.google.com
 0.0.0.0 clients2.google.com
