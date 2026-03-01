@@ -13,7 +13,7 @@ netsh advfirewall firewall add rule name="Block Chrome Telemetry 142.251" dir=ou
 
 Or globally, which is recomended:
 
-> NOTE: also blocks Google.xxx. No disrespect, but it's better to move away from Google and start using a safer search engine. Like: Ecosia, or Brave, DuckDuckGo
+> NOTE: also blocks Google.xxx. No disrespect, but it's better to move away from Google and start using a safer search engine if you are worried about privacy. Like: Ecosia, or Brave, DuckDuckGo
 
 ```
 netsh advfirewall firewall add rule name="Block Google 142.250" dir=out action=block remoteip=142.250.0.0/16
@@ -23,7 +23,7 @@ netsh advfirewall firewall add rule name="Block Google IPv6 Telemetry" dir=out a
 
 Or block entire AS:
 
-> NOTE: also blocks Google.xxx. No disrespect, but it's better to move away from Google and start using a safer search engine. Like: Ecosia, or Brave, DuckDuckGo
+> NOTE: also blocks Google.xxx. No disrespect, but it's better to move away from Google and start using a safer search engine if you are worried about privacy. Like: Ecosia, or Brave, DuckDuckGo
 
 ```
 netsh advfirewall firewall add rule name="Block Google AS15169 1" dir=out action=block remoteip=142.250.0.0/15
