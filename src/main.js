@@ -176,7 +176,7 @@
 	  }
 
 	  let browser = null;
-
+    
 	  try {
 		browser = await puppeteer.launch({
 		  headless: 'new',
@@ -191,6 +191,7 @@
             '--disable-software-rasterizer',
             '--window-size=1920,1080',
             // Prevent phoning home
+            // FIX: have to check them by hand, as some sites break...
             '--disable-background-networking',
             '--disable-sync',
             '--disable-client-side-phishing-detection',
@@ -284,7 +285,7 @@
 		  try {
 			await cookiePage.goto(url, {
 			  waitUntil: 'domcontentloaded',
-			  timeout: 5000,
+			  timeout: 15000,
 			});
 		  } catch (_) {
 			// ignore navigation errors, we just want whatever cookies were set
