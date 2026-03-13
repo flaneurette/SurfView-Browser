@@ -3,7 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta http-equiv="Content-Security-Policy"
-  content="default-src 'none'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src data: blob:; script-src 'self';">
+  content="
+    default-src 'none';
+    style-src 'self' 'unsafe-inline';
+    font-src 'self';
+    img-src 'self' data: blob:;
+    script-src 'self';
+    base-uri 'none';
+    form-action 'none';
+  ">
+
 <title>SurfView</title>
 <link rel="stylesheet" href="css/style.css">
 </head>
@@ -11,6 +20,7 @@
 <div class="shell">
 
   <!-- TITLEBAR -->
+  
   <div class="titlebar">
     <div class="titlebar-logo">SURF<span>VIEW</span></div>
     <div class="shield-badge" id="shieldBadge">
@@ -22,8 +32,20 @@
         </ul>
     </div>
     <div class="spacer"></div>
+    
+    <!-- TOR SWITCH -->
+    <div id="mode-toggle" class="TorButton">
+      <label class="toggle-switch">
+        <input type="checkbox" id="torSwitch">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+      </label>
+      <span id="torLabel">tor off.</span>
+    </div>
+    
+    <!-- MODE SWITCH -->
     <div class="mode-toggle">
-      <span id="modeLabel">image mode</span>
+      <span id="modeLabel">Image mode</span>
       <label class="toggle-switch">
         <input type="checkbox" checked id="imageModeToggle">
         <div class="toggle-track"></div>
@@ -72,6 +94,16 @@
           </div>
         </div>
 
+        <div class="loading-state-live" id="loadingStateLive">
+          <div class="loader-ring"></div>
+          <div class="loading-steps-live">
+            <div class="loading-step-live" id="live-step1">fetch url</div>
+            <div class="loading-step-live" id="live-step2">spawn renderer</div>
+            <div class="loading-step-live" id="live-step3">extract links</div>
+            <div class="loading-step-live" id="live-step4">close renderer</div>
+          </div>
+        </div>
+        
         <div class="error-state" id="errorState">
           <span>&#9888; render failed</span>
           <div class="error-msg" id="errorMsg"></div>
@@ -84,10 +116,15 @@
         <div class="live-wrap" id="liveWrap">
           <div class="live-warning" id="liveWarning">
             <span style="color:var(--danger)">&#9888;</span>
-            live mode active - scripts are running - this is a real browser
+            live mode active - this is a real browser. However, scripts are disabled, toggle scripts on for scripting.
             <button class="live-warning-close" id="liveWarningClose">x</button>
           </div>
-          <webview id="liveWebview" src="about:blank" style="width:100%;flex:1;min-height:0;"></webview>
+        <webview
+          id="liveWebview"
+          src="about:blank"
+          partition="temp:webview"
+          style="width: 89%; height: 100%; display: flex; background: #0e0f11;"
+        />
         </div>
 
       </div>
@@ -125,11 +162,22 @@
 
   <!-- STATUS BAR -->
   <div class="statusbar">
-    <div class="status-item status-ok" id="statusSafe">&#10003; scripts blocked</div>
+  
+    <div class="status-item">
+    <label class="toggle-switch">
+        <input type="checkbox" id="statusJS">
+        <div class="toggle-track"></div>
+        <div class="toggle-thumb"></div>
+    </label>
+    <span id="jsStatus">JS OFF</span>
+    </div>
+     
+    <div class="status-item status-ok" id="statusSafe">scripts blocked</div>
     <div class="status-item" id="statusDomain">--</div>
     <div class="status-item" id="statusTitle" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
     <div class="spacer"></div>
     <div class="status-item" id="statusLinks">0 links</div>
+    
     <div class="status-item" id="statusRenderTime"></div>
   </div>
 

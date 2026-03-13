@@ -6,11 +6,13 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('surfview', {
   // ask main to render a URL, returns { ok, imageBase64, links, title, url, renderMs, error }
-  renderUrl: (url) => ipcRenderer.invoke('render-url', url),
-  // bookmark handler
+  renderUrl: (url, viewType) => ipcRenderer.invoke('render-url', url, viewType),
   saveBookmark: (url) => ipcRenderer.invoke('save-bookmark', url),
   readBookmarks: (url) => ipcRenderer.invoke('read-bookmarks', url),
   removeBookmark: (url) => ipcRenderer.invoke('remove-bookmark', url),
-  // open a URL in the user's real system browser
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  toggleTor: (enabled) => ipcRenderer.invoke('toggle-tor', enabled),
+  torStatus: () => ipcRenderer.invoke('tor-status'),
+  setJS: (val) => ipcRenderer.invoke('set-js', val),
+  dialog: (msg) => ipcRenderer.invoke('dialog', msg)
 });

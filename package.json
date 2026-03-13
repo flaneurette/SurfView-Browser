@@ -1,6 +1,6 @@
 {
   "name": "surfview",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "A secure browser that renders pages as static images",
   "main": "src/main.js",
   "scripts": {
@@ -32,6 +32,13 @@
       "node_modules/puppeteer/.local-chromium/**/*",
       "node_modules/puppeteer-core/**/*",
       "node_modules/puppeteer/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "src/tor",
+        "to": "tor",
+        "filter": ["**/*"]
+      }
     ],
     "win": {
       "icon": "assets/ico.ico",

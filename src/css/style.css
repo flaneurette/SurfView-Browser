@@ -59,6 +59,12 @@
        overflow: hidden;
     }
 
+    /* Ensure parent chain has proper height */
+    html, body, .shell, .main {
+      height: 100%;
+      margin: 0;
+    }
+    
     .shell {
        display: flex;
        flex-direction: column;
@@ -73,11 +79,11 @@
         float:left;
         margin-left: 5px;
         font-size:11px;
-        color: lime;
+        color: var(--accent);
     }
 
     li a:link, li a:visited, li a:active {
-        color: lime;
+        color: var(--accent);
         text-decoration:none;
     }
     
@@ -147,7 +153,20 @@
        color: var(--text-mid);
        font-family: var(--mono);
     }
-
+    
+    #torLabel {
+       font-size: 11px;
+       color: var(--text-mid);
+       font-family: var(--mono);   
+    }
+ 
+    .TorButton {
+        display:flex; 
+        align-items:center; 
+        gap:8px; 
+        width:150px;
+    }
+    
     .toggle-switch {
        position: relative;
        width: 32px;
@@ -279,9 +298,12 @@
     /* ---- MAIN ---- */
 
     .main {
-       display: flex;
-       flex: 1;
-       overflow: hidden;
+      flex: 1;
+      overflow: hidden;
+      height: 100%;
+      display: flex;
+      flex-direction: column; /* Stack children vertically */
+      position: relative; /* Needed for absolute-positioned sidebar */
     }
 
     /* ---- VIEWPORT ---- */
@@ -291,11 +313,17 @@
        overflow: auto;
        background: var(--bg);
        position: relative;
+      min-height: 0; /* Fixes flex overflow issues */
+      display: flex;
+      flex-direction: column;    
     }
 
     .viewport-inner {
        min-height: 100%;
        position: relative;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
     }
 
     .empty-state {
@@ -343,10 +371,24 @@
        gap: 14px;
        min-height: 400px;
        color: var(--text-dim);
+       z-index: 40;
+    }
+    
+    .loading-state-live {
+       display: none;
+       flex-direction: column;
+       align-items: center;
+       justify-content: center;
+       gap: 14px;
+       min-height: 400px;
+       color: var(--text-dim);
+       z-index: 40;
     }
 
     .loading-state.active { display: flex; }
 
+    .loading-state-live.active { display: flex; }
+    
     .loader-ring {
        width: 36px;
        height: 36px;
@@ -366,12 +408,26 @@
        font-size: 11px;
     }
 
+    .loading-steps-live {
+       display: flex;
+       flex-direction: column;
+       gap: 4px;
+       font-family: var(--mono);
+       font-size: 11px;
+    }
+    
+    .loading-step-live { color: var(--text-dim); transition: color 0.3s; }
+    .loading-step-live.done { color: var(--accent); }
+    .loading-step-live.done::before { content: '+ '; }
+    .loading-step-live.active-step { color: var(--text-mid); }
+    .loading-step-live.active-step::before { content: '> '; }
+
     .loading-step { color: var(--text-dim); transition: color 0.3s; }
     .loading-step.done { color: var(--accent); }
     .loading-step.done::before { content: '+ '; }
     .loading-step.active-step { color: var(--text-mid); }
     .loading-step.active-step::before { content: '> '; }
-
+    
     .error-state {
        display: none;
        flex-direction: column;
@@ -401,13 +457,15 @@
     /* ---- SIDE PANEL ---- */
  
     .side-panel {
-       width: 280px;
-       flex-shrink: 0;
-       background: var(--panel);
-       border-left: 1px solid var(--border);
-       display: flex;
-       flex-direction: column;
-       overflow: hidden;
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 250px; /* Adjust as needed */
+      z-index: 10;
+      background: var(--bg);
+      border-left: 1px solid var(--border);
+      overflow-y:scroll;
     }
 
     .panel-header {
@@ -585,7 +643,7 @@
     .status-err    { color: var(--danger); }
 
     /* ---- LIVE MODE ---- */
-
+    
     .live-wrap {
        display: none;
        flex-direction: column;
@@ -599,6 +657,9 @@
        display: flex;
     }
 
+    .live-wrap.hide {
+       display: none;
+    }
     .live-warning {
        display: flex;
        align-items: center;
@@ -612,6 +673,10 @@
        flex-shrink: 0;
     }
 
+    #liveWarning {
+        display:none;
+    }
+    
     .live-warning-close {
        margin-left: auto;
        background: none;
@@ -652,4 +717,48 @@
         border-radius:8px; 
         z-index:9999; 
         font-size:12px;
+    }
+    
+    #jsStatus {
+        color: var(--accent);
+
+    }
+
+    /* Live webview container */
+    #liveWrap {
+      flex: 1; /* Takes remaining space */
+      min-height: 0; /* Fixes flex overflow issues */
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Webview styling */
+    webview {
+      flex: 1; /* Fills #liveWrap */
+      width: 89%;
+      min-height: 0; /* Fixes flex overflow issues */
+    }
+
+    /* For WebKit browsers (Chrome, Edge, Electron) */
+    ::-webkit-scrollbar {
+      width: 12px; /* Width of the vertical scrollbar */
+      height: 12px; /* Height of the horizontal scrollbar */
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #2a2a2a; /* Track (background) color */
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #555; /* Thumb (draggable part) color */
+      border-radius: 6px;
+      border: 2px solid #2a2a2a; /* Creates padding around the thumb */
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #777; /* Thumb color on hover */
+    }
+
+    ::-webkit-scrollbar-corner {
+      background: #2a2a2a; /* Corner (where vertical and horizontal meet) */
     }

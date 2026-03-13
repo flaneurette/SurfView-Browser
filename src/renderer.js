@@ -4,7 +4,7 @@
 // Never touches the network directly.
 
 (function() {
-	
+
     'use strict';
 
     // state
@@ -15,6 +15,9 @@
     var loading = false;
     var imageModeEnabled = true;
 
+    // Webview javascript
+    let jsEnabled1 = false; // default: off
+
     // elements
     var urlInput = document.getElementById('urlInput');
     var btnRender = document.getElementById('btnRender');
@@ -24,6 +27,7 @@
     var btnReload = document.getElementById('btnReload');
     var emptyState = document.getElementById('emptyState');
     var loadingState = document.getElementById('loadingState');
+    var loadingStateLive = document.getElementById('loadingStateLive');
     var errorState = document.getElementById('errorState');
     var errorMsg = document.getElementById('errorMsg');
     var pageImageWrap = document.getElementById('pageImageWrap');
@@ -31,6 +35,7 @@
     var liveWrap = document.getElementById('liveWrap');
     var liveWebview = document.getElementById('liveWebview');
     var liveWarningClose = document.getElementById('liveWarningClose');
+    var liveWarning = document.getElementById('liveWarning');
     var linkList = document.getElementById('linkList');
     var linkCount = document.getElementById('linkCount');
     var filterInput = document.getElementById('filterInput');
@@ -44,18 +49,53 @@
     var shieldLabel = document.getElementById('shieldLabel');
     var modeLabel = document.getElementById('modeLabel');
     var imageModeToggle = document.getElementById('imageModeToggle');
+    var torSwitch = document.getElementById('torSwitch');
+    var torLabel = document.getElementById('torLabel');
+    var statusJS = document.getElementById('statusJS');
+    var jsStatus = document.getElementById('jsStatus');
+    var statusSafe = document.getElementById('statusSafe');
+    liveWarning.style.display = 'none';
+    
+    try {
+        // focus urlbar by default
+        urlInput.focus();
+    } catch (e) {}
 
-	try {
-		// focus urlbar by default
-		urlInput.focus();
-		} catch(e) {
-	}
+    let rawUrl = urlInput.value.trim();
+    let uri = sanitizeUrl(rawUrl);
+
+    statusJS.addEventListener('click', () => {
+
+        if(jsEnabled1 == false) {
+            jsEnabled1 = true;
+        } else if(jsEnabled1 == true) {
+            jsEnabled1 = false;
+        }
+        
+        jsStatus.textContent = jsEnabled1 ? 'JS ON' : 'JS OFF';
+        jsStatus.style.color = jsEnabled1 ? 'red' : 'var(--accent)';
+        statusSafe.textContent = jsEnabled1 ? 'javascript enabled on webview.' : 'scripts blocked';
+        statusSafe.style.color = jsEnabled1 ? 'red' : 'var(--accent)';
+
+        if(jsEnabled1 == true) { 
+            window.surfview.setJS(true);
+            liveWarning.style.display = 'none';
+            if (!uri) return;
+            loadUrl(uri, true, "js");
+        } else {
+            window.surfview.setJS(false);
+            liveWarning.style.display = 'none';
+            if (!uri) return;
+            loadUrl(uri, true, "live");
+        }
+        
+    });
 
     // bookmarking
     btnBookmark.addEventListener('click', function() {
-        bookmarkUrl(urlInput.value);
+        bookmarkUrl(urlInput.value.trim());
     });
-    
+
     // url bar events
     urlInput.addEventListener('keydown', function(e) {
         if (e.key === 'Enter') loadUrl(urlInput.value);
@@ -78,13 +118,10 @@
     });
 
     btnReload.addEventListener('click', function() {
+        liveWarning.style.display = 'none';
         var url = sanitizeUrl(urlInput.value.trim());
         if (!url) return;
-        if (imageModeEnabled) {
-            loadUrl(url, true);
-        } else {
-            liveWebview.reload();
-        }
+        loadUrl(url, true);
     });
 
     liveWarningClose.addEventListener('click', function() {
@@ -127,34 +164,68 @@
 
     // image mode toggle
     imageModeToggle.addEventListener('change', function() {
-		
+        
         imageModeEnabled = this.checked;
         var rawUrl = urlInput.value.trim();
 
         if (imageModeEnabled) {
             setShield(true);
             liveWrap.className = 'live-wrap';
-            liveWebview.src = 'about:blank';
             if (rawUrl) {
-                loadUrl(sanitizeUrl(rawUrl), true);
+                loadUrl(sanitizeUrl(rawUrl), true, "image");
             }
         } else {
             setShield(false);
+            liveWrap.className = 'live-wrap';
             pageImageWrap.className = 'page-image-wrap';
             emptyState.style.display = 'none';
-            loadingState.className = 'loading-state';
-            errorState.className = 'error-state';
-            liveWrap.className = 'live-wrap active';
-            document.getElementById('liveWarning').style.display = 'flex';
+            liveWarning.style.display = 'block';
+            liveWrap.style.display = 'block';
             if (rawUrl) {
                 var url = sanitizeUrl(rawUrl);
                 if (!url) return;
-                liveWebview.src = url;
+                loadUrl(url, true, "live");
                 statusDomain.textContent = 'loading...';
                 statusTime.textContent = '';
             }
             setLinks([]);
         }
+    });
+
+    function updateTorLabel(enabled, ready) {
+        if (!enabled) {
+            torLabel.textContent = 'tor: off';
+            torLabel.style.color = '#ff0000';
+        } else if (ready) {
+            torLabel.textContent = 'tor: connected';
+            torLabel.style.color = '#4caf50';
+        } else {
+            torLabel.textContent = 'tor: connecting...';
+            torLabel.style.color = '#ff9800';
+        }
+    }
+
+    // Poll status until ready on startup
+    const torPoll = setInterval(async () => {
+        const status = await window.surfview.torStatus();
+        updateTorLabel(status.enabled, status.ready);
+        if (status.ready || !status.enabled) clearInterval(torPoll);
+    }, 1000);
+
+    torSwitch.addEventListener('change', async () => {
+        const enabled = torSwitch.checked;
+        torSwitch.disabled = true;
+        updateTorLabel(enabled, false);
+
+        const result = await window.surfview.toggleTor(enabled);
+        updateTorLabel(result.torEnabled, result.torEnabled ? result.ok : false);
+
+        // If turning on, poll until connected
+        if (result.torEnabled && result.ok) {
+            updateTorLabel(true, true);
+        }
+
+        torSwitch.disabled = false;
     });
 
     function setShield(safe) {
@@ -165,8 +236,7 @@
             shieldDot.style.boxShadow = '0 0 6px var(--accent)';
             shieldLabel.textContent = 'SAFE MODE';
             modeLabel.textContent = 'image mode';
-            statusSafe.className = 'status-item status-ok'; 
-            statusSafe.textContent = '+ scripts blocked';
+            statusSafe.className = 'status-item status-ok';
         } else {
             shieldBadge.style.borderColor = 'rgba(240,74,106,0.2)';
             shieldBadge.style.color = 'var(--danger)';
@@ -174,8 +244,6 @@
             shieldDot.style.boxShadow = '0 0 6px var(--danger)';
             shieldLabel.textContent = 'LIVE MODE';
             modeLabel.textContent = 'live mode';
-            statusSafe.className = 'status-item status-warn';
-            statusSafe.textContent = '! scripts active';
         }
     }
 
@@ -193,24 +261,44 @@
     function shortUrl(url) {
         return url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0]; // domain only
     }
-   
+
+    function doesBookmarkExists(text) {
+      const ul = document.getElementById('bookmarks-ul');
+      if (!ul) return false; // Safety check if UL doesn't exist
+
+      const items = ul.getElementsByTagName('li');
+      for (let li of items) {
+        // Trim whitespace and compare (case-sensitive)
+        if (li.textContent.trim() === text.trim()) {
+          return true;
+        }
+      }
+      return false;
+    }
+
     function bookmarkUrl(raw) {
-        
-        if(!raw) return;
-        
-        if(raw.length >=512) {
-            alert("URL length exceeds maximum length of 512 characters. Cannot add bookmark.")
+
+        if (!raw) return;
+
+        if (raw.length >= 512) {
+            window.surfview.dialog("URL length exceeds maximum length of 512 characters. Cannot add bookmark.")
             return;
         }
-        
-        if(raw.length <= 2) {
-            alert("URL length is too short. Cannot add bookmark.")
+
+        if (raw.length <= 2) {
+            window.surfview.dialog("URL length is too short. Cannot add bookmark.")
             return;
         }
-        
+
         var url = sanitizeUrl(raw);
         url = url.replace(/\/$/, '');
-        url = url.replace('https://','');
+        url = url.replace('https://', '');
+        url = url.replace('www.', '');
+        
+        if (doesBookmarkExists(url)) {
+            window.surfview.dialog('Bookmark already exists.');
+            return;
+        }
         
         const dom = document.getElementById('bookmarks-ul');
         const pipe = document.createElement('li');
@@ -219,8 +307,11 @@
         const li = document.createElement('li');
         const a = document.createElement('a');
         a.href = '#';
-        a.onclick = function(e) { e.preventDefault(); loadUrl(url); };
-        a.oncontextmenu = function(e) { 
+        a.onclick = function(e) {
+            e.preventDefault();
+            loadUrl(url);
+        };
+        a.oncontextmenu = function(e) {
             e.preventDefault();
             removeBookmark(url);
             e.stopPropagation();
@@ -231,17 +322,17 @@
         li.appendChild(a);
         dom.appendChild(pipe);
         dom.appendChild(li);
-        
+
         // write to bookmarks file.
         var store = jsoncmd(url);
-        
+
         return;
     }
-    
+
     function jsoncmd(uri) {
         window.surfview.saveBookmark(uri)
     }
-    
+
     function loadBookmarks() {
         window.surfview.readBookmarks().then(function(urls) {
             const dom = document.getElementById('bookmarks-ul');
@@ -252,13 +343,16 @@
                 const li = document.createElement('li');
                 const a = document.createElement('a');
                 a.href = '#';
-                a.onclick = function(e) { e.preventDefault(); loadUrl(url); };
-                a.oncontextmenu = function(e) { 
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    loadUrl(url);
+                };
+                a.oncontextmenu = function(e) {
                     e.preventDefault();
                     removeBookmark(url);
                     e.stopPropagation();
                     window.focus();
-                    document.body.focus(); 
+                    document.body.focus();
                 };
                 a.appendChild(document.createTextNode(shortUrl(url)));
                 li.appendChild(a);
@@ -270,7 +364,7 @@
 
     // call it when the page loads
     loadBookmarks();
-    
+
     function removeBookmark(url) {
         var box = document.getElementById('confirmBox');
         document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
@@ -286,53 +380,63 @@
             box.style.display = 'none';
         };
     }
- 
+
     // main load function
-    function loadUrl(raw, isNavigation) {
-		
+    function loadUrl(raw, isNavigation = false, vType = "image") {
+
         var url = sanitizeUrl(raw);
-		
+
+        let loadingState = "";
+        let viewType = "image";
+
+        if (vType) {
+            viewType = vType;
+        }
+
+        if (!imageModeEnabled) {
+            viewType = "live";
+            loadingState = "live";
+        }
+
+        if (vType == "js") {
+            viewType = "js";
+            loadingState = "live";
+        }
+        
         if (!url) {
-            showError('Invalid or unsafe URL.'); 
+            showError('Invalid or unsafe URL.');
             return;
         }
 
-        // strip scheme for display only - history always stores full https:// url
         urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
 
-        // in live mode just point the webview at the url directly
-        if (!imageModeEnabled) {
-            liveWebview.src = url;
-            statusDomain.textContent = 'loading...';
-            if (!isNavigation) {
-                navHistory.splice(navIndex + 1);
-                navHistory.push(url);
-                navIndex = navHistory.length - 1;
-            }
-            updateNavButtons();
-            return;
-        }
-
-        // image mode: go through Puppeteer pipeline in main process
         if (loading) return;
         loading = true;
-        setLoadingUi(true);
+        setLoadingUi(true,loadingState);
 
+        if(loadingState == "live") {
+            var steps = ['live-step1', 'live-step2', 'live-step3', 'live-step4'];
+            var delays = [0, 200, 400, 600];
+            var ls = '-live';
+            } else {
+            var steps = ['step1', 'step2', 'step3', 'step4', 'step5'];
+            var delays = [0, 200, 400, 600, 800];
+            var ls = '';
+        }
+        
         // animate steps visually while waiting for IPC response
-        var steps = ['step1', 'step2', 'step3', 'step4', 'step5'];
-        var delays = [0, 200, 400, 600, 800];
         steps.forEach(function(id, i) {
             setTimeout(function() {
                 if (i > 0) {
                     var prev = document.getElementById(steps[i - 1]);
-                    if (prev) prev.className = 'loading-step done';
+                    if (prev) prev.className = 'loading-step'+ls+' done';
                 }
                 var el = document.getElementById(id);
-                if (el) el.className = 'loading-step active-step';
+                if (el) el.className = 'loading-step'+ls+' active-step';
             }, delays[i]);
         });
-
-        window.surfview.renderUrl(url).then(function(result) {
+        
+        window.surfview.renderUrl(url, viewType).then(function(result) {
             loading = false;
             setLoadingUi(false);
 
@@ -357,34 +461,69 @@
         });
     }
 
-    function setLoadingUi(on) {
+    function setLoadingUi(on,type) {
+       
         btnRender.disabled = on;
         btnReload.disabled = on;
         emptyState.style.display = 'none';
         errorState.className = 'error-state';
         pageImageWrap.className = 'page-image-wrap';
         liveWrap.className = 'live-wrap';
-        loadingState.className = on ? 'loading-state active' : 'loading-state';
 
+        if(type == "live") {
+            
+           loadingStateLive.className = on ? 'loading-state-live active' : 'loading-state-live';
+                if (on) {
+                    ['live-step1', 'live-step2', 'live-step3', 'live-step4'].forEach(function(id) {
+                        var el = document.getElementById(id);
+                        if (el) el.className = 'loading-step-live';
+                    });
+                }
+                
+            } else {
+                
+           loadingState.className = on ? 'loading-state active' : 'loading-state';
+           
+            if (on) {
+                ['step1', 'step2', 'step3', 'step4', 'step5'].forEach(function(id) {
+                    var el = document.getElementById(id);
+                    if (el) el.className = 'loading-step';
+                });
+            }
+        }
+        
         if (on) {
-            ['step1', 'step2', 'step3', 'step4', 'step5'].forEach(function(id) {
-                var el = document.getElementById(id);
-                if (el) el.className = 'loading-step';
-            });
             setLinks([]);
             statusDomain.textContent = 'loading...';
             statusTitle.textContent = '';
-            statusTime.textContent = '';
+            statusTime.textContent = '';    
         }
     }
 
     function showPage(result) {
+
         loadingState.className = 'loading-state';
+        loadingStateLive.className = 'loading-state-live';
         pageImageWrap.className = 'page-image-wrap active';
-        pageImage.src = 'data:image/png;base64,' + result.imageBase64;
+
+        if (result.live) {
+            // show webview, hide image
+            pageImageWrap.className = 'page-image-wrap'; // hide image wrap
+            liveWrap.className = 'live-wrap.active'; // show live wrap
+            liveWebview.src = result.url;
+            // reset image to blank.
+            pageImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+        } else {
+            // show screenshot, hide webview
+            liveWebview.src = 'about:blank';
+            liveWrap.className = 'live-wrap.hide'; // hide live wrap
+            pageImageWrap.className = 'page-image-wrap active'; // show image wrap
+            pageImage.src = 'data:image/png;base64,' + result.imageBase64;
+            pageImage.style.display = 'block';
+        }
 
         setLinks(result.links);
-        
+
         var finalUrl = sanitizeUrl(result.url);
         if (finalUrl) {
             try {
@@ -405,6 +544,10 @@
         errorMsg.textContent = escHtml(msg);
         errorState.className = 'error-state active';
         statusDomain.textContent = 'error';
+        let loadingStateLive = document.getElementById('loadingStateLive');
+        loadingStateLive.style.display = 'none';
+        let loadingState = document.getElementById('loadingState');
+        loadingState.style.display = 'none'; 
     }
 
     function updateNavButtons() {
@@ -413,7 +556,7 @@
     }
 
     // link panel
-    function setLinks(links) { 
+    function setLinks(links) {
         allLinks = links || [];
         linkCount.textContent = allLinks.length;
         statusLinks.textContent = allLinks.length + ' links';
@@ -439,11 +582,11 @@
                 '<span style="font-size:20px;opacity:0.3">&#9135;</span>' +
                 (allLinks.length === 0 ? 'no links yet' : 'no matches') +
                 '</div>';
-            return; 
+            return;
         }
 
         var html = '';
-		
+
         filtered.forEach(function(link) {
             var safeHref = sanitizeUrl(link.href);
             if (!safeHref) return;
@@ -487,15 +630,15 @@
 
     // sanitize a url, returns null if invalid or unsafe
     function sanitizeUrl(raw) {
-		
+
         var url = String(raw).trim();
 
         // pre-strip
         url = url.replaceAll(/[\x00-\x20\x7F]/gim, '');
         url = url.replaceAll(/[(){}\[\]`]/g, '');
-        
+
         // block dangerous schemes entirely
-        var blocked = /^(javascript|data|vbscript|file|about|mailto|settings|chrome|blob|xlink|navigation|navigator|window):/gi;
+        var blocked = /^(javascript|data|vbscript|file|about|mailto|mailbox|settings|chrome|blob|xlink|navigation|navigator|window):/gi;
         if (blocked.test(url)) return null;
 
         // ensure http or https scheme
@@ -509,16 +652,16 @@
             if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
                 return null;
             }
-		// strip null bytes and control characters after normalization
-		var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-		var enc = ['%00', '%1F', '%0D', '%0A'];
-		enc.forEach(function(code) {
-		  stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
-		});
-		return stripped;
+            // strip null bytes and control characters after normalization
+            var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+            var enc = ['%00', '%1F', '%0D', '%0A'];
+            enc.forEach(function(code) {
+                stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
+            });
+            return stripped;
         } catch (e) {
             return null;
-        } 
+        }
     }
 
     function escHtml(s) {
