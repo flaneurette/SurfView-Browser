@@ -23,17 +23,26 @@ What it genuinely protects against
 - Malicious font/media exploits that need a live DOM - gone
 - Cookie theft, session hijacking via scripts - not possible
 
+### Modes
+
+SurfView has 3 security modes:
+
+- 1. Image mode: default. No JavaScript, no code. Sandboxed.
+- 2. Live mode: user toggled. No JavaScript, only HTML. Sandboxed.
+- 3. JS mode: user toggled. HTML + JavaScript. Sandboxed.
+
+
 ## Ways to Surf
 
 New in SurfView v1.4-0:
 
-- Tor onion routing is now available inside SurfView. Just toggle the switch, and your using Tor. It uses the main tor.exe.
-If for some reason you don't trust it, just replace it with your own tor.exe. As simple as that. Download it from torproject -> expert-package.
+- Tor onion routing is now available inside SurfView. Just toggle the switch, and your using Tor. It uses the main `tor.exe`.
+If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
 
 - Javascript is now allowed through a switch. Just toggle it `on/off`, in case you need it. It's turned off by default.
 When enabled it runs in a webview sandbox, which is very restricted by default. 
 
-#### 🏄 Run the installer
+### 🏄 Run the installer
 
 Download your preferred version from the Releases page and install it.
 
@@ -45,7 +54,7 @@ Download your preferred version from the Releases page and install it.
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
-#### 🏄 Build from source
+### 🏄 Build from source
 
 Or roll your own:
 
