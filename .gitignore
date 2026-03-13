@@ -1,4 +1,5 @@
 # dependencies
+src/tor/tor-data
 node_modules/
 dist/
 
