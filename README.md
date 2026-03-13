@@ -27,9 +27,9 @@ What it genuinely protects against
 
 SurfView has 3 security modes:
 
-- 1. Image mode: default. No JavaScript, no code. Sandboxed.
-- 2. Live mode: user toggled. No JavaScript, only HTML. Sandboxed.
-- 3. JS mode: user toggled. HTML + JavaScript. Sandboxed.
+- Image mode: default. No JavaScript, no code. Sandboxed.
+- Live mode: user toggled. No JavaScript, only HTML. Sandboxed.
+- JS mode: user toggled. HTML + JavaScript. Sandboxed.
 
 
 ## Ways to Surf
