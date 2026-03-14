@@ -43,6 +43,8 @@ The app will launch immediately. No additional configuration needed.
 
 ### Windows (produces a .exe NSIS installer)
 
+We use a nightly chrome, which is the lastest from electron.
+
 ```
 npm run build-win
 ```
