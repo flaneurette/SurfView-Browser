@@ -73,9 +73,9 @@
         }
         
         jsStatus.textContent = jsEnabled1 ? 'JS ON' : 'JS OFF';
-        jsStatus.style.color = jsEnabled1 ? 'red' : 'var(--accent)';
+        jsStatus.style.color = jsEnabled1 ? 'var(--danger)' : 'var(--accent)';
         statusSafe.textContent = jsEnabled1 ? 'javascript enabled on webview.' : 'scripts blocked';
-        statusSafe.style.color = jsEnabled1 ? 'red' : 'var(--accent)';
+        statusSafe.style.color = jsEnabled1 ? 'var(--danger)' : 'var(--accent)';
 
         if(jsEnabled1 == true) { 
             window.surfview.setJS(true);
@@ -195,7 +195,7 @@
     function updateTorLabel(enabled, ready) {
         if (!enabled) {
             torLabel.textContent = 'tor: off';
-            torLabel.style.color = '#ff0000';
+            torLabel.style.color = 'var(--danger)';
         } else if (ready) {
             torLabel.textContent = 'tor: connected';
             torLabel.style.color = '#4caf50';
@@ -705,3 +705,4 @@
     });
 
 })();
+

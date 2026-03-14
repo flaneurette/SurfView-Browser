@@ -7,6 +7,12 @@
 - Git
 - [NSIS](https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download?use_mirror=altushost-swe&download) (required for installers)
 
+```
+npm install electron@latest puppeteer@latest --save-dev
+npm list puppeteer
+npm list electron
+```
+
 No need to install Chrome or Chromium separately. The build process
 downloads a bundled Chromium automatically via Puppeteer.
 

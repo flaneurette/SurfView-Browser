@@ -67,7 +67,7 @@
         spellcheck="false">
     </div>
     <button class="btn btn-primary" id="btnRender">render</button>
-    <button class="btn btn-primary" id="btnBookmark">&#128278;</button>
+    <button class="btn btn-primary2" id="btnBookmark" title="Bookmark" alt="Bookmark">&#128278;</button>
   </div>
 
   <!-- MAIN -->
@@ -76,13 +76,11 @@
     <!-- VIEWPORT -->
     <div class="viewport" id="viewport">
       <div class="viewport-inner" id="viewportInner">
-
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">&#9681;</div>
           <div class="empty-title">no page loaded</div>
           <div class="empty-sub">enter a url above. the page will be rendered to a static image. no scripts will execute.</div>
         </div>
-
         <div class="loading-state" id="loadingState">
           <div class="loader-ring"></div>
           <div class="loading-steps">
@@ -123,7 +121,7 @@
           id="liveWebview"
           src="about:blank"
           partition="temp:webview"
-          style="width: 89%; height: 100%; display: flex; background: #0e0f11;"
+          style="width: 99%; height: 100%; display: flex; background: #0e0f11;"
         />
         </div>
 

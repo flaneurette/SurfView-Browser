@@ -33,20 +33,20 @@
     }
 
     :root {
-       --bg:              #0e0f11; 
+       --bg:          #0e0f11; 
        --surface:     #16181c;
-       --panel:        #1c1e24;
-       --border:       #2a2d35;
-       --accent:       #4af0a0;
-       --accent2:     #4aaff0;
-       --danger:       #f04a6a;
-       --warn:           #f0b84a;
-       --text:           #c8cdd8;
+       --panel:       #1c1e24;
+       --border:      #2a2d35;
+       --accent:      #75c974;
+       --accent2:     #75c974;
+       --danger:      #f04a6a;
+       --warn:        #f0b84a;
+       --text:        #c8cdd8;
        --text-dim:    #5a6070;
        --text-mid:    #8890a0;
-       --mono:           'IBM Plex Mono', monospace;
-       --sans:           'IBM Plex Sans', sans-serif;
-       --radius:       4px;
+       --mono:        'IBM Plex Mono', monospace;
+       --sans:        'IBM Plex Sans', sans-serif;
+       --radius:      4px;
     }
 
     html, body {
@@ -230,7 +230,7 @@
     }
 
     .urlbar-input-wrap:focus-within {
-       border-color: var(--accent);
+       background-color: #000;
        box-shadow: 0 0 0 2px rgba(74, 240, 160, 0.08);
     }
 
@@ -288,6 +288,18 @@
        color: var(--accent);
     }
 
+    .btn-primary2 {
+       background: var(--bg);
+       border-color: var(--border);
+       color: var(--accent);
+    }
+ 
+    .btn-primary2:hover {
+       background: var(--bg);
+       border-color: var(--border);
+       color: var(--accent);
+    }
+    
     .btn-primary:hover {
        background: rgba(74, 240, 160, 0.18);
        border-color: var(--accent);
@@ -315,7 +327,8 @@
        position: relative;
       min-height: 0; /* Fixes flex overflow issues */
       display: flex;
-      flex-direction: column;    
+      flex-direction: column; 
+       width: 89%;      
     }
 
     .viewport-inner {
@@ -643,7 +656,7 @@
     .status-err    { color: var(--danger); }
 
     /* ---- LIVE MODE ---- */
-    
+  
     .live-wrap {
        display: none;
        flex-direction: column;
@@ -709,7 +722,7 @@
         position:fixed; 
         top:85px; 
         left:250px; 
-        color:red;
+        color:var(--danger);
         transform:translateX(-50%); 
         background:#1a1b1e; 
         border:1px solid #333; 
@@ -730,12 +743,13 @@
       min-height: 0; /* Fixes flex overflow issues */
       display: flex;
       flex-direction: column;
+      display:none;
     }
 
     /* Webview styling */
     webview {
       flex: 1; /* Fills #liveWrap */
-      width: 89%;
+      width: 99%;
       min-height: 0; /* Fixes flex overflow issues */
     }
 
@@ -762,3 +776,4 @@
     ::-webkit-scrollbar-corner {
       background: #2a2a2a; /* Corner (where vertical and horizontal meet) */
     }
+    
