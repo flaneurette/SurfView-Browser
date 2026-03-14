@@ -4,14 +4,9 @@
 
 - [Node.js](https://nodejs.org) version 18 or higher
 - [npm](https://npmjs.com) (comes with Node.js)
-- Git
+- Git (Git bash)
 - [NSIS](https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download?use_mirror=altushost-swe&download) (required for installers)
-
-```
-npm install electron@latest puppeteer@latest --save-dev
-npm list puppeteer
-npm list electron
-```
+- Windows CMD console.
 
 No need to install Chrome or Chromium separately. The build process
 downloads a bundled Chromium automatically via Puppeteer.
@@ -26,8 +21,11 @@ cd SurfView-Browser
 ## Install dependencies
 
 ```
-npm install
+npm install electron@latest puppeteer@latest --save-dev
+npm list puppeteer
+npm list electron
 ```
+
 
 This will take a few minutes on first run as it downloads Electron and
 a bundled Chromium binary (~300MB total).
