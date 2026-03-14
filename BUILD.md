@@ -27,7 +27,7 @@ npm list puppeteer
 npm list electron
 ```
 
-We use a nightly chrome, which is the lastest from electron:
+We use a nightly electron Chrome, which is the lastest from electron:
 
 ```
 Go to https://github.com/electron/electron/releases
