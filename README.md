@@ -38,7 +38,7 @@ SurfView has 3 security modes:
 
 New in SurfView v1.4-0:
 
-- Tor onion routing is now available inside SurfView. Just toggle the switch, and your using Tor. It uses the main `tor.exe`.
+- Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
 If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
 
 - Javascript is now allowed through a switch. Just toggle it `on/off`, in case you need it. It's turned off by default.
