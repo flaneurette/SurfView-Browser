@@ -27,6 +27,12 @@ npm list puppeteer
 npm list electron
 ```
 
+We use a nightly chrome, which is the lastest from electron:
+
+```
+npm install electron-nightly@42.0.0-nightly.20260313 --save-dev
+node node_modules/electron-nightly/install.js
+```
 
 This will take a few minutes on first run as it downloads Electron and
 a bundled Chromium binary (~300MB total).
@@ -42,8 +48,6 @@ The app will launch immediately. No additional configuration needed.
 ## Build an installer
 
 ### Windows (produces a .exe NSIS installer)
-
-We use a nightly chrome, which is the lastest from electron.
 
 ```
 npm run build-win
