@@ -48,6 +48,8 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.4-0 SurfView - Kook!
 
+`Runs latest stable Chrome 146.0.7680.80`
+
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.4-0/SurfView.Setup.1.4.0.exe)
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.4-0/SurfView-1.4.0-win.zip)
