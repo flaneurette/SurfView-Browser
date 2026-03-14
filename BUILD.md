@@ -6,7 +6,7 @@
 - [npm](https://npmjs.com) (comes with Node.js)
 - Git (Git bash)
 - [Tor Expert Bundle](https://torproject.org/download/tor/)
-- [NSIS](https://sourceforge.net/projects/nsis/files/NSIS%203/3.11/nsis-3.11-setup.exe/download?use_mirror=altushost-swe&download) (required for installers)
+- [NSIS](https://sourceforge.net/projects/nsis/) (required for installers)
 - Windows CMD console.
 
 No need to install Chrome or Chromium separately. The build process
