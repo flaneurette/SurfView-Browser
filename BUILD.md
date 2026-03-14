@@ -30,6 +30,11 @@ npm list electron
 We use a nightly chrome, which is the lastest from electron:
 
 ```
+Go to https://github.com/electron/electron/releases
+Filter by "nightly"
+```
+Then:
+```
 npm install electron-nightly@42.0.0-nightly.20260313 --save-dev
 node node_modules/electron-nightly/install.js
 ```
