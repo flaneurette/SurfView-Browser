@@ -427,7 +427,6 @@ function initJsBlocking() {
 
 function initCSP() {
     const wvSession = getWebviewSession();
-
     wvSession.webRequest.onHeadersReceived(
         { urls: ['*://*/*'] },
         (details, callback) => {
@@ -478,50 +477,19 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
     let browser = null;
 
     const defaultArgs = [
-
-        '--disable-webrtc', // Blocks IP leaks (MANDATORY for Tor)
-        '--disable-features=WebRtcHideLocalIpsWithMdns', // Extra WebRTC protection
-        '--disable-features=WebRtcAllowInputVolumeAdjustment', // Extra hardening
-        '--disable-webgl', // Prevents GPU fingerprinting
-        '--disable-geolocation',
-        '--disable-voice-input',
-        '--disable-notifications',
-        '--disable-infobars',
-        '--disable-breakpad', // Disables crash reporting
+        '--incognito', // Avoids local storage
+        '--disable-features=WebRtcHideLocalIpsWithMdns,WebRtcAllowInputVolumeAdjustment',
+        '--disable-breakpad',
         '--disable-client-side-phishing-detection',
         '--disable-component-update',
         '--disable-domain-reliability',
         '--disable-sync',
-        '--disable-sync-preferences',
-        '--disable-sync-app-settings',
-        '--disable-sync-bookmarks',
-        '--disable-sync-extensions',
-        '--disable-sync-passwords',
-        '--disable-sync-sessions',
-        '--disable-sync-tabs',
         '--disable-translate',
-        '--disable-wake-on-wifi',
-        '--password-store=basic', // Avoids keychain prompts
-        '--use-mock-keychain', // Avoids macOS keychain issues
-        '--disable-plugins',
-        '--disable-java',
-        '--disable-reading-from-canvas',    // canvas fingerprint
-        '--disable-3d-apis',
-        '--disable-file-system',
-        '--disable-local-storage',
-        '--disable-shared-workers',
-        '--disable-speech-api',
-        '--disable-remote-fonts',           // font fingerprinting
-        '--no-pings',                       // hyperlink auditing
-
-        // Process isolation
+        '--password-store=basic',
+        '--use-mock-keychain',
+        '--no-pings',
         '--site-per-process',
-        '--isolate-origins=*',
-
-        // Performance & Stability
-        '--disable-dev-shm-usage', // Fixes Docker/WSL crashes
-        '--disable-gpu', // Avoids GPU-related crashes
-        '--disable-software-rasterizer',
+        '--disable-dev-shm-usage',
         '--disable-background-networking',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
@@ -530,18 +498,16 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         '--disable-prompt-on-repost',
         '--disable-component-extensions-with-background-pages',
         '--disable-default-apps',
-        '--disable-extensions',
-        '--disable-logging', // Reduces noise in logs
-        '--metrics-recording-only', // Minimal telemetry
+        '--disable-logging',
+        '--metrics-recording-only',
         '--no-first-run',
-
-        // Specific Optimizations
-        '--lang=en-US', // Avoids locale leaks
+        '--lang=en-US',
+        '--disk-cache-size=0',
+        '--media-cache-size=0',
+        '--safebrowsing-disable-auto-update',
+        '--deny-permission-prompts',
+        '--disable-extensions',
         '--window-size=1920,1080', // Standardized viewport
-        '--disk-cache-size=0', // Disables disk cache
-        '--media-cache-size=0', // Disables media cache
-        '--incognito', // Avoids local storage
-        '--safebrowsing-disable-auto-update', // Disables Google Safe Browsing
     ];
 
     // Only route through Tor if enabled
@@ -549,7 +515,6 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         defaultArgs.push(
             `--proxy-server=socks5://127.0.0.1:9050`,
             '--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1',
-            '--ignore-certificate-errors', // For Tor hidden services
         );
     }
 
