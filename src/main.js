@@ -25,10 +25,11 @@ let torEnabled = false; // default: off
 let jsEnabled = false; // default: off
     
 // Spoofed UA
+// We set fake chrome, but actually run a nightly build.
 const SPOOFED_UA = [
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
     'AppleWebKit/537.36 (KHTML, like Gecko)',
-    'Chrome/' + (process.versions.chrome || '124.0.0.0'),
+    'Chrome/146.0.7680.80',
     'Safari/537.36',
 ].join(' ');
 
