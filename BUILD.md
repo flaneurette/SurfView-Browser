@@ -4,7 +4,7 @@
 
 - [Node.js](https://nodejs.org) version 18 or higher
 - [npm](https://npmjs.com) (comes with Node.js)
-- Git (Git bash)
+- Git (+Git bash)
 - [Tor Expert Bundle](https://torproject.org/download/tor/)
 - [NSIS](https://sourceforge.net/projects/nsis/) (required for installers)
 - Windows CMD console.
