@@ -1,6 +1,6 @@
 # SurfView Browser
 
-Updates: `March 14th 2026: Updated to latest stable Chrome 146.0.7680.80`
+Updates: `March 14th 2026: Updated to latest nightly Chrome/147.0.7727.0`
 
 A security-focused browser that renders web pages as static images.
 No JavaScript executes. No DOM. No exploits. Just pixels.
@@ -36,7 +36,7 @@ SurfView has 3 security modes:
 
 ## Ways to Surf
 
-New in SurfView v1.5-0:
+New in SurfView v1.6-0:
 
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
 If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
@@ -48,13 +48,13 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.5-0 SurfView - Glassy
+#### v1.6-0 SurfView - Glassy
 
-`March 14th 2026: Updated to latest stable Chrome 146.0.7680.80`
+`March 14th 2026: Updated to latest nightly Chrome/147.0.7727.0`
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.5-0/SurfView.Setup.1.5.0.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-0/SurfView.Setup.1.6.0.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.5-0/SurfView-1.5.0-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-0/SurfView-1.6.0-win.zip)
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
