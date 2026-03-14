@@ -84,7 +84,7 @@ If you do find a bug, please open a issue. Let's have a look.
 
 SurfView transmits this user-agent: 
 
-`"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"`
+`"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.7680.80 Safari/537.36"`
 
 Which is nearly indistinguishable from a regular Chromium, or Google Chrome install.
 
