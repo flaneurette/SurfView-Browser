@@ -56,7 +56,7 @@ Download your preferred version from the Releases page and install it.
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-1/SurfView-1.6.1-win.zip)
 
-[*] We set fake chrome spoofed UA, but actually run a nightly build to prevent finger printing the headless chrome.
+`*` We set fake chrome spoofed UA, but actually run a nightly build to prevent finger printing the headless chrome.
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
