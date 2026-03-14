@@ -38,6 +38,20 @@ Then:
 npm install electron-nightly@42.0.0-nightly.20260313 --save-dev
 node node_modules/electron-nightly/install.js
 ```
+Then set:
+```
+In build:
+    "electronDist": "node_modules/electron-nightly/dist",
+    "electronVersion": "42.0.0-nightly.20260313",
+    
+In devDependencies:    
+"devDependencies": {
+    "electron-builder": "^26.8.1",
+    "electron-nightly": "^42.0.0-nightly.20260313"
+},
+```
+
+In `package.json`
 
 This will take a few minutes on first run as it downloads Electron and
 a bundled Chromium binary (~300MB total).
