@@ -477,19 +477,53 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
     let browser = null;
 
     const defaultArgs = [
-        '--incognito', // Avoids local storage
-        '--disable-features=WebRtcHideLocalIpsWithMdns,WebRtcAllowInputVolumeAdjustment',
-        '--disable-breakpad',
+    
+        // see:
+        // https://peter.sh/experiments/chromium-command-line-switches/
+
+        '--disable-webrtc', // Blocks IP leaks (MANDATORY for Tor)
+        '--disable-features=WebRtcHideLocalIpsWithMdns', // Extra WebRTC protection
+        '--disable-features=WebRtcAllowInputVolumeAdjustment', // Extra hardening
+        '--disable-webgl', // Prevents GPU fingerprinting
+        '--disable-geolocation',
+        '--disable-voice-input',
+        '--disable-notifications',
+        '--disable-infobars',
+        '--disable-breakpad', // Disables crash reporting
         '--disable-client-side-phishing-detection',
         '--disable-component-update',
         '--disable-domain-reliability',
         '--disable-sync',
+        '--disable-sync-preferences',
+        '--disable-sync-app-settings',
+        '--disable-sync-bookmarks',
+        '--disable-sync-extensions',
+        '--disable-sync-passwords',
+        '--disable-sync-sessions',
+        '--disable-sync-tabs',
         '--disable-translate',
-        '--password-store=basic',
-        '--use-mock-keychain',
-        '--no-pings',
+        '--disable-wake-on-wifi',
+        '--password-store=basic', // Avoids keychain prompts
+        '--use-mock-keychain', // Avoids macOS keychain issues
+        '--disable-plugins',
+        '--disable-java',
+        '--disable-reading-from-canvas',    // canvas fingerprint
+        '--disable-3d-apis',
+        '--disable-file-system',
+        '--disable-local-storage',
+        '--disable-shared-workers',
+        '--disable-speech-api',
+        '--disable-remote-fonts',           // font fingerprinting
+        '--no-pings',                       // hyperlink auditing
+
+        // Process isolation
         '--site-per-process',
-        '--disable-dev-shm-usage',
+        '--isolate-origins=*',
+
+        // Performance & Stability
+        '--disable-dev-shm-usage', // Fixes Docker/WSL crashes
+        '--disable-gpu', // Avoids GPU-related crashes
+        '--disable-software-rasterizer',
         '--disable-background-networking',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
@@ -498,16 +532,18 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         '--disable-prompt-on-repost',
         '--disable-component-extensions-with-background-pages',
         '--disable-default-apps',
-        '--disable-logging',
-        '--metrics-recording-only',
-        '--no-first-run',
-        '--lang=en-US',
-        '--disk-cache-size=0',
-        '--media-cache-size=0',
-        '--safebrowsing-disable-auto-update',
-        '--deny-permission-prompts',
         '--disable-extensions',
+        '--disable-logging', // Reduces noise in logs
+        '--metrics-recording-only', // Minimal telemetry
+        '--no-first-run',
+
+        // Specific Optimizations
+        '--lang=en-US', // Avoids locale leaks
         '--window-size=1920,1080', // Standardized viewport
+        '--disk-cache-size=0', // Disables disk cache
+        '--media-cache-size=0', // Disables media cache
+        '--incognito', // Avoids local storage
+        '--safebrowsing-disable-auto-update', // Disables Google Safe Browsing
     ];
 
     // Only route through Tor if enabled
