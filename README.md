@@ -8,6 +8,8 @@ SurfView is a security-focused browser, that has 3 security modes.
 - `Live mode`: user toggled. No JavaScript, only HTML. Sandboxed.
 - `JS mode`: user toggled. HTML + JavaScript. Sandboxed.
 
+It also bundles `tor.exe` with it, and it has a `tor toggle`, so you can surf freely and secure.
+
 <img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
@@ -71,6 +73,13 @@ No script ever runs in your session.
 It's trivially auditable. Anyone who wants to verify the security claim, can read the ~500 lines in `src/*.js` and either agrees, or finds a bug. No 35 million line Chromium codebase to wade through.
 
 If you do find a bug, please open a issue. Let's have a look.
+
+## Tor use
+
+If using Tor, try to prevent toggling JavaScript on. While SurfView does detect `WebRTC` and blocks it before it can run, it cannot detect it 100% bulletproof. The nature of JavaScript, is, that it's extremely difficult to cover all edgecases.
+A persistent attacker could write a sophisticated script, enabling WebRTC and unmasking your real ip.
+
+To be 100% sure: use a extra `tailscale`, `wireguard` or `VPN` tunnel, and then use Tor as the extra `hop`. If Tor breaks, only the tunnel IP is then known.
 
 ## Recon
 
