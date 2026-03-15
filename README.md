@@ -2,18 +2,17 @@
 
 Updates: `March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
-A security-focused browser that renders web pages as static images.
-No JavaScript executes. No DOM. No exploits. Just pixels.
-
-It does three things very well:
-
-- Spawns a ephemeral process 
-- Renders a website as a static image.
-- Generates a sidebar with sanitized page links.
+A security-focused browser.
 
 <img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
 
-It also features a "live mode" toggle, if you want to go insecure, like Firefox, Edge or Chrome.
+### Modes
+
+SurfView has 3 security modes:
+
+- `Image mode`: default. No JavaScript, no code. Sandboxed.
+- `Live mode`: user toggled. No JavaScript, only HTML. Sandboxed.
+- `JS mode`: user toggled. HTML + JavaScript. Sandboxed.
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
 
@@ -24,14 +23,6 @@ What it genuinely protects against
 - CSS-based tracking and fingerprinting - neutered
 - Malicious font/media exploits that need a live DOM - gone
 - Cookie theft, session hijacking via scripts - not possible
-
-### Modes
-
-SurfView has 3 security modes:
-
-- Image mode: default. No JavaScript, no code. Sandboxed.
-- Live mode: user toggled. No JavaScript, only HTML. Sandboxed.
-- JS mode: user toggled. HTML + JavaScript. Sandboxed.
 
 ## Ways to Surf
 
