@@ -2,21 +2,17 @@
 
 Updates: `March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
-A security-focused browser.
-
-<img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
-
-### Modes
-
-SurfView has 3 security modes:
+SurfView is a security-focused browser, that has 3 security modes.
 
 - `Image mode`: default. No JavaScript, no code. Sandboxed.
 - `Live mode`: user toggled. No JavaScript, only HTML. Sandboxed.
 - `JS mode`: user toggled. HTML + JavaScript. Sandboxed.
 
+<img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
+
 SurfView uses 2 sandboxes, and incognito mode for extra security.
 
-What it genuinely protects against
+What `Image mode` genuinely protects against:
 
 - JavaScript execution - fully blocked at the Puppeteer level
 - XSS, XSRF, 3rd party content, drive-by downloads, malicious iframes - all dead
