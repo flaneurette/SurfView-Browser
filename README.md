@@ -79,7 +79,7 @@ If you do find a bug, please open a issue. Let's have a look.
 If using Tor, try to prevent toggling JavaScript on. While SurfView does detect `WebRTC` and blocks it before it can run, it cannot detect it 100% bulletproof. The nature of JavaScript, is, that it's extremely difficult to cover all edgecases.
 A persistent attacker could write a sophisticated script, enabling WebRTC and unmasking your real ip.
 
-To be 100% sure: use a extra `tailscale`, `wireguard` or `VPN` tunnel, and then use Tor as the extra `hop`. If Tor breaks, only the tunnel IP is then known.
+To be 100% sure: use a extra `tailscale`, `wireguard` or `VPN` tunnel, and then use Tor as the extra `hop`. If Tor breaks, only the tunnel IP is then known. This is `redundancy`.
 
 ## Recon
 
