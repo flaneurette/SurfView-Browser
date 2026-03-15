@@ -1,6 +1,6 @@
 # SurfView Browser
 
-Updates: `March 14th 2026: Updated to latest nightly Chrome/147.0.7727.0`
+Updates: `March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
 A security-focused browser that renders web pages as static images.
 No JavaScript executes. No DOM. No exploits. Just pixels.
@@ -50,11 +50,11 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.6-0 SurfView - Glassy
 
-`March 14th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
+`March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-1/SurfView.Setup.1.6.1.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-2/SurfView.Setup.1.6.2.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-1/SurfView-1.6.1-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-2/SurfView-1.6.2-win.zip)
 
 `*` We set fake chrome spoofed UA, but actually run a nightly build to prevent finger printing the headless chrome.
 

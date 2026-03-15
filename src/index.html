@@ -121,10 +121,30 @@
           id="liveWebview"
           src="about:blank"
           partition="temp:webview"
+          WebPreferences="webgl=false,
+            nodeIntegration=false,
+            contextIsolation=true,
+            nodeIntegrationInSubFrames=false,
+            nodeIntegrationInWorker=false,
+            sandbox=true,
+            webSecurity=true,
+            allowRunningInsecureContent=false,
+            experimentalFeatures =false,
+            disableDialogs = true,
+            safeDialogs = true,
+            safeDialogsMessage ='Blocked',
+            spellcheck= false,
+            enableWebSQL = false,
+            plugins = false,
+            disableCache = true,
+            enableBlinkFeatures= '',
+            disableBlinkFeatures='Autofill,ServiceWorker',
+            navigateOnDragDrop= false,
+            autoplayPolicy:'user-gesture-required'
+            "
           style="width: 99%; height: 100%; display: flex; background: #0e0f11;"
         />
         </div>
-
       </div>
     </div>
 
@@ -186,7 +206,6 @@
   <button id="confirmYes" class="btn btn-primary" style="margin-left:12px;float:left;">Remove</button>
   <button id="confirmNo" class="btn btn-primary" style="margin-left:6px;float:left;">Cancel</button>
 </div>
-
 <script src="renderer.js"></script>
 </body>
 </html>

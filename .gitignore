@@ -1,5 +1,6 @@
 # dependencies
 src/tor/tor-data
+unit-tests/
 node_modules/
 dist/
 

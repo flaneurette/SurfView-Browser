@@ -17,6 +17,9 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const {spawn} = require('child_process');
 const fs = require('fs');
+const spoof = require('./spoof.js');
+
+app.commandLine.appendSwitch('enable-experimental-web-platform-features');
 
 // Tor toggle state
 let torEnabled = false; // default: off
@@ -26,18 +29,22 @@ let jsEnabled = false; // default: off
     
 // Spoofed UA
 // We set fake chrome, but actually run a nightly build.
-const SPOOFED_UA = [
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-    'AppleWebKit/537.36 (KHTML, like Gecko)',
-    'Chrome/146.0.7680.80',
-    'Safari/537.36',
-].join(' ');
+// Remember to update: spoof.js!
+const SPOOFED_UA = spoof.userAgent;
 
 // Tor path
 let torPath = path.join(process.resourcesPath, 'tor/tor.exe');
 let torDataDir = path.join(process.resourcesPath, 'tor/tor-data');
 let geoipPath = path.join(process.resourcesPath, 'tor/geoip');
 let geoip6Path = path.join(process.resourcesPath, 'tor/geoip6');
+
+/*
+// developer paths.
+let torPath = path.join(process.resourcesPath, '../../../../src/tor/tor.exe');
+let torDataDir = path.join(process.resourcesPath, '../../../../src/tor/tor-data');
+let geoipPath = path.join(process.resourcesPath, '../../../../src/tor/geoip');
+let geoip6Path = path.join(process.resourcesPath, '../../../../src/tor/geoip6');
+*/
 
 ipcMain.handle('toggle-tor', async (_event, enabled) => {
     torEnabled = enabled;
@@ -266,6 +273,7 @@ function setupWebSecurity() {
     [webviewSession, session.defaultSession].forEach(sess => {
         sess.webRequest.onBeforeSendHeaders((details, callback) => {
             Object.assign(details.requestHeaders, noCacheHeaders);
+            details.requestHeaders['User-Agent'] = SPOOFED_UA;
             callback({ cancel: false, requestHeaders: details.requestHeaders });
         });
     });
@@ -288,12 +296,89 @@ function setupWebSecurity() {
 }
 
 app.on('web-contents-created', (event, contents) => {
+  if (contents.getType() === 'webview') {
+    contents.on('dom-ready', () => {
+      try {
+        contents.debugger.attach('1.3');
+      } catch(e) {}
+     
+        contents.debugger.sendCommand('Emulation.setUserAgentOverride', {
+          userAgent: spoof.userAgent,
+          userAgentMetadata: {
+            ...spoof.userAgentMetadata
+          }
+        });
+
+        contents.debugger.sendCommand('Emulation.setTimezoneOverride', {
+          timezoneId: spoof.timezone
+        });
+        
+        contents.debugger.sendCommand('Emulation.setLocaleOverride', {
+          locale: spoof.locale
+        });
+
+      contents.executeJavaScript(`
+        Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+        Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+        Object.defineProperty(navigator, 'mediaDevices', { get: () => {}});
+        Object.defineProperty(navigator, 'permissions', { get: () => {}});
+        Object.defineProperty(navigator, 'connection', { get: () => {}});
+        Object.defineProperty(navigator, 'geolocation', { get: () => {}});
+        Object.defineProperty(navigator, 'getBattery', { get: () => {}});
+      `);
+    });
+  }
+  
+});
+
+app.on('did-attach-webview', (event, contents) => {
+    
+  try { contents.debugger.attach('1.3'); } catch(e) {}
+
+        contents.debugger.sendCommand('Emulation.setUserAgentOverride', {
+          userAgent: spoof.userAgent,
+          userAgentMetadata: {
+            ...spoof.userAgentMetadata
+          }
+        });
+
+        contents.debugger.sendCommand('Emulation.setTimezoneOverride', {
+          timezoneId: spoof.timezone
+        });
+
+        contents.debugger.sendCommand('Emulation.setLocaleOverride', {
+          locale: spoof.locale
+        });
+ 
+      contents.executeJavaScript(`
+        Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+        Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+        Object.defineProperty(navigator, 'mediaDevices', { get: () => {}});
+        Object.defineProperty(navigator, 'permissions', { get: () => {}});
+        Object.defineProperty(navigator, 'connection', { get: () => {}});
+        Object.defineProperty(navigator, 'geolocation', { get: () => {}});
+        Object.defineProperty(navigator, 'getBattery', { get: () => {}});
+    `);
+ 
+});
+
+app.on('web-contents-created', (event, contents) => {
+  
+    contents.executeJavaScript(`
+        Object.defineProperty(navigator, 'hardwareConcurrency', { get: () => 4 });
+        Object.defineProperty(navigator, 'deviceMemory', { get: () => 8 });
+        Object.defineProperty(navigator, 'mediaDevices', { get: () => {}});
+        Object.defineProperty(navigator, 'permissions', { get: () => {}});
+        Object.defineProperty(navigator, 'connection', { get: () => {}});
+        Object.defineProperty(navigator, 'geolocation', { get: () => {}});
+        Object.defineProperty(navigator, 'getBattery', { get: () => {}});
+    `);  
 
     contents.setWindowOpenHandler(() => {
         console.warn('[Security] Blocked new window');
         return { action: 'deny' };
     });
-
+    
     contents.on('will-attach-webview', (event, webPreferences, params) => {
 
         // Validate source URL
@@ -378,20 +463,22 @@ function createWindow() {
 // App lifecycle
 
 app.whenReady().then(async () => {
-    session.defaultSession.clearCache()
     
+    const customSession = session.fromPartition('temp:webview');
+
+    session.defaultSession.clearCache();
     session.defaultSession.setUserAgent(SPOOFED_UA);
-    
+
     const wvSession = getWebviewSession();
     wvSession.setUserAgent(SPOOFED_UA);
-    
+
     setupWebSecurity();
-    
     initJsBlocking(); 
     initCSP();
     
     createWindow();
 });
+
 
 app.on('window-all-closed', () => {
     stopTor();
@@ -481,11 +568,12 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
     
         // see:
         // https://peter.sh/experiments/chromium-command-line-switches/
-
+        '--disable-webgl',
+        '--disable-webgl2',        
+        '--disable-3d-apis',
         '--disable-webrtc', // Blocks IP leaks (MANDATORY for Tor)
         '--disable-features=WebRtcHideLocalIpsWithMdns', // Extra WebRTC protection
         '--disable-features=WebRtcAllowInputVolumeAdjustment', // Extra hardening
-        '--disable-webgl', // Prevents GPU fingerprinting
         '--disable-geolocation',
         '--disable-voice-input',
         '--disable-notifications',
@@ -509,7 +597,8 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         '--disable-plugins',
         '--disable-java',
         '--disable-reading-from-canvas',    // canvas fingerprint
-        '--disable-3d-apis',
+        '--disable-2d-canvas-clip-aa',
+        '--disable-2d-canvas-image-chromium',
         '--disable-file-system',
         '--disable-local-storage',
         '--disable-shared-workers',
@@ -539,8 +628,9 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         '--no-first-run',
 
         // Specific Optimizations
-        '--lang=en-US', // Avoids locale leaks
-        '--window-size=1920,1080', // Standardized viewport
+        '--lang='+spoof.locale, // Avoids locale leaks
+        '--languages='+spoof.languages, // Avoids locale leaks
+        '--window-size='+spoof.width+','+spoof.height, // Standardized viewport
         '--disk-cache-size=0', // Disables disk cache
         '--media-cache-size=0', // Disables media cache
         '--incognito', // Avoids local storage
@@ -588,7 +678,7 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         await page.setRequestInterception(true);
 
         await page.setExtraHTTPHeaders({
-            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Language': spoof.accept,
         });
 
         if (view == "image") {
@@ -630,7 +720,7 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         try {
             await cookiePage.setUserAgent(SPOOFED_UA);
             await cookiePage.setExtraHTTPHeaders({
-                'Accept-Language': 'en-US,en;q=0.9',
+                'Accept-Language': spoof.accept,
             });
 
             if (view == "image") {
