@@ -89,7 +89,7 @@ SurfView transmits this user-agent:
 
 Which is nearly indistinguishable from a regular Chromium, or Google Chrome install.
 
-The user-agent can be changed in `main.js`, then rebuild.
+The user-agent can be changed in `spoof.js`, then rebuild.
 
 - SurfView does show `JA3`, just like any Chrome instance.
 
