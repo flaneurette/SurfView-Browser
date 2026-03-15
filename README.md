@@ -33,20 +33,7 @@ SurfView has 3 security modes:
 - Live mode: user toggled. No JavaScript, only HTML. Sandboxed.
 - JS mode: user toggled. HTML + JavaScript. Sandboxed.
 
-
 ## Ways to Surf
-
-New in SurfView v1.6-3:
-
-- Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
-If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
-
-- Javascript is now allowed through a switch. Just toggle it `on/off`, in case you need it. It's turned off by default.
-When enabled it runs in a webview sandbox, which is very restricted by default. 
-
-- WebRTC is now detected when JavaScript is `on` and blocked. 
-
-- SurfView passes all `browserleaks` JavaScript test, except for font fingerprinting. We assume you have default fonts anyway.
 
 ### 🏄 Run the installer
 
@@ -69,6 +56,20 @@ Linux: coming soon. (Tip: You might want to build from source anyway. It's easy,
 Or roll your own:
 
 See [BUILD.md](BUILD.md)
+
+### Updates
+
+New in SurfView v1.6-3:
+
+- Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
+If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
+
+- Javascript is now allowed through a switch. Just toggle it `on/off`, in case you need it. It's turned off by default.
+When enabled it runs in a webview sandbox, which is very restricted by default. 
+
+- WebRTC is now detected when JavaScript is `on` and blocked. 
+
+- SurfView passes all `browserleaks` JavaScript test, except for font fingerprinting. We assume you have default fonts anyway.
 
 ## How it works
 
