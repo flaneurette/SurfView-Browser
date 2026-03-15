@@ -11,7 +11,7 @@ It does three things very well:
 - Renders a website as a static image.
 - Generates a sidebar with sanitized page links.
 
-<img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/SurfView-FirstRun.png">
+<img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
 
 It also features a "live mode" toggle, if you want to go insecure, like Firefox, Edge or Chrome.
 
