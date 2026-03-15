@@ -1,6 +1,7 @@
 // spoof.js - consistent profiles, pick one
+// Be careful with changing things. It can unmask you.
 
-// Spoofed Chrome.
+// Spoofed Chrome version.
 const chromeMajor = '146';
 const chromeVersion = '146.0.7680.80';
 const brandName = 'Not A Brand';
