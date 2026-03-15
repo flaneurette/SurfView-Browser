@@ -14,7 +14,7 @@
   ">
 
 <title>SurfView</title>
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?version=1.6.3">
 </head>
 <body tabindex="-1">
 <div class="shell">
@@ -76,12 +76,20 @@
     <!-- VIEWPORT -->
     <div class="viewport" id="viewport">
       <div class="viewport-inner" id="viewportInner">
+      
+        <div class="error-state" id="errorState">
+          <span><h3>&#9888;</h3> render failed</span>
+          <div class="error-msg" id="errorMsg"></div>
+        </div>
+        
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">&#9681;</div>
           <div class="empty-title">no page loaded</div>
           <div class="empty-sub">enter a url above. the page will be rendered to a static image. no scripts will execute.</div>
         </div>
+        
         <div class="loading-state" id="loadingState">
+        <div class="loader-wrap">
           <div class="loader-ring"></div>
           <div class="loading-steps">
             <div class="loading-step" id="step1">fetch url</div>
@@ -90,9 +98,11 @@
             <div class="loading-step" id="step4">extract links</div>
             <div class="loading-step" id="step5">close renderer</div>
           </div>
+          </div>
         </div>
 
         <div class="loading-state-live" id="loadingStateLive">
+        <div class="loader-wrap">
           <div class="loader-ring"></div>
           <div class="loading-steps-live">
             <div class="loading-step-live" id="live-step1">fetch url</div>
@@ -100,11 +110,7 @@
             <div class="loading-step-live" id="live-step3">extract links</div>
             <div class="loading-step-live" id="live-step4">close renderer</div>
           </div>
-        </div>
-        
-        <div class="error-state" id="errorState">
-          <span>&#9888; render failed</span>
-          <div class="error-msg" id="errorMsg"></div>
+          </div>
         </div>
 
         <div class="page-image-wrap" id="pageImageWrap">
@@ -121,15 +127,17 @@
           id="liveWebview"
           src="about:blank"
           partition="temp:webview"
-          WebPreferences="webgl=false,
+          webpreferences="webgl=false,
+            disableWebRTC=true,
             nodeIntegration=false,
             contextIsolation=true,
             nodeIntegrationInSubFrames=false,
             nodeIntegrationInWorker=false,
             sandbox=true,
+            webviewTag=true,
             webSecurity=true,
             allowRunningInsecureContent=false,
-            experimentalFeatures =false,
+            experimentalFeatures=false,
             disableDialogs = true,
             safeDialogs = true,
             safeDialogsMessage ='Blocked',

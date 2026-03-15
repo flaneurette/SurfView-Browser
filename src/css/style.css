@@ -87,6 +87,9 @@
         text-decoration:none;
     }
     
+    h3 {
+      font-size: 28px;  
+    }
     
     /* ---- TITLEBAR ---- */
 
@@ -382,9 +385,13 @@
        align-items: center;
        justify-content: center;
        gap: 14px;
-       min-height: 400px;
        color: var(--text-dim);
        z-index: 40;
+       height: 100%;
+       flex:1;
+       padding: 40px;
+       text-align: center;
+       background-color: var(--bg);
     }
     
     .loading-state-live {
@@ -393,11 +400,24 @@
        align-items: center;
        justify-content: center;
        gap: 14px;
-       min-height: 400px;
+       height: 100%;
+       flex:1;
        color: var(--text-dim);
        z-index: 40;
+       background-color: var(--bg);
     }
 
+    .loader-wrap {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    
     .loading-state.active { display: flex; }
 
     .loading-state-live.active { display: flex; }
@@ -409,6 +429,7 @@
        border-top-color: var(--accent);
        border-radius: 50%;
        animation: spin 0.7s linear infinite;
+       margin-bottom: 20px;
     }
 
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -427,6 +448,8 @@
        gap: 4px;
        font-family: var(--mono);
        font-size: 11px;
+       height: 100%;
+       flex:1;
     }
     
     .loading-step-live { color: var(--text-dim); transition: color 0.3s; }
@@ -446,17 +469,18 @@
        flex-direction: column;
        align-items: center;
        justify-content: center;
-       gap: 12px;
-       min-height: 400px;
-       font-family: var(--mono);
-       font-size: 12px;
+       gap: 14px;
+       height: 100%;
+       flex:1;
+       padding: 40px;
        color: var(--danger);
        text-align: center;
-       padding: 40px;
+       background-color: var(--bg);
+       z-index: 90;  
     }
-
+    
     .error-state.active { display: flex; }
-    .error-msg { color: var(--text-mid); max-width: 380px; line-height: 1.7; }
+    .error-msg { color: var(--danger); max-width: 580px; line-height: 1.7; }
 
     .page-image-wrap { display: none; }
     .page-image-wrap.active { display: block; }
@@ -475,7 +499,7 @@
       top: 0;
       bottom: 0;
       width: 250px; /* Adjust as needed */
-      z-index: 10;
+      z-index: 100;
       background: var(--bg);
       border-left: 1px solid var(--border);
       overflow-y:scroll;
@@ -751,8 +775,13 @@
       flex: 1; /* Fills #liveWrap */
       width: 99%;
       min-height: 0; /* Fixes flex overflow issues */
+      background: white;
     }
 
+    webview html, webview body {
+        background: white !important;
+    }
+    
     /* For WebKit browsers (Chrome, Edge, Electron) */
     ::-webkit-scrollbar {
       width: 12px; /* Width of the vertical scrollbar */

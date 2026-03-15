@@ -36,13 +36,17 @@ SurfView has 3 security modes:
 
 ## Ways to Surf
 
-New in SurfView v1.6-0:
+New in SurfView v1.6-3:
 
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
 If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
 
 - Javascript is now allowed through a switch. Just toggle it `on/off`, in case you need it. It's turned off by default.
 When enabled it runs in a webview sandbox, which is very restricted by default. 
+
+- WebRTC is now detected when JavaScript is `on` and blocked. 
+
+- SurfView passes all `browserleaks` JavaScript test, except for font fingerprinting. We assume you have default fonts anyway.
 
 ### 🏄 Run the installer
 
@@ -52,9 +56,9 @@ Download your preferred version from the Releases page and install it.
 
 `March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-2/SurfView.Setup.1.6.2.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-3/SurfView.Setup.1.6.3.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-2/SurfView-1.6.2-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-3/SurfView-1.6.3-win.zip)
 
 `*` We set fake chrome spoofed UA, but actually run a nightly build to prevent finger printing the headless chrome.
 

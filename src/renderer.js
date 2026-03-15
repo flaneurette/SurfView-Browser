@@ -55,7 +55,28 @@
     var jsStatus = document.getElementById('jsStatus');
     var statusSafe = document.getElementById('statusSafe');
     liveWarning.style.display = 'none';
-    
+ 
+
+    liveWebview.addEventListener('will-navigate', (e) => {
+        window.surfview.navigateIntercept(e.url);
+        liveWebview.src='';
+        if(jsEnabled1 == true) {
+            loadUrl(e.url, true, "js")
+        } else {
+            loadUrl(e.url, true, "live")
+        }
+    });
+
+    liveWebview.addEventListener('new-window', (e) => {
+        window.surfview.navigateIntercept(e.url);
+        liveWebview.src='';
+        if(jsEnabled1 == true) {
+            loadUrl(e.url, true, "js")
+        } else {
+            loadUrl(e.url, true, "live")
+        }
+    });
+ 
     try {
         // focus urlbar by default
         urlInput.focus();
@@ -98,30 +119,32 @@
 
     // url bar events
     urlInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') loadUrl(urlInput.value);
+        if (e.key === 'Enter') {
+            whatIsAllowed(urlInput.value);
+        }
     });
 
     btnRender.addEventListener('click', function() {
-        loadUrl(urlInput.value);
+        whatIsAllowed(urlInput.value);
     });
 
     btnBack.addEventListener('click', function() {
         if (navIndex <= 0) return;
         navIndex--;
-        loadUrl(navHistory[navIndex], true);
+        whatIsAllowed(navHistory[navIndex]);
     });
 
     btnFwd.addEventListener('click', function() {
         if (navIndex >= navHistory.length - 1) return;
         navIndex++;
-        loadUrl(navHistory[navIndex], true);
+        whatIsAllowed(navHistory[navIndex]);
     });
 
     btnReload.addEventListener('click', function() {
         liveWarning.style.display = 'none';
         var url = sanitizeUrl(urlInput.value.trim());
         if (!url) return;
-        loadUrl(url, true);
+        whatIsAllowed(url);
     });
 
     liveWarningClose.addEventListener('click', function() {
@@ -192,6 +215,19 @@
         }
     });
 
+    function whatIsAllowed(url) {
+        if (imageModeEnabled) {
+            loadUrl(url, true, "image");
+            return;
+        } else if (jsEnabled1) {
+            loadUrl(url, true, "js");
+            return;
+        } else {
+            loadUrl(url, true, "live");
+            return;
+        }
+    }
+    
     function updateTorLabel(enabled, ready) {
         if (!enabled) {
             torLabel.textContent = 'tor: off';
@@ -262,22 +298,8 @@
         return url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0]; // domain only
     }
 
-    function doesBookmarkExists(text) {
-      const ul = document.getElementById('bookmarks-ul');
-      if (!ul) return false; // Safety check if UL doesn't exist
-
-      const items = ul.getElementsByTagName('li');
-      for (let li of items) {
-        // Trim whitespace and compare (case-sensitive)
-        if (li.textContent.trim() === text.trim()) {
-          return true;
-        }
-      }
-      return false;
-    }
-
     function bookmarkUrl(raw) {
-
+        
         if (!raw) return;
 
         if (raw.length >= 512) {
@@ -295,11 +317,6 @@
         url = url.replace('https://', '');
         url = url.replace('www.', '');
         
-        if (doesBookmarkExists(url)) {
-            window.surfview.dialog('Bookmark already exists.');
-            return;
-        }
-        
         const dom = document.getElementById('bookmarks-ul');
         const pipe = document.createElement('li');
 
@@ -309,7 +326,7 @@
         a.href = '#';
         a.onclick = function(e) {
             e.preventDefault();
-            loadUrl(url);
+            whatIsAllowed(url);
         };
         a.oncontextmenu = function(e) {
             e.preventDefault();
@@ -325,12 +342,22 @@
 
         // write to bookmarks file.
         var store = jsoncmd(url);
-
         return;
     }
 
+
     function jsoncmd(uri) {
-        window.surfview.saveBookmark(uri)
+        window.surfview.saveBookmark(uri).then(function(result) {
+            if (!result.success) {
+                if (result.reason === 'duplicate') {
+                    window.surfview.dialog('Bookmark already exists.');
+                } else if (result.reason === 'limit') {
+                    window.surfview.dialog('Bookmark limit reached.');
+                }
+            }
+        }).catch(function(err) {
+            console.error('saveBookmark failed:', err);
+        });
     }
 
     function loadBookmarks() {
@@ -345,7 +372,7 @@
                 a.href = '#';
                 a.onclick = function(e) {
                     e.preventDefault();
-                    loadUrl(url);
+                    whatIsAllowed(url);
                 };
                 a.oncontextmenu = function(e) {
                     e.preventDefault();
@@ -386,7 +413,7 @@
 
         var url = sanitizeUrl(raw);
 
-        let loadingState = "";
+        let loadingStatePage = "";
         let viewType = "image";
 
         if (vType) {
@@ -395,12 +422,12 @@
 
         if (!imageModeEnabled) {
             viewType = "live";
-            loadingState = "live";
+            loadingStatePage = "live";
         }
 
         if (vType == "js") {
             viewType = "js";
-            loadingState = "live";
+            loadingStatePage = "live";
         }
         
         if (!url) {
@@ -412,9 +439,9 @@
 
         if (loading) return;
         loading = true;
-        setLoadingUi(true,loadingState);
+        setLoadingUi(true,loadingStatePage);
 
-        if(loadingState == "live") {
+        if(loadingStatePage == "live") {
             var steps = ['live-step1', 'live-step2', 'live-step3', 'live-step4'];
             var delays = [0, 200, 400, 600];
             var ls = '-live';
@@ -457,6 +484,7 @@
         }).catch(function(err) {
             loading = false;
             setLoadingUi(false);
+            liveWebview.src='';
             showError(escHtml(err.message) || 'Unknown error');
         });
     }
@@ -501,11 +529,9 @@
     }
 
     function showPage(result) {
-
         loadingState.className = 'loading-state';
         loadingStateLive.className = 'loading-state-live';
         pageImageWrap.className = 'page-image-wrap active';
-
         if (result.live) {
             // show webview, hide image
             pageImageWrap.className = 'page-image-wrap'; // hide image wrap
@@ -515,7 +541,7 @@
             pageImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
         } else {
             // show screenshot, hide webview
-            liveWebview.src = 'about:blank';
+            liveWebview.src = '';
             liveWrap.className = 'live-wrap.hide'; // hide live wrap
             pageImageWrap.className = 'page-image-wrap active'; // show image wrap
             pageImage.src = 'data:image/png;base64,' + result.imageBase64;
@@ -540,14 +566,18 @@
     }
 
     function showError(msg) {
-        loadingState.className = 'loading-state';
-        errorMsg.textContent = escHtml(msg);
-        errorState.className = 'error-state active';
-        statusDomain.textContent = 'error';
-        let loadingStateLive = document.getElementById('loadingStateLive');
-        loadingStateLive.style.display = 'none';
-        let loadingState = document.getElementById('loadingState');
-        loadingState.style.display = 'none'; 
+        
+            let loadingState = document.getElementById('loadingState');
+            let loadingStateLive = document.getElementById('loadingStateLive');
+            let errorState = document.getElementById('errorState');
+            loadingState.className = 'loading-state';
+            errorMsg.textContent = escHtml(msg);
+            errorState.className = 'error-state active';
+            statusDomain.textContent = 'error';
+           
+            loadingStateLive.style.display = 'none';
+            loadingState.style.display = 'none'; 
+        
     }
 
     function updateNavButtons() {
@@ -620,10 +650,10 @@
                 if (!url) return;
                 if (type === 'anchor') return;
                 if (type === 'mailto' || type === 'download') {
-                    window.surfview.openExternal(url);
+                    //window.surfview.openExternal(url);
                     return;
                 }
-                loadUrl(url);
+                whatIsAllowed(url);
             });
         });
     }
@@ -705,4 +735,3 @@
     });
 
 })();
-
