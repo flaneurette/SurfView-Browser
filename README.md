@@ -4,7 +4,7 @@ Updates: `March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
 SurfView is a security-focused browser, that has 3 security modes.
 
-- `Image mode`: default. No JavaScript, no code. Sandboxed.
+- `Image mode`: default. No JavaScript, no code. Sandboxed. It makes a screenshot, and extracts links into a sidebar.
 - `Live mode`: user toggled. No JavaScript, only HTML. Sandboxed.
 - `JS mode`: user toggled. HTML + JavaScript. Sandboxed.
 
