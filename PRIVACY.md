@@ -230,21 +230,33 @@ Add to your windows host file as extra precaution, as some apps can punch throug
 0.0.0.0 turn.cloudflare.com
 0.0.0.0 turn.cloudflareresearch.com
 
-# --- Discord WebRTC ---
+
+# --- Discord ---
 0.0.0.0 turn1.discord.gg
 0.0.0.0 turn2.discord.gg
 0.0.0.0 turn3.discord.gg
+0.0.0.0 turn4.discord.gg
+0.0.0.0 turn5.discord.gg
+0.0.0.0 turn1.discord.media
+0.0.0.0 turn2.discord.media
+0.0.0.0 turn3.discord.media
 
-# --- Microsoft/Teams TURN ---
+# --- Microsoft Teams TURN ---
 0.0.0.0 turn.teams.microsoft.com
 0.0.0.0 relay.teams.microsoft.com
 0.0.0.0 worldaz.turn.teams.microsoft.com
 0.0.0.0 uswe.turn.teams.microsoft.com
 0.0.0.0 usea.turn.teams.microsoft.com
+0.0.0.0 usse.turn.teams.microsoft.com
+0.0.0.0 uswe2.turn.teams.microsoft.com
 0.0.0.0 euwe.turn.teams.microsoft.com
 0.0.0.0 euno.turn.teams.microsoft.com
+0.0.0.0 euce.turn.teams.microsoft.com
 0.0.0.0 apse.turn.teams.microsoft.com
 0.0.0.0 apso.turn.teams.microsoft.com
+0.0.0.0 apea.turn.teams.microsoft.com
+0.0.0.0 aune.turn.teams.microsoft.com
+0.0.0.0 ause.turn.teams.microsoft.com
 
 # --- Zoom WebRTC ---
 0.0.0.0 turn.zoom.us
