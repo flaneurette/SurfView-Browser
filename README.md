@@ -28,7 +28,7 @@ What `Image mode` genuinely protects against:
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.6-6 SurfView - Glassy
+#### v1.6-4 SurfView - Glassy
 
 `March 16th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 

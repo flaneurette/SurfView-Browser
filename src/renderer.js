@@ -54,8 +54,17 @@
     var statusJS = document.getElementById('statusJS');
     var jsStatus = document.getElementById('jsStatus');
     var statusSafe = document.getElementById('statusSafe');
+    
+    var launchReport = document.getElementById('launchReport');
+    var errorExplainer = document.getElementById('errorExplainer');
+    
     liveWarning.style.display = 'none';
- 
+    
+    // error reports
+    launchReport.addEventListener('click', function() {
+        launchReport.className = ''
+        bookmarkUrl(urlInput.value.trim());
+    });
 
     liveWebview.addEventListener('will-navigate', (e) => {
         window.surfview.navigateIntercept(e.url);
@@ -78,8 +87,8 @@
     });
  
     try {
-        // focus urlbar by default
-        urlInput.focus();
+    // focus urlbar by default
+    urlInput.focus();
     } catch (e) {}
 
     let rawUrl = urlInput.value.trim();
