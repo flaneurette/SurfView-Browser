@@ -1,3 +1,9 @@
+# Privacy tips.
+
+## Unbound
+
+Consider using `Unbound DNS` and get control back over what leaves/enters your machine. As all DNS requests are opaque, even if you use a VPN, DNS requests can be seen.
+
 ## Telemetry
 
 SurfView does NOT send telemetry. You can check in the source. Or use: `tcpview` from sysinternals to confirm.
@@ -279,7 +285,3 @@ Add to your windows host file as extra precaution, as some apps can punch throug
 # ============================================
 
 ```
-
-## Unbound
-
-Even better: consider using `Unbound DNS` and get control back over what leaves/enters your machine. As all DNS requests are opaque, even if you use a VPN.
