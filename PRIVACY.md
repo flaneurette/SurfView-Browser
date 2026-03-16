@@ -124,7 +124,7 @@ netsh advfirewall firewall add rule name="OUT: Ping" dir=out action=allow protoc
 
 ### Blacklist
 
-The laternative is blacklisting. Much more difficult.
+The alternative is blacklisting. Much more difficult.
 
 Add to your windows Firewall through `Powershell`, as extra precaution against `WebRTC`:
 
