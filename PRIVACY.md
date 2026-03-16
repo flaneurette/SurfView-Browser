@@ -72,7 +72,58 @@ And monitor it for changes with `tcpview` or `wireshark`.
 
 Security is about layering. Not all methods, browsers, apps, embedds, windows can successfully block WebRTC a 100%, so we want redundancy.
 
+## Whitelist 
+
+There is a even better way: just deny all `outbound`, except for what you actually use. (the whitelist approach)
+
+Carefully check, and add your allowed ports that you actually use. You can always whitelist additional ports later.
+
+I would even go so far as blocking `port 80` also, as it's often used in malware, where it contacts a compromised `IP`.
+
+```
+# Set default outbound policy to BLOCK
+
+netsh advfirewall set allprofiles firewallpolicy blockinbound,blockoutbound
+
+# ALLOW ONLY WHAT YOU NEED
+
+# SSH
+netsh advfirewall firewall add rule name="OUT: SSH" dir=out action=allow protocol=TCP remoteport=22
+
+# DNS
+netsh advfirewall firewall add rule name="OUT: DNS UDP" dir=out action=allow protocol=UDP remoteport=53
+netsh advfirewall firewall add rule name="OUT: DNS TCP" dir=out action=allow protocol=TCP remoteport=53
+
+# DHCP
+netsh advfirewall firewall add rule name="OUT: DHCP" dir=out action=allow protocol=UDP remoteport=67-68
+
+# NTP
+netsh advfirewall firewall add rule name="OUT: NTP" dir=out action=allow protocol=UDP remoteport=123
+
+# HTTP/HTTPS
+netsh advfirewall firewall add rule name="OUT: HTTP" dir=out action=allow protocol=TCP remoteport=80
+netsh advfirewall firewall add rule name="OUT: HTTPS" dir=out action=allow protocol=TCP remoteport=443
+
+# Loopback (essential for local services)
+netsh advfirewall firewall add rule name="OUT: Loopback" dir=out action=allow remoteip=127.0.0.1
+netsh advfirewall firewall add rule name="OUT: Loopback IPv6" dir=out action=allow remoteip=::1
+
+# Local network (adjust your subnet)
+netsh advfirewall firewall add rule name="OUT: LAN" dir=out action=allow remoteip=192.168.0.0/16
+netsh advfirewall firewall add rule name="OUT: LAN 10.x" dir=out action=allow remoteip=10.0.0.0/8
+netsh advfirewall firewall add rule name="OUT: LAN 172.x" dir=out action=allow remoteip=172.16.0.0/12
+
+# Windows Update
+netsh advfirewall firewall add rule name="OUT: svchost" dir=out action=allow program="%SystemRoot%\System32\svchost.exe" protocol=TCP remoteport=80,443
+
+# ICMP Ping (optional)
+netsh advfirewall firewall add rule name="OUT: Ping" dir=out action=allow protocol=ICMPv4
+```
+
+## Blacklist
+
 Add to your windows Firewall through `Powershell`, as extra precaution against `WebRTC`:
+
 
 ```
 # Run as Administrator
@@ -116,7 +167,7 @@ Write-Host "WARNING: Blocking 49152-65535 may break some applications." -Foregro
 Write-Host "Remove with: netsh advfirewall firewall delete rule name=`"Block *`"" -ForegroundColor Cyan
 ```
 
-Chrome registry edit (be careful): `Chrome.reg`
+Chrome registry edit (be very careful with this): `Chrome.reg`
 
 ```
 ; Disable WebRTC in Chrome via Policy
@@ -137,6 +188,19 @@ Chrome registry edit (be careful): `Chrome.reg`
 
 [HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
 "WebRtcIPHandling"="disable_non_proxied_udp"
+```
+
+Group policy in Windows pro:
+
+```
+# Chrome
+Google > Google Chrome > WebRTC UDP port range = "0-0"
+Google > Google Chrome > WebRTC IP handling = disable_non_proxied_udp
+
+# Edge  
+Microsoft Edge > WebRTC UDP port range = "0-0"
+Microsoft Edge > WebRTC IP handling = disable_non_proxied_udp
+
 ```
 
 Add to your windows host file as extra precaution, as some apps can punch through your NAT/Firewall:
