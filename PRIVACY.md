@@ -76,10 +76,44 @@ Add to your windows Firewall through `Powershell`, as extra precaution against `
 
 ```
 # Run as Administrator
-netsh advfirewall firewall add rule name="Block STUN/TURN UDP 3478" dir=out action=block protocol=UDP remoteport=3478
-netsh advfirewall firewall add rule name="Block STUN/TURN TCP 3479" dir=out action=block protocol=TCP remoteport=3479
-netsh advfirewall firewall add rule name="Block STUN UDP 19302" dir=out action=block protocol=UDP remoteport=19302
+
+Write-Host "Blocking WebRTC STUN/TURN ports..." -ForegroundColor Yellow
+
+# STUN standard port
+netsh advfirewall firewall add rule name="Block STUN UDP 3478" dir=out action=block protocol=UDP remoteport=3478
+netsh advfirewall firewall add rule name="Block STUN TCP 3478" dir=out action=block protocol=TCP remoteport=3478
+
+# STUN alternate port
+netsh advfirewall firewall add rule name="Block STUN UDP 3479" dir=out action=block protocol=UDP remoteport=3479
+netsh advfirewall firewall add rule name="Block STUN TCP 3479" dir=out action=block protocol=TCP remoteport=3479
+
+# TURN TLS
 netsh advfirewall firewall add rule name="Block TURN TLS 5349" dir=out action=block protocol=TCP remoteport=5349
+netsh advfirewall firewall add rule name="Block TURN DTLS 5349" dir=out action=block protocol=UDP remoteport=5349
+
+# TURN alternate
+netsh advfirewall firewall add rule name="Block TURN TCP 5350" dir=out action=block protocol=TCP remoteport=5350
+netsh advfirewall firewall add rule name="Block TURN UDP 5350" dir=out action=block protocol=UDP remoteport=5350
+
+# Google STUN port
+netsh advfirewall firewall add rule name="Block Google STUN UDP 19302" dir=out action=block protocol=UDP remoteport=19302
+netsh advfirewall firewall add rule name="Block Google STUN TCP 19302" dir=out action=block protocol=TCP remoteport=19302
+netsh advfirewall firewall add rule name="Block Google STUN UDP 19303" dir=out action=block protocol=UDP remoteport=19303
+netsh advfirewall firewall add rule name="Block Google STUN UDP 19304" dir=out action=block protocol=UDP remoteport=19304
+netsh advfirewall firewall add rule name="Block Google STUN UDP 19305" dir=out action=block protocol=UDP remoteport=19305
+
+# TURN relay port ranges (commonly used)
+netsh advfirewall firewall add rule name="Block TURN Relay Range UDP 49152-65535" dir=out action=block protocol=UDP remoteport=49152-65535
+netsh advfirewall firewall add rule name="Block TURN Relay Range TCP 49152-65535" dir=out action=block protocol=TCP remoteport=49152-65535
+
+# STUN over non-standard ports
+# netsh advfirewall firewall add rule name="Block STUN UDP 8443" dir=out action=block protocol=UDP remoteport=8443
+# netsh advfirewall firewall add rule name="Block STUN TCP 8443" dir=out action=block protocol=TCP remoteport=8443
+
+Write-Host "Firewall rules added successfully." -ForegroundColor Green
+Write-Host ""
+Write-Host "WARNING: Blocking 49152-65535 may break some applications." -ForegroundColor Red
+Write-Host "Remove with: netsh advfirewall firewall delete rule name=`"Block *`"" -ForegroundColor Cyan
 ```
 
 Add to your windows host file as extra precaution, as some apps can punch through your NAT/Firewall:
