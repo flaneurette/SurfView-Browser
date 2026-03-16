@@ -58,7 +58,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 - WebRTC is now detected when JavaScript is `on` and blocked. 
 
-- SurfView passes all `browserleaks` JavaScript test, except for font fingerprinting. We assume you have default fonts anyway.
+- SurfView passes all `browserleaks.com` JavaScript test, except for font fingerprinting. We assume you have default fonts anyway.
 
 ## How it works
 
