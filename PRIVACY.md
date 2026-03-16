@@ -6,7 +6,7 @@ Consider using `Unbound DNS` and get control back over what leaves/enters your m
 
 ## Telemetry
 
-SurfView does NOT send telemetry. You can check in the source. Or use: `tcpview` from sysinternals to confirm.
+SurfView does not send telemetry. You can check in the source. Or use: `tcpview` from sysinternals to confirm.
 
 However, as with **all** Chromium based browsers, Google phones home. We set flags to prevent this, but it might not suffice. You might need a dedicated firewall entries or a `hosts` file for this.
 
