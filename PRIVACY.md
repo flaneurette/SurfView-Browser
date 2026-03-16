@@ -118,7 +118,7 @@ Add to your windows host file as extra precaution:
 0.0.0.0 relay.metered.ca
 0.0.0.0 standard.relay.metered.ca
 0.0.0.0 premium.relay.metered.ca
-0.0.0.0 a.]relay.metered.ca
+0.0.0.0 a.relay.metered.ca
 0.0.0.0 b.relay.metered.ca
 
 # --- Viagenie / NUMB ---
