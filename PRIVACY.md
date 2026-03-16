@@ -320,11 +320,12 @@ Add to your windows host file as extra precaution, as some apps can punch throug
 0.0.0.0 ipinfo.io
 0.0.0.0 ifconfig.me
 0.0.0.0 icanhazip.com
-0.0.0.0 ipleak.net
-0.0.0.0 browserleaks.com
 0.0.0.0 webrtcleak.com
 0.0.0.0 ip8.com
 
+# Useful for testing:
+#0.0.0.0 ipleak.net 
+#0.0.0.0 browserleaks.com
 
 # --- Location-based STUN/TURN wildcards to watch ---
 # (can't block wildcards in hosts file, see note below)
