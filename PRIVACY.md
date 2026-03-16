@@ -71,10 +71,9 @@ Add to your windows Firewall through Powershell, as extra precaution against `We
 ```
 # Run as Administrator
 netsh advfirewall firewall add rule name="Block STUN/TURN UDP 3478" dir=out action=block protocol=UDP remoteport=3478
-netsh advfirewall firewall add rule name="Block STUN/TURN TCP 3478" dir=out action=block protocol=TCP remoteport=3478
+netsh advfirewall firewall add rule name="Block STUN/TURN TCP 3479" dir=out action=block protocol=TCP remoteport=3479
 netsh advfirewall firewall add rule name="Block STUN UDP 19302" dir=out action=block protocol=UDP remoteport=19302
 netsh advfirewall firewall add rule name="Block TURN TLS 5349" dir=out action=block protocol=TCP remoteport=5349
-netsh advfirewall firewall add rule name="Block TURN TCP 443" dir=out action=block protocol=TCP remoteport=443
 ```
 
 Add to your windows host file as extra precaution:
