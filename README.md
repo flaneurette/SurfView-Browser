@@ -1,6 +1,6 @@
 # SurfView Browser
 
-Updates: `March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
+Updates: `March 16th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
 SurfView is a security-focused browser, that has 3 security modes.
 
@@ -28,13 +28,13 @@ What `Image mode` genuinely protects against:
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.6-0 SurfView - Glassy
+#### v1.6-6 SurfView - Glassy
 
-`March 15th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
+`March 16th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-3/SurfView.Setup.1.6.3.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-4/SurfView.Setup.1.6.4.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-3/SurfView-1.6.3-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-4/SurfView-1.6.4-win.zip)
 
 `*` spoofed as 146.
 
@@ -48,7 +48,7 @@ See [BUILD.md](BUILD.md)
 
 ### Updates
 
-New in SurfView v1.6-3:
+New in SurfView v1.6-4:
 
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
 If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.

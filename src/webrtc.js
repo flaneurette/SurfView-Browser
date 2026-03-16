@@ -1,6 +1,7 @@
 
 let strictjs = require('./strict.js');
 
+// Set to false on production builds, as we can't see logging anyway.
 let logging = true;
 
 let WEBRTC_SIGNATURES = [
@@ -38,7 +39,6 @@ let WEBRTC_SIGNATURES = [
     // Data channels
     'createDataChannel',
     'ondatachannel',
-    //'onmessage',
 
     // Media streams
     'addStream',
@@ -68,10 +68,14 @@ let WEBRTC_SIGNATURES = [
     'getFloatFrequencyData', 
     'getChannelData',
     'startRendering',
+    // teststring
+    'aaaabbbbcccc',
 ];
 
 let PATTERNS = [
 
+    // teststring
+    /aaaabbbbcccc/,
     // Quick lookup
     /RTC\s*Peer/i,
     /\bRTC\s*Data/i,
@@ -164,10 +168,10 @@ let PATTERNS = [
     /simple-peer/i,
     /SimplePeer/i,
     /peerjs/i,
-    /PeerJS/i,
     /mediasoup/i,
-    /Janus/i,
     /janus\.js/i,
+    /proxy\.js/i,
+    /rtc\.js/i,
     /webrtc-adapter/i,
     /adapter\.js/i,
 
@@ -187,8 +191,11 @@ PATTERNS = [...PATTERNS, ...strictjs.STRICT_PATTERNS];
 
 function filterFalsepositives(code) {
     // Noticed these in next.js, very odd, but false positives.
-    code =  code.replace(/turn\s*:\s*1\s*}/i,'');
-    code =  code.replace(/turn\s*:\s*function/i,'');
+    // We only do replacements in js recon, we're not parsing/replacing live js.
+    code = code.replaceAll(/turn\s*:\s*(0|1)\s*}/ig,'');
+    code = code.replaceAll(/turn\s*:\s*function/ig,'');
+    code = code.replaceAll(/return\s*:/ig,'');
+    code = code.replaceAll(/returns\s*:/ig,'');
     return code;
 }
 
@@ -216,32 +223,101 @@ function detectWebRTC(code,uri) {
         }
     }
     
-    let deep = detectInSource(code);
+    let deep = detectInSource(code,uri);
         if(deep == 1) {
             return 1;
         }
     return 0;
 }
 
-function matchPatterns(source) {
+function matchPatterns(source,uri) {
+    
+    
     for (const p of PATTERNS) {
         if (p.test(source)) {
             if(logging == true) console.log(p,uri);
             return 1;
         }
     }
+    
+    for (const sig of WEBRTC_SIGNATURES) {
+        if (source.includes(sig)) {
+            if(logging == true) console.log(sig,uri);
+            return 1;
+        }
+    }   
+    
     return 0;
 }
 
 function cleaner(source) {
-    return source
-        .replace(/['"]\s*\+\s*['"]/g, '')
-        .replace(/\s+/g, ' ')
-        .replace(/\\x([0-9a-f]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)))
-        .replace(/\\u([0-9a-f]{4})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    
+    // Arrays
+    source = source.replace(/\[([^\]]+)\]/g, (_, inner) => {
+        const parts = [...inner.matchAll(/['"`]([^'"`]*)['"`]/g)].map(m => m[1]);
+        return "'" + parts.join('') + "'";
+    });
+    
+    source = source.replaceAll(/['"`]\s*\+\s*['"`]/g, '');
+    source = source.replaceAll(/\\x([0-9a-f]{2})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    source = source.replaceAll(/\\u([0-9a-f]{4})/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    source = source.replaceAll(/\\([0-7]{3})/g, (_, o) => String.fromCharCode(parseInt(o, 8)));
+    source = source.replaceAll(/&#(\d+);/g, (_, d) => String.fromCharCode(parseInt(d)));  
+    source = source.replaceAll(/&#x([0-9a-f]+);/gi, (_, h) => String.fromCharCode(parseInt(h, 16)));
+    source = source.replaceAll(/['"`]\s*\+\s*['"`]/g, '');
+    source = source.replaceAll(/\s+/g, ' ');
+    
+    source = source.replace(/\[([^\]]+)\]/g, (_, inner) => {
+        const parts = [...inner.matchAll(/['"`]([^'"`]*)['"`]/g)].map(m => m[1]);
+        return "'" + parts.join('') + "'";
+    });
+    
+    return source;
 }
 
-function detectInSource(source) {
+function resolveStringVars(source) {
+    
+    const vars = {};
+    const arrays = {};
+
+    const arrRegex = /(?:var|let|const)\s+(\w+)\s*=\s*\[([^\]]+)\]/g;
+    let match;
+    while ((match = arrRegex.exec(source)) !== null) {
+        const parts = [...match[2].matchAll(/['"`]([^'"`]*)['"`]/g)].map(m => m[1]);
+        if (parts.length > 0) arrays[match[1]] = parts;
+    }
+
+    const declRegex = /(?:var|let|const)\s+(\w+)\s*=\s*['"`]([^'"`]*)['"`]/g;
+    while ((match = declRegex.exec(source)) !== null) {
+        if (!(match[1] in arrays)) {
+            vars[match[1]] = match[2];
+        }
+    }
+
+    for (const [arrName, parts] of Object.entries(arrays)) {
+        source = source.replace(
+            new RegExp(`\\b${arrName}\\[(\\d+)\\]`, 'g'),
+            (_, i) => `'${parts[parseInt(i)] ?? ''}'`
+        );
+    }
+
+    for (const [varName, value] of Object.entries(vars)) {
+        source = source.replace(
+            new RegExp(`(?<!(?:var|let|const)\\s{0,10})\\b${varName}\\b`, 'g'),
+            `'${value}'`
+        );
+    }
+
+    let prev;
+    do {
+        prev = source;
+        source = source.replace(/['"`]([^'"`]*?)['"`]\s*\+\s*['"`]([^'"`]*?)['"`]/g, "'$1$2'");
+    } while (source !== prev);
+
+    return source;
+}
+
+function detectInSource(source,uri) {
     
     let current = source;
     const seen = new Set();
@@ -251,14 +327,22 @@ function detectInSource(source) {
         if (seen.has(current)) break;
         seen.add(current);
 
+        // First unwrap all vars and arrays, and concatenate them.
+        const unwrap1 = resolveStringVars(source)
+        if (matchPatterns(unwrap1,uri) == 1) return 1;
+        
         // clean obfuscation
         const cleaned = cleaner(current);
-        if (matchPatterns(cleaned)) return 1;
+        if (matchPatterns(cleaned,uri) == 1) return 1;
 
         // decode base64 then clean again
         const decoded = cleaner(decodeBase64Strings(cleaned));
-        if (matchPatterns(decoded)) return 1;
+        if (matchPatterns(decoded,uri) == 1) return 1;
 
+        // Unwrap again.
+        const unwrap2 = resolveStringVars(decoded)
+        if (matchPatterns(unwrap2,uri) == 1) return 1;
+        
         // nothing changed, stop
         if (decoded === cleaned) break;
 
@@ -269,6 +353,7 @@ function detectInSource(source) {
 }
 
 function decodeBase64Strings(source) {
+    
     const base64Regex = /\batob\((.*?)\)/g;
     
     let decoded = source;

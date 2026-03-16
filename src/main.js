@@ -10,6 +10,7 @@ const {
     shell,
     session,
     dialog,
+    net,
     webContents
 } = require('electron');
 
@@ -30,6 +31,8 @@ let torAddress = 'socks5://127.0.0.1';
 
 // Webview javascript
 let jsEnabled = false; // default: off
+// Dev debugging
+let devdebug = false;
     
 // Spoofed UA
 // We set fake chrome, but actually run a nightly build.
@@ -43,6 +46,7 @@ let geoip6Path = path.join(process.resourcesPath, 'tor/geoip6');
 
 // development
 /*
+let devdebug = true;
 let torPath = path.join(process.resourcesPath, '../../../../src/tor/tor.exe');
 let torDataDir = path.join(process.resourcesPath, '../../../../src/tor/tor-data');
 let geoipPath = path.join(process.resourcesPath, '../../../../src/tor/geoip');
@@ -55,6 +59,10 @@ let torReady = false;
 
 // Main window
 let mainWindow = null;
+
+// Arrays
+
+let largeUriList = [];
 
 // Arguments
 let torArgs = [
@@ -156,20 +164,21 @@ let defaultArgs = [
 ];
     
 ipcMain.handle('toggle-tor', async (_event, enabled) => {
+    
     torEnabled = enabled;
-
     const wvSession = getWebviewSession();
+    
     if (torEnabled) {
         try {
+            await proxyManagement();
             await startTor();
-            await wvSession.setProxy({ proxyRules: torAddress +':'+torPort });
             return { ok: true, torEnabled: true };
         } catch (err) {
             return { ok: false, error: err.message, torEnabled: false };
         }
     } else {
+        await proxyManagement();
         stopTor();
-        await wvSession.setProxy({ proxyRules: 'direct://' });
         return { ok: true, torEnabled: false };
     }
 });
@@ -246,7 +255,8 @@ ipcMain.handle('intercept', async (_event, url) => {
 ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
  
     let eventLog = [];
-    
+    let scanned = {};
+                
     eventLog.push('Starting browser.');
 
     const filter = {
@@ -292,12 +302,16 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         if (!torReady) return { ok: false, error: 'Tor not ready yet.' };
     }
     
-    if (torEnabled) {
-        defaultArgs.push(...torChromeArgs);
-    }
     
     let browser = null;
-
+    let chromeArgs = [];
+    
+    chromeArgs.push(...defaultArgs)
+    
+    if (torEnabled) {
+        chromeArgs.push(...torChromeArgs);
+    }
+    
     eventLog.push('Browser init.');
 
     try {
@@ -306,7 +320,7 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         
         browser = await puppeteer.launch({
             headless: 'new',
-            args: defaultArgs
+            args: chromeArgs
         });
 
         // Recon request.
@@ -380,82 +394,39 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
             if (!source.ok) return source;
 
             const rawPage = source.html;
-            let scan = webrtc.detectWebRTC(rawPage,false);
 
-            if (scan === 10) {
-                return {
-                    ok: false,
-                    error: 'Permanent error: pattern array in webrtc.js corrupted!'
-                };
-            }
-            
-            if (scan === 1) {
-                return {
-                    ok: false,
-                    error: 'Could not load page, possible unmasking attempt blocked.'
-                };
-            }
+            let basedomain = new URL(reconPage.url()).hostname;
+            const domainExists = largeUriList.some(entry => entry.domain === basedomain);
 
-            // Fetch and scan external scripts in Node.js since JS is disabled
-            const scriptUrls = [...rawPage.matchAll(/src=["']([^"']+\.js[^"']*)/g)]
-                .map(m => m[1])
-                .map(src => {
-                    try {
-                        return new URL(src, url).href;
-                    } catch {
-                        return null;
-                    }
-                })
-                .filter(Boolean);
-
-            let extScan = 0;
-
-            for (const scriptUrl of scriptUrls) {
-                try {
-
-                    const res = await fetch(scriptUrl, {
-                      headers: {
-                        'DNT': '1',
-                        'User-Agent': SPOOFED_UA,
-                        'Accept': 'text/javascript, application/javascript, */*;q=0.8',
-                        'Accept-Language': spoof.locale,
-                        'Accept-Encoding': 'gzip, deflate, br',
-                        'Referer': escHtml(reconPage.url()),
-                        'Sec-Fetch-Dest': 'script',
-                        'Sec-Fetch-Mode': 'no-cors',
-                        'Sec-Fetch-Site': 'same-origin',
-                      },
-                    });
-
-                    const code = await res.text();
-                    let scan = webrtc.detectWebRTC(code,scriptUrl);
-                            
-                    if (scan === 10) {
-                        return {
-                            ok: false,
-                            error: 'Permanent error: pattern array in webrtc.js corrupted!'
-                        };
-                    }
+            if (!domainExists) {
+                
+                // Do source code scan.
+                scanned = await WebRTCscan(reconPage,rawPage);
+                
+                if(scanned.pages) { 
+                
+                    let visitedDomain = {
+                        domain: basedomain,
+                        requestedFiles: [...scanned.pages]
+                    };
                     
-                    if (scan === 1) {
-                        extScan = 1;
-                        break;
-                    }
-                    
-                } catch (_) {}
-            }
-            
-            if (extScan === 1) {
-                return {
-                    ok: false,
-                    error: 'Could not load page, possible unmasking attempt blocked in external scripts.'
-                };
+                    largeUriList.push(visitedDomain);
+                }
+            } else {
+                scanned.ok = true;
             }
             
         } finally {
             await reconPage.close();
         }
         
+        if(scanned.ok == false) { 
+            return {
+                ok: false,
+                error: scanned.error
+            };
+        }
+                
         // Mimic user page refreshing.
         function delay(ms) {
           return new Promise(resolve => setTimeout(resolve, ms));
@@ -488,7 +459,7 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         await page.setRequestInterception(true);
 
         await page.setExtraHTTPHeaders({
-      'Accept-Language': spoof.accept,
+        'Accept-Language': spoof.accept,
         });
 
         if (view == "image") {
@@ -656,6 +627,217 @@ ipcMain.handle('open-external', async (_event, rawUrl) => {
 
 // Functions.
 
+async function proxyManagement() {
+
+    await session.defaultSession.setProxy({
+        proxyRules: torEnabled && torReady 
+            ? torAddress+':'+torPort 
+            : 'direct://'
+    }); 
+
+    const webviewSession = session.fromPartition('temp:webview');
+    const wvSession = getWebviewSession();
+    
+    webviewSession.setProxy({
+        proxyRules: torEnabled && torReady 
+            ? torAddress+':'+torPort 
+            : 'direct://'
+    });   
+
+    wvSession.setProxy({
+        proxyRules: torEnabled && torReady 
+            ? torAddress+':'+torPort 
+            : 'direct://'
+    });
+}
+
+async function WebRTCscan(reconPage,rawPage) {
+    
+    // returns array of scanned links.
+    
+    let scan = webrtc.detectWebRTC(rawPage,false);
+
+    if (scan === 10) {
+        return {
+            ok: false,
+            error: 'Permanent error: pattern array in webrtc.js corrupted!'
+        };
+    }
+    
+    if (scan === 1) {
+        return {
+            ok: false,
+            error: 'Could not load page, possible unmasking attempt blocked.'
+        };
+    }
+
+    // Fetch and scan externals in Node.js since JS is disabled
+    // We scan everything with a src, as even images can hold js.
+    const urlMatches = [
+      ...rawPage.matchAll(/(?:src|href|data-url)\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gim),
+      ...rawPage.matchAll(/["']\s*https?:\s*\/\/[^"'\s]+/gim),
+      ...rawPage.matchAll(/["']\s*\/\/[^"'\s]+/gim)
+    ];
+    
+    let base = escHtml(reconPage.url());
+    const urls = urlMatches
+      .flatMap(match => {
+    const validUrls = [];
+    for (let i = 1; i <= 3; i++) {
+      if (match[i]) {
+        const url = nodeJSurl(base, match[i]);
+        if (url) validUrls.push(url);
+      }
+    }
+    return validUrls;
+      })
+      .filter(Boolean);
+    
+    const uniqueUris = [...new Set(urls)];
+    
+    // Extra sanitization round.
+    for (let i = 0; i < uniqueUris.length; i++) {
+        uniqueUris[i] = nodeJSurl(base, uniqueUris[i]);
+        if (!largeUriList.includes(uniqueUris[i])) {
+            largeUriList.push(uniqueUris[i]);
+        }
+    }
+
+    if(devdebug) console.log(uniqueUris);
+    
+    let extScan = 0;
+    
+    await proxyManagement();
+    
+    for (const scriptUrl of uniqueUris) {
+        try {
+            // Direct Nodescan.
+            const res = await net.fetch(scriptUrl, {
+              headers: {
+                'DNT': '1',
+                'User-Agent': SPOOFED_UA,
+                'Accept-Language': spoof.locale,
+                'Referer': escHtml(reconPage.url()),
+              },
+            });
+
+            const code = await res.text();
+            
+            let scan = webrtc.detectWebRTC(code,scriptUrl);
+        
+            if (scan === 10) {
+                return {
+                    ok: false,
+                    pages: uniqueUris,
+                    error: 'Permanent error: pattern array in webrtc.js corrupted!'
+                };
+            }
+            
+            if (scan === 1) {
+                extScan = 1;
+                break;
+            }
+        
+        } catch (_) { }
+    }
+    
+    if (extScan === 1) {
+        return {
+            ok: false,
+            pages: uniqueUris,
+            error: 'Could not load page, possible unmasking attempt blocked in external scripts.'
+        };
+    }
+    
+    return {
+        ok: true,
+        pages: uniqueUris,
+    };
+}
+
+function nodeJSurl(base, matched) {
+    
+    if (!matched) return null;
+    
+    base = new URL(base).hostname;
+    
+    if(
+    matched === undefined
+    || matched === null
+    || matched === ''
+    || matched === 'https://' 
+    || matched === 'http://' 
+    || matched === '//' 
+    || matched === base
+    )
+    {
+        return null;
+    }
+    
+    if(matched.includes('#')) {
+        return null;
+    }
+
+    if(matched.includes('data:image') || matched.includes('data:blob')) {
+        return null;
+    }
+    
+    if(matched.startsWith('/')) {
+        matched = base + '***' + matched;
+    }
+    
+    matched = matched.replaceAll('https://','');
+    matched = matched.replaceAll('http://','');
+    matched = matched.replace(/[,>;]\s*$/, '').trim();
+    matched = matched.replace(/^(src\s*=\s*['"]?|['"])/i, '').trim();
+    matched = matched.replace(/^(https?:)?\/\/+/i, '');
+    matched = matched.replaceAll(/\/\/+/gi, '');
+    matched = matched.replaceAll('***', '/');
+    matched = matched.replace('//', '/');
+    matched = 'https://' + matched.replace('//', '/');
+    matched = matched.replace('///', '//');
+    
+    matched = matched.replaceAll('>','');
+    matched = matched.replaceAll('<','');
+    matched = matched.replaceAll('\'','');
+    matched = matched.replaceAll(';','');
+    matched = matched.replaceAll('`','');
+    matched = matched.replaceAll('../','');
+
+    // Edge cases
+    if(matched.match(/\(('|"|`|\$|)[{|]*\s*[a-z0-9]*\s*[}|]*('|"|`|)\)/gi)) {
+        return null;
+    }
+
+    if (
+        // matched.match(/\(.*\)/g) ||           // any parentheses like foo()
+        matched.match(/\$\{.*\}/g) ||         // template literals ${...}
+        matched.match(/javascript:/gi) ||      // javascript: protocol
+        matched.match(/\beval\b/gi) ||         // eval
+        matched.match(/\.toString\(\)/gi) ||   // .toString()
+        matched.match(/on\w+\s*=/gi)           // event handlers like onclick=
+    ) {
+        return null;
+    }
+
+    if(
+    matched === undefined
+    || matched === null
+    || matched === ''
+    || matched === 'https://' 
+    || matched === 'http://' 
+    || matched === '//' 
+    || matched === 'https://src' 
+    || matched === 'https://href' 
+    || matched === base
+    )
+    {
+        return null;
+    }
+    
+    return matched;
+}
+            
 function startTor() {
 
     return new Promise((resolve, reject) => {
@@ -782,14 +964,11 @@ function injectPrivacyScript(contents) {
     `);
 }
 
-function setupWebSecurity() {
+async function setupWebSecurity() {
+    
     const webviewSession = session.fromPartition('temp:webview');
 
-    webviewSession.setProxy({
-        proxyRules: torEnabled && torReady 
-            ? torAddress+':'+torPort 
-            : 'direct://'
-    });
+    await proxyManagement();
 
     webviewSession.clearCache();
     session.defaultSession.clearCache();
@@ -1050,7 +1229,7 @@ app.whenReady().then(async () => {
     const wvSession = getWebviewSession();
     wvSession.setUserAgent(SPOOFED_UA);
 
-    setupWebSecurity();
+    await setupWebSecurity();
     initJsBlocking(); 
     initCSP();
     
