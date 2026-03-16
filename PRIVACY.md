@@ -78,6 +78,8 @@ netsh advfirewall firewall add rule name="Block TURN TLS 5349" dir=out action=bl
 
 Add to your windows host file as extra precaution, as some apps can punch through your NAT/Firewall:
 
+(Even better: start using `Unbound DNS` and get control back over what leaves your machine.).
+
 ```
 # ============================================
 # WebRTC STUN/TURN/WSS Block List
