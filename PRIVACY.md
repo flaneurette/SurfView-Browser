@@ -284,6 +284,48 @@ Add to your windows host file as extra precaution, as some apps can punch throug
 0.0.0.0 openrelay.metered.ca
 0.0.0.0 relay.webrtc.org
 
+
+# --- Daily.co ---
+0.0.0.0 turn.daily.co
+0.0.0.0 stun.daily.co
+0.0.0.0 signaling.daily.co
+
+# --- Livekit ---
+0.0.0.0 turn.livekit.cloud
+0.0.0.0 stun.livekit.cloud
+0.0.0.0 livekit.cloud
+
+# --- Agora ---
+0.0.0.0 webrtc.agora.io
+0.0.0.0 turn.agora.io
+0.0.0.0 stun.agora.io
+0.0.0.0 edge.agora.io
+
+# --- Vonage / TokBox ---
+0.0.0.0 turn.opentok.com
+0.0.0.0 relay.opentok.com
+0.0.0.0 stun.opentok.com
+
+# --- 100ms ---
+0.0.0.0 turn.100ms.live
+0.0.0.0 stun.100ms.live
+
+# --- Amazon Chime/Kinesis WebRTC ---
+0.0.0.0 kinesisvideo.us-east-1.amazonaws.com
+0.0.0.0 kinesisvideo.us-west-2.amazonaws.com
+0.0.0.0 kinesisvideo.eu-west-1.amazonaws.com
+0.0.0.0 chime.aws
+
+# --- Location Services / IP Leak ---
+0.0.0.0 ipinfo.io
+0.0.0.0 ifconfig.me
+0.0.0.0 icanhazip.com
+0.0.0.0 ipleak.net
+0.0.0.0 browserleaks.com
+0.0.0.0 webrtcleak.com
+0.0.0.0 ip8.com
+
+
 # --- Location-based STUN/TURN wildcards to watch ---
 # (can't block wildcards in hosts file, see note below)
 # *.turn.twilio.com
