@@ -64,9 +64,9 @@ And monitor it for changes with `tcpview` or `wireshark`.
 
 ## Disable STUN/TURN WebRTC.
 
-Not all methods/browsers/apps/windows can successfully block WebRTC, so we want redundancy.
+Security is about layering. Not all methods, browsers, apps, embedds, windows can successfully block WebRTC a 100%, so we want redundancy.
 
-Add to your windows Firewall through Powershell, as extra precaution against `WebRTC`:
+Add to your windows Firewall through `Powershell`, as extra precaution against `WebRTC`:
 
 ```
 # Run as Administrator
@@ -76,7 +76,7 @@ netsh advfirewall firewall add rule name="Block STUN UDP 19302" dir=out action=b
 netsh advfirewall firewall add rule name="Block TURN TLS 5349" dir=out action=block protocol=TCP remoteport=5349
 ```
 
-Add to your windows host file as extra precaution:
+Add to your windows host file as extra precaution, as some apps can punch through your NAT/Firewall:
 
 ```
 # ============================================
