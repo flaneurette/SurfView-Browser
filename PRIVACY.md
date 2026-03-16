@@ -116,6 +116,29 @@ Write-Host "WARNING: Blocking 49152-65535 may break some applications." -Foregro
 Write-Host "Remove with: netsh advfirewall firewall delete rule name=`"Block *`"" -ForegroundColor Cyan
 ```
 
+Chrome registry edit (be careful): `Chrome.reg`
+
+```
+; Disable WebRTC in Chrome via Policy
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]
+"WebRtcLocalIpsAllowedUrls"=""
+"WebRtcEventLogCollectionAllowed"=dword:00000000
+"WebRtcUdpPortRange"="0-0"
+"WebRtcAllowLegacyTLSProtocols"=dword:00000000
+
+; Disable WebRTC in Edge via Policy
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
+"WebRtcLocalIpsAllowedUrls"=""
+"WebRtcUdpPortRange"="0-0"
+
+; Force Chrome to use TCP only (cripples most WebRTC)
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Google\Chrome]
+"WebRtcIPHandling"="disable_non_proxied_udp"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Edge]
+"WebRtcIPHandling"="disable_non_proxied_udp"
+```
+
 Add to your windows host file as extra precaution, as some apps can punch through your NAT/Firewall:
 
 ```
