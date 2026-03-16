@@ -54,16 +54,15 @@
     var statusJS = document.getElementById('statusJS');
     var jsStatus = document.getElementById('jsStatus');
     var statusSafe = document.getElementById('statusSafe');
-    
     var launchReport = document.getElementById('launchReport');
     var errorExplainer = document.getElementById('errorExplainer');
     
     liveWarning.style.display = 'none';
     
-    // error reports
+    // Error reports
     launchReport.addEventListener('click', function() {
-        launchReport.className = ''
-        bookmarkUrl(urlInput.value.trim());
+        launchReport.className = 'launchReport hide';
+        errorExplainer.className = 'launchReport active';
     });
 
     liveWebview.addEventListener('will-navigate', (e) => {
