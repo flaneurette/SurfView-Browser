@@ -36,13 +36,13 @@ Download your preferred version from the Releases page and install it.
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-3/SurfView-1.6.3-win.zip)
 
-`*` We set fake chrome spoofed UA, but actually run a nightly build to prevent finger printing the headless chrome.
+`*` spoofed as 146.
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
 ### 🏄 Build from source
 
-Or roll your own:
+Roll your own:
 
 See [BUILD.md](BUILD.md)
 

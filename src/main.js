@@ -208,6 +208,7 @@ ipcMain.handle('read-bookmarks', async (_event) => {
 
 ipcMain.handle('save-bookmark', async (_event, url) => {
     try {
+        let url = sanitizeUrl(url);
         const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
         if (!Array.isArray(data.url)) data.url = [];
         if (data.url.length >= 50) return { success: false, reason: 'limit' };
@@ -223,6 +224,7 @@ ipcMain.handle('save-bookmark', async (_event, url) => {
 
 ipcMain.handle('remove-bookmark', async (_event, url) => {
     try {
+        let url = sanitizeUrl(url);
         const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
         if (!Array.isArray(data.url)) return false;
         data.url = data.url.filter((u) => u !== url);
