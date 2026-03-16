@@ -72,13 +72,15 @@ And monitor it for changes with `tcpview` or `wireshark`.
 
 Security is about layering. Not all methods, browsers, apps, embedds, windows can successfully block WebRTC a 100%, so we want redundancy.
 
-## Whitelist 
+### Whitelist 
 
 There is a even better way: just deny all `outbound`, except for what you actually use. (the whitelist approach)
 
 Carefully check, and add your allowed ports that you actually use. You can always whitelist additional ports later.
 
 I would even go so far as blocking `port 80` also, as it's often used in malware, where it contacts a compromised `IP`.
+
+Add to your windows Firewall through `Powershell`, as extra precaution against `WebRTC`:
 
 ```
 # Set default outbound policy to BLOCK
@@ -120,10 +122,11 @@ netsh advfirewall firewall add rule name="OUT: svchost" dir=out action=allow pro
 netsh advfirewall firewall add rule name="OUT: Ping" dir=out action=allow protocol=ICMPv4
 ```
 
-## Blacklist
+### Blacklist
+
+The laternative is blacklisting. Much more difficult.
 
 Add to your windows Firewall through `Powershell`, as extra precaution against `WebRTC`:
-
 
 ```
 # Run as Administrator
