@@ -88,7 +88,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - March 16th: `webrtc.js` updated with better detection signatures.
 - March 16th: deeper reverse engineering of obfuscated JavaScript to detect attacks or unmasking when JS is enabled.
 - March 18th: Its now possible to search with `Ctrl+F`
-- March 18th: Its now possible to saves webpages.
+- March 18th: Its now possible to save webpages.
 - March 18th: New menu.
 - March 18th: When JavaScript is enabled: file `reconnaissance` is done much more optimized and is much faster now. It scans for `signatures` of unsafe code, and blocks it before any page render, and displays a security report. It especially tries to find WebRTC signatures, but also `iframes`, `objects` and does `reverse-engineering` in real time to detect obfuscated scripts.
 - March 18th: When JS enabled, `SurfView file recon`, scans all files before render. It computes a `unique sha hash`, and stores it in memory. This prevents re-scanning each file for the same session. If a hash changes, the page render will be blocked.
