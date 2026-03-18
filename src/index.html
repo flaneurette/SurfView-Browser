@@ -55,7 +55,7 @@
   </div>
 
   <!-- URL BAR -->
-  <div class="urlbar">
+  <div class="urlbar" id="urlbar">
     <button class="btn btn-icon" id="btnBack" title="Back" disabled>&#8592;</button>
     <button class="btn btn-icon" id="btnFwd" title="Forward" disabled>&#8594;</button>
     <button class="btn btn-icon" id="btnReload" title="Reload">&#8635;</button>
@@ -73,13 +73,24 @@
   <!-- MAIN -->
   <div class="main">
 
+    <div id="searchBox">
+        <input type="text" class="btn btn-primary" id="search-input" placeholder="Search..." />
+        <button class="btn btn-primary" id="search-next">-&gt;&gt;</button>
+        <button class="btn btn-primary" id="search-prev">&lt;&lt;-</button>
+        <button class="btn btn-primary" id="search-close">Close</button>
+        <div id="search-results">0/0</div>
+    </div>
+
     <!-- VIEWPORT -->
     <div class="viewport" id="viewport">
       <div class="viewport-inner" id="viewportInner">
       
         <div class="error-state" id="errorState">
           <span><h3>&#9888;</h3> render failed</span>
+          <div class="error-msg-status" id="errorMsgStatus"></div>
           <div class="error-msg" id="errorMsg"></div>
+          <div id="wantsToGoTo"></div>
+          <button class="btn btn-primary" id="launchReload">Reload, or follow redirect.</button>
           <button class="btn btn-primary" id="launchReport">Detailed error report</button>
         </div>
         
@@ -90,7 +101,7 @@
         <div class="empty-state" id="emptyState">
           <div class="empty-icon">&#9681;</div>
           <div class="empty-title">no page loaded</div>
-          <div class="empty-sub">enter a url above. the page will be rendered to a static image. no scripts will execute.</div>
+          <div class="empty-sub">enter a url above.</div>
         </div>
         
         <div class="loading-state" id="loadingState">
@@ -132,6 +143,7 @@
           id="liveWebview"
           src="about:blank"
           partition="temp:webview"
+          referrerpolicy="no-referrer"
           webpreferences="webgl=false,
             disableWebRTC=true,
             nodeIntegration=false,
@@ -213,7 +225,7 @@
   </div>
 
 </div>
-
+            
 <div id="confirmBox">
   <span id="confirmMsg" style="margin-left:12px;float:left;"></span>
   <button id="confirmYes" class="btn btn-primary" style="margin-left:12px;float:left;">Remove</button>

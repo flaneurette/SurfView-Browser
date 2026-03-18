@@ -15,5 +15,9 @@ contextBridge.exposeInMainWorld('surfview', {
   torStatus: () => ipcRenderer.invoke('tor-status'),
   setJS: (val) => ipcRenderer.invoke('set-js', val),
   dialog: (msg) => ipcRenderer.invoke('dialog', msg),
-  navigateIntercept: (url) => ipcRenderer.invoke('intercept', url)
+  navigateIntercept: (url) => ipcRenderer.invoke('intercept', url),
+  showContextMenu: () => ipcRenderer.send('show-context-menu'),
+  onContextMenu: (callback) => ipcRenderer.on('context-menu', callback),
+  searchInWebview: (text, options) => ipcRenderer.invoke('search-in-webview', text, options),
+  stopSearchInWebview: () => ipcRenderer.invoke('stop-search-in-webview')
 });

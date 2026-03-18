@@ -28,13 +28,13 @@ What `Image mode` genuinely protects against:
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.6-4 SurfView - Glassy
+#### v1.6-5 SurfView - Glassy
 
 `March 16th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-4/SurfView.Setup.1.6.4.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-5/SurfView.Setup.1.6.5.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-4/SurfView-1.6.4-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-5/SurfView-1.6.5-win.zip)
 
 `*` spoofed as 146.
 
@@ -48,7 +48,7 @@ See [BUILD.md](BUILD.md)
 
 ### Updates
 
-New in SurfView v1.6-4:
+New in SurfView v1.6-5:
 
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
 If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
@@ -58,7 +58,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 - WebRTC is now detected when JavaScript is `on` and blocked. 
 
-- SurfView passes all `browserleaks.com` JavaScript test, except for font fingerprinting. We assume you have default fonts anyway.
+- SurfView passes all `browserleaks.com` JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
 
 ## How it works
 
