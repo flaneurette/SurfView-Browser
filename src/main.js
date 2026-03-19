@@ -622,9 +622,9 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
             deviceScaleFactor: 2
         });
 
-        if (view == "image" || view == "js") {
+        if (view == "js") {
             await page.setJavaScriptEnabled(true);
-        } else {
+            } else {
             await page.setJavaScriptEnabled(false);
         }
 
