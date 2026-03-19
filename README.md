@@ -1,6 +1,6 @@
 # SurfView Browser
 
-Updates: `March 16th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
+Updates: `March 18th 2026: advised to update.`
 
 SurfView is a security-focused browser, that has 3 security modes.
 
@@ -30,13 +30,11 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.6-7 SurfView - Glassy
 
-`March 16th 2026: Updated to latest nightly Chrome/147.0.7727.0` *
+Updates: `March 18th 2026: advised to update.`
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-7/SurfView.Setup.1.6.7.exe)
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.6-7/SurfView-1.6.7-win.zip)
-
-`*` spoofed as 146.
 
 Linux: coming soon. (Tip: You might want to build from source anyway. It's easy, promised.)
 
