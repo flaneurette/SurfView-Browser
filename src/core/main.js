@@ -31,9 +31,9 @@ const path = require('path');
 const puppeteer = require('puppeteer');
 const {spawn} = require('child_process');
 const fs = require('fs');
-const spoof = require('./spoof.js');
-const strictjs = require('./strict.js');
-const webrtc = require('./webrtc.js');
+const spoof = require('./privacy/spoof.js');
+const strictjs = require('./security/strict.js');
+const webrtc = require('./security/webrtc.js');
 
 // Spoofed UA
 // We set fake chrome, but actually run a nightly build.
@@ -56,7 +56,7 @@ let torAddress = 'socks5://127.0.0.1';
 let jsEnabled = false; // default: off
 
 // Dev debugging
-const devdebug = false;
+const devdebug = true;
 
 let debugLog = [];
 let torPath, torDataDir, geoipPath, geoip6Path;
@@ -66,7 +66,7 @@ if(devdebug) {
     torDataDir = path.join(process.resourcesPath, '../../../../src/tor/tor-data');
     geoipPath = path.join(process.resourcesPath, '../../../../src/tor/geoip');
     geoip6Path = path.join(process.resourcesPath, '../../../../src/tor/geoip6');
-} else {
+    } else {
     torPath = path.join(process.resourcesPath, 'tor/tor.exe');
     torDataDir = path.join(process.resourcesPath, 'tor/tor-data');
     geoipPath = path.join(process.resourcesPath, 'tor/geoip');
@@ -362,7 +362,8 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
     }
 
     if (torEnabled && (view === 'live' || view === 'js')) {
-        if (!torReady) return { ok: false, status: 'Tor error', error: 'Tor not ready yet.' };
+        if (!torReady) return { ok: false, status: 'Tor error', 
+        error: 'Tor not ready yet.' };
     }
     
     
@@ -395,8 +396,8 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         if(jsEnabled) {
 
             // Recon request.
-            let originalHost = new URL(url).hostname;
-            let baseDomain = originalHost.split('.').slice(-2).join('.');
+            var originalHost = new URL(url).hostname;
+            var baseDomain = originalHost.split('.').slice(-2).join('.');
             let reconPage = await browser.newPage();
             
             reconPage.removeAllListeners('request');
@@ -613,7 +614,18 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         
         if(devdebug) console.log('Live page request made.!');
         
-        // Final request.
+        var originalHost = new URL(url).hostname;
+        var baseDomain = originalHost.split('.').slice(-2).join('.');
+
+        let pageStatusError1 = false;
+        let pageQuit1 = false;
+        let reconErrors1 = null;
+        let counts1 = 0;
+        let pageRedirect1 = false;
+        let redirectUrl1 = false;
+        let pageStatus1 = '000';
+        let origUrl1 = originalHost;
+            
         const page = await browser.newPage();
         await page.setUserAgent(SPOOFED_UA);
         await page.setViewport({
@@ -622,55 +634,100 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
             deviceScaleFactor: 2
         });
 
-        if (view == "js") {
-            await page.setJavaScriptEnabled(true);
-            } else {
-            await page.setJavaScriptEnabled(false);
-        }
+        await page.setJavaScriptEnabled(view === "js");
 
-        if(devdebug) console.log('Live page interception');
+        if (devdebug) console.log('Live page interception');
+
         await page.setRequestInterception(true);
 
         await page.setExtraHTTPHeaders({
-        'Accept-Language': spoof.accept,
+            'Accept-Language': spoof.accept,
         });
 
-        if (view == "image") {
-            await page.addStyleTag({
-                content: `
-            [class*="modal"], [id*="modal"],
-            [class*="dialog"], [id*="dialog"],
-            [class*="overlay"], [id*="overlay"],
-            [class*="cookie"], [id*="cookie"],
-            [class*="consent"], [class*="gdpr"],
-            [class*="privacy"], [class*="popup"], [class*="modal"],
-            [class*="overlay"], [class*="banner"],
-            [id*="consent"], [id*="gdpr"], [id*="privacy"],
-            #onetrust-consent-sdk, .cc-window, .cookielaw-banner,
-            .cookie-notice, .cookie-popup, .gdpr-popup {
-              display: none !important;
-            }
-          `,
+        if (view !== "js") {
+            page.on('request', (req) => {
+                const type = req.resourceType();
+                const blocked = ['script', 'xhr', 'fetch', 'websocket', 'media', 'eventsource', 'other'];
+                if (blocked.includes(type)) {
+                    req.abort();
+                } else {
+                    req.continue();
+                }
             });
         }
 
+        if (devdebug) console.log('Live page loading...');
+                
         page.on('request', (req) => {
-            const type = req.resourceType();
-            const blocked = ['script', 'xhr', 'fetch', 'websocket', 'media', 'eventsource', 'other'];
-            if (blocked.includes(type)) {
-                req.abort();
-            } else {
-                req.continue();
+            if (req.resourceType() === 'document') {
+                    req.continue();
+                } else {
+                    req.abort();
             }
         });
+                
+        page.on('response', (response) => {
+
+            if(counts1 == 0) {
+
+            counts1++;
+            
+            status = response.status();
+            
+                let statusMessages = {
+                    301: escHtml(status) + '\n\nSite tried to redirect (permanent).\n\nResponse url: ' + escHtml(response.url()) + '\n\nLocation: ' + escHtml(response.headers()['location'] || ''),
+                    302: escHtml(status) + '\n\nSite tried to redirect (temporary).\n\nResponse url: ' + escHtml(response.url()) + '\n\nLocation: ' + escHtml(response.headers()['location'] || ''),
+                    303: escHtml(status) + '\n\nSite tried to redirect (see other).',
+                    307: escHtml(status) + '\n\nSite tried to redirect (temporary).',
+                    308: escHtml(status) + '\n\nSite tried to redirect (permanent).',
+                    400: escHtml(status) + '\n\nBad request.',
+                    401: escHtml(status) + '\n\nUnauthorized - login required.',
+                    403: escHtml(status) + '\n\nForbidden - access denied.',
+                    404: escHtml(status) + '\n\nPage not found.',
+                    405: escHtml(status) + '\n\nMethod not allowed.',
+                    429: escHtml(status) + '\n\nToo many requests - rate limited.',
+                    500: escHtml(status) + '\n\nInternal server error.',
+                    502: escHtml(status) + '\n\nBad gateway.',
+                    503: escHtml(status) + '\n\nService unavailable.',
+                    504: escHtml(status) + '\n\nGateway timeout.',
+                };
+            
+                if (devdebug) console.log(escHtml(status));
+            
+                if ([301,302,303,307,308].includes(status)) { 
+                    pageRedirect1 = true;
+                    redirectUrl1 = escHtml(response.headers()['location']).replaceAll(',','').replaceAll('&amp;','&');
+                }
+            
+                if (![200, 201, 204].includes(status)) {   
+                    pageStatusError1 = statusMessages[status] ?? `Unknown status: ${escHtml(status)}`;
+                    pageQuit1 = true;   
+                    pageStatus1 = escHtml(status);                
+                }
+            }      
+                
+        });
         
-        if(devdebug) console.log('Live page loading...');
+        console.log('Going to url');
 
         await page.goto(url, {
             waitUntil: 'domcontentloaded',
             timeout: 15000,
         });
-        
+
+        let pageResult = {
+            ok: false,
+            redirect: pageRedirect1,
+            to: redirectUrl1,
+            status:pageStatus1,
+            original:origUrl1,
+            error: 'Page load failed.\n\nPage might redirect or is giving errors. Try to reload, or follow redirect.',
+        };
+     
+        if(pageQuit1) {
+            return pageResult;
+        } 
+            
         if(devdebug) console.log('Live page loaded.');
         
         const t0 = Date.now();
@@ -680,7 +737,13 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         // small risk, but might be possible if size > 15MB.
         const pageLen = await page.evaluate(() => {
             const html = document.documentElement?.outerHTML ?? '';
-            if (!html) return;
+            if (!html)  {
+                return {
+                    ok: false,
+                    status: 'ERR',
+                    error: 'Document HTML could not be found.'
+                };
+            }
             if(html) {
                 return document.documentElement.outerHTML.length;
             }
@@ -721,6 +784,7 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         const cleanLinks = [];
 
         for (const link of links) {
+            
             if (!link.href || seenHrefs.has(link.href)) continue;
 
             const safeHref = sanitizeUrl(link.href);
@@ -729,6 +793,7 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
             seenHrefs.add(safeHref);
 
             let type = 'internal';
+            
             try {
                 const linkUrl = new URL(safeHref);
                 const pageUrl = new URL(url);
@@ -759,7 +824,6 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
         const pageTitle = await page.title();
 
         if (view == "live" || view == "js") {
-
             return {
                 ok: true,
                 live: true,
@@ -768,7 +832,6 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
                 url: escHtml(page.url()),
                 renderMs,
             };
-
         } else if (view == "image") {
 
             return {
@@ -913,16 +976,24 @@ async function WebRTCscan(reconPage,rawPage) {
     for (let match of matches) {
          let value = match[3] || match[4] || match[5];
           if (value) {
-            let url = nodeJSurl(base, value);
-            if (url != false) validUrls.push(url);
+            if(['),','((','[[',']]','{','}','||',']=','=[','!=','=(','("','&(','="','= "'].some(bad => value.includes(bad))) {
+                // url contains illegal chars.
+                } else {
+                let url = nodeJSurl(base, value);
+                if (url != false) validUrls.push(url);
+            }
           }
     }
 
     for (let match2 of matches_source) {
          let value2 = match2[3] || match2[4] || match2[5];
           if (value2) {
-            let url2 = nodeJSurl(base, value2);
-            if (url2 != false) validUrls.push(url2);
+            if(['),','((','[[',']]','{','}','||',']=','=[','!=','=(','("','&(','="','= "'].some(bad => value2.includes(bad))) {
+                // url contains illegal chars.
+                } else { 
+                let url2 = nodeJSurl(base, value2);
+                if (url2 != false) validUrls.push(url2);
+            }
           }
     }
 
@@ -1036,58 +1107,40 @@ function nodeJSurl(base, matched) {
    let prebase = base.replace('https://','');
    prebase = prebase.replace('http://','');
    prebase = prebase.replace('www.','');
-
+    
    let presub = matched.match(/(?:https?:\/\/|wss?:\/\/|turns?:\/\/|stuns?:\/\/|ftp:\/\/|ww[w0-9]\.(?=\S))(?:[\p{L}\p{N}-]+\.)+(?:[\p{L}]{2,})/gui);
 
    if(matched.includes(prebase)) {
-     intern = true;
-   } else if(presub) {
-     intern = false;
-   } else {
-    intern = true;
+        intern = true;
+        } else if(presub) {
+        intern = false;
+        } else {
+        intern = true;
    }
 
-   if(
-    matched == 'undefined'
-        || matched == 'null'
-        || matched == ''
-        || matched == 'https://' 
-        || matched == 'http://' 
-        || matched == '//' 
-        || matched == base
-    )
-    {
-        return false;
-    }
+    matched = earlyReturn(matched,base);
 
     if(matched.startsWith('./')) {
         matched = matched.replace('./','');
     }
-
+  
     if(intern) { 
     
-      let afterScan = matched.match(/(?:https?:\/\/|wss?:\/\/|turns?:\/\/|stuns?:\/\/|ftp:\/\/|ww[w0-9]\.)/gi);
+       let afterScan = matched.match(/(?:https?:\/\/|wss?:\/\/|turns?:\/\/|stuns?:\/\/|ftp:\/\/|ww[w0-9]\.)/gi);
       
        if(afterScan) {
        // dont rewrite, it's already internal.
        } else {
         // reconstruct url.
+        matched = matched.trim();
         matched = matched.replace(base,'');
         matched = matched.replace(prebase,'');
         matched = 'https://' + prebase + '***_***' + matched;
        }
      }
 
-     if(matched.includes('../')) {
-        matched = matched.replaceAll('../','_**_**_/');
-     }
-    
-    if(matched.includes('#')) {
-        return false;
-    }
-
-    if(matched.includes('data:image') || matched.includes('data:blob')) {
-        return false;
+    if(matched.includes('../')) {
+       matched = matched.replaceAll('../','_**_**_/');
     }
     
     matched = matched.replaceAll('https://','');
@@ -1115,37 +1168,70 @@ function nodeJSurl(base, matched) {
     }
 
     if (
-        // matched.match(/\(.*\)/g) ||           // any parentheses like foo()
-        matched.match(/\$\{.*\}/g) ||         // template literals ${...}
-        matched.match(/javascript:/gi) ||      // javascript: protocol
-        matched.match(/\beval\b/gi) ||         // eval
-        matched.match(/\.toString\(\)/gi) ||   // .toString()
-        matched.match(/on\w+\s*=/gi)           // event handlers like onclick=
+        matched.match(/\$\{.*\}/g) ||
+        matched.match(/\beval\s*\(\b/gi) ||
+        matched.match(/\.toString\s*\(/gi) || 
+        matched.match(/\.atob\s*\(/gi) || 
+        matched.match(/\.btoa\s*\(/gi)
     ) {
-        return false;
-    }
-
-    if(
-    matched == 'undefined'
-        || matched == 'null'
-        || matched == ''
-        || matched == 'https://' 
-        || matched == 'http://' 
-        || matched == '//' 
-        || matched == 'https://src' 
-        || matched == 'https://href' 
-        || matched == base
-    )
-    {
         return false;
     }
     
     if(matched.length <=11 ) {
         return false;
     }
+    
+    matched = earlyReturn(matched,base);
+    
   return matched;
 }
-   
+
+
+function earlyReturn(matched,base) {
+    
+    matched = matched.trim();
+
+    if(
+        matched == 'undefined'
+        || matched == 'null'
+        || matched == ''
+        || matched == 'https://' 
+        || matched == 'http://'
+        || matched == 'https://src' 
+        || matched == 'https://href' 
+        || matched == base
+        || matched == '#'    
+        || matched == '//'
+        || matched == '=='
+        || matched == '='
+        || matched == 'href'
+        || matched == 'src'
+        || matched == 'let'
+        || matched == 'var'
+        || matched == 'about:blank'
+    )
+    {
+        return false;
+    }
+    
+    if (
+        matched.startsWith('https://chrome-') ||
+        matched.startsWith('https://about:') ||
+        matched.startsWith('javascript:') ||
+        matched.startsWith('data:') ||
+        matched.startsWith('file:') || 
+        matched.startsWith('chrome:') || 
+        matched.startsWith('edge:') || 
+        matched.startsWith('moz-extension:') ||
+        matched.startsWith('view-source:') || 
+        matched.startsWith('blob:') 
+    ) {
+        return false;
+    }
+    
+    return matched;
+}
+    
 function startTor() {
 
     try { 
@@ -1447,15 +1533,6 @@ function createWindow() {
       contextMenu.popup(mainWindow, params.x, params.y);
     });
 
-
-    // Register Ctrl+F / Cmd+F
-    globalShortcut.register('CommandOrControl+F', () => {
-      mainWindow.webContents.executeJavaScript(`
-          document.getElementById('searchBox').style.display = 'block';
-          document.getElementById('search-input').focus();
-      `);
-    });
-
     // Handle search requests
     ipcMain.handle('search-in-webview', async (event, text, options = {}) => {
       if (!text) {
@@ -1505,8 +1582,11 @@ function createWindow() {
       }
     });
 
+    mainWindow.on('blur', () => {
+        globalShortcut.unregisterAll();
+    });
 
-  mainWindow.loadFile(path.join(__dirname, 'index.html'));
+    mainWindow.loadFile(path.join(__dirname, 'index.html'));
 }
 
 

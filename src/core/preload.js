@@ -1,4 +1,4 @@
-// src/preload.js
+// src/core/preload.js
 // This is the only bridge between the sandboxed renderer and the main process.
 // We expose only the exact functions the UI needs, nothing else.
 

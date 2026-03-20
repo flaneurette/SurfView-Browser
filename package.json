@@ -1,8 +1,8 @@
 {
   "name": "SurfView",
   "version": "1.6.7",
-  "description": "A secure browser that renders pages as static images",
-  "main": "src/main.js",
+  "description": "A security focused browser.",
+  "main": "src/core/main.js",
   "scripts": {
     "start": "electron .",
     "build-win": "electron-builder --win",
@@ -40,7 +40,8 @@
         "from": "src/tor",
         "to": "tor",
         "filter": [
-          "**/*"
+          "**/*",
+          "!**/tor-data/**"
         ]
       }
     ],

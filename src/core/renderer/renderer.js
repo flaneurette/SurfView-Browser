@@ -1,4 +1,4 @@
-// src/renderer.js
+// src/core/renderer/renderer.js
 // Runs in the sandboxed Electron renderer process.
 // Communicates with main only via window.surfview (exposed by preload.js).
 // Never touches the network directly.
@@ -58,12 +58,14 @@
     var launchReport = document.getElementById('launchReport');
     var launchReload = document.getElementById('launchReload');
     var errorExplainer = document.getElementById('errorExplainer');
-   
+    var searchBox = document.getElementById('searchBox');
+    
     var liveModal = 'inactive';
-    liveWarning.style.display = 'none';
+    liveWarning.className = 'hideElement';
     
     errorExplainer.className = 'error-explainer hide';
     errorState.className = 'error-state hide';
+    searchBox.className = 'search-box hide';
     
     liveWebview.addEventListener('did-fail-load', (event) => {
       console.log('Load failed:', event.errorCode, event.errorDescription)
@@ -91,7 +93,7 @@
 
     // Close button
         document.getElementById('search-close').addEventListener('click', () => {
-        document.getElementById('searchBox').style.display = 'none';
+        document.getElementById('searchBox').className = 'hideElement';
         window.surfview.stopSearchInWebview();
     });
          
@@ -110,7 +112,7 @@
    
     // Error reports
     launchReport.addEventListener('click', function() {
-        launchReport.style.display = 'none';
+        launchReport.className = 'launchReport hide';
         errorExplainer.className = 'error-explainer active';
         errorState.className = 'error-state hide';
     });
@@ -151,19 +153,24 @@
             jsEnabled1 = false;
         }
         
+        const jsClass = jsEnabled1 ? 'js-on' : 'js-off';
+
+        jsStatus.classList.remove('js-on', 'js-off');
+        jsStatus.classList.add(jsClass);
         jsStatus.textContent = jsEnabled1 ? 'JS ON' : 'JS OFF';
-        jsStatus.style.color = jsEnabled1 ? 'var(--danger)' : 'var(--accent)';
+
+        statusSafe.classList.remove('js-on', 'js-off');
+        statusSafe.classList.add(jsClass);
         statusSafe.textContent = jsEnabled1 ? 'javascript enabled on webview.' : 'scripts blocked';
-        statusSafe.style.color = jsEnabled1 ? 'var(--danger)' : 'var(--accent)';
 
         if(jsEnabled1 == true) { 
             window.surfview.setJS(true);
-            liveWarning.style.display = 'none';
+            liveWarning.className = 'hideElement';
             if (!uri) return;
             loadUrl(uri, true, "js");
             } else {
             window.surfview.setJS(false);
-            liveWarning.style.display = 'none';
+            liveWarning.className = 'hideElement';
             if (!uri) return;
             loadUrl(uri, true, "live");
         }
@@ -201,14 +208,14 @@
     });
 
     btnReload.addEventListener('click', function() {
-        liveWarning.style.display = 'none';
+        liveWarning.className = 'hideElement';
         var url = sanitizeUrl(urlInput.value.trim());
         if (!url) return;
         whatIsAllowed(url);
     });
 
     liveWarningClose.addEventListener('click', function() {
-        document.getElementById('liveWarning').style.display = 'none';
+        document.getElementById('liveWarning').className = 'hideElement';
     });
 
     // webview navigation events: keep url bar in sync
@@ -259,18 +266,17 @@
                 setShield(false);   
             }
             
-            liveWrap.className = 'live-wrap';
+            liveWrap.className = 'live-wrap hide';
             liveModal = 'active';
             if (rawUrl) {
                 loadUrl(sanitizeUrl(rawUrl), true, "image");
             }
         } else {
             setShield(false);
-            liveWrap.className = 'live-wrap';
             pageImageWrap.className = 'page-image-wrap';
-            emptyState.style.display = 'none';
-            liveWarning.style.display = 'block';
-            liveWrap.style.display = 'block';
+            emptyState.className = 'empty-state hide';
+            liveWarning.className = 'showElement';
+            liveWrap.className = 'live-wrap active';
             if (rawUrl) {
                 var url = sanitizeUrl(rawUrl);
                 if (!url) return;
@@ -285,9 +291,9 @@
     function removeLiveMessage() {
             
         if(window.getComputedStyle(liveWarning).display != 'none') {
-            liveWarning.style.display = 'none';
+            liveWarning.className = 'hideElement';
         } else if(liveModal == 'active') {
-            liveWarning.style.display = 'none';
+            liveWarning.className = 'hideElement';
         }
         
         return;
@@ -307,16 +313,19 @@
     }
     
     function updateTorLabel(enabled, ready) {
-        if (!enabled) {
-            torLabel.textContent = 'tor: off';
-            torLabel.style.color = 'var(--danger)';
-        } else if (ready) {
-            torLabel.textContent = 'tor: connected';
-            torLabel.style.color = '#4caf50';
-        } else {
-            torLabel.textContent = 'tor: connecting...';
-            torLabel.style.color = '#ff9800';
-        }
+      // Remove all state classes first
+      torLabel.classList.remove('tor-off', 'tor-connected', 'tor-connecting');
+
+      if (!enabled) {
+        torLabel.textContent = 'tor: off';
+        torLabel.classList.add('tor-off');
+      } else if (ready) {
+        torLabel.textContent = 'tor: connected';
+        torLabel.classList.add('tor-connected');
+      } else {
+        torLabel.textContent = 'tor: connecting...';
+        torLabel.classList.add('tor-connecting');
+      }
     }
 
     // Poll status until ready on startup
@@ -343,22 +352,22 @@
     });
 
     function setShield(safe) {
-        if (safe) {
-            shieldBadge.style.borderColor = 'rgba(74,240,160,0.2)';
-            shieldBadge.style.color = 'var(--accent)';
-            shieldDot.style.background = 'var(--accent)';
-            shieldDot.style.boxShadow = '0 0 6px var(--accent)';
-            shieldLabel.textContent = 'SAFE MODE';
-            modeLabel.textContent = 'image mode';
-            statusSafe.className = 'status-item status-ok';
-        } else {
-            shieldBadge.style.borderColor = 'rgba(240,74,106,0.2)';
-            shieldBadge.style.color = 'var(--danger)';
-            shieldDot.style.background = 'var(--danger)';
-            shieldDot.style.boxShadow = '0 0 6px var(--danger)';
-            shieldLabel.textContent = 'LIVE MODE';
-            modeLabel.textContent = 'live mode';
-        }
+      // Remove old states
+      shieldBadge.classList.remove('shield-safe', 'shield-danger');
+      shieldDot.classList.remove('shield-safe', 'shield-danger');
+
+      if (safe) {
+        shieldBadge.classList.add('shield-safe');
+        shieldDot.classList.add('shield-safe');
+        shieldLabel.textContent = 'SAFE MODE';
+        modeLabel.textContent = 'image mode';
+        statusSafe.className = 'status-item status-ok';
+      } else {
+        shieldBadge.classList.add('shield-danger');
+        shieldDot.classList.add('shield-danger');
+        shieldLabel.textContent = 'LIVE MODE';
+        modeLabel.textContent = 'live mode';
+      }
     }
 
     // keyboard shortcut: Ctrl+L / Cmd+L to focus url bar
@@ -483,16 +492,15 @@
     function removeBookmark(url) {
         var box = document.getElementById('confirmBox');
         document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
-        box.style.display = 'block';
-
+        box.className = 'confirm-box active';
         document.getElementById('confirmYes').onclick = function() {
-            box.style.display = 'none';
+            box.className = 'confirm-box hide';
             window.surfview.removeBookmark(url).then(function(ok) {
                 if (ok) loadBookmarks();
             });
         };
         document.getElementById('confirmNo').onclick = function() {
-            box.style.display = 'none';
+            box.className = 'confirm-box hide';
         };
     }
 
@@ -532,8 +540,8 @@
 
         urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
 
-        liveWebview.style.display='none';
-        pageImage.style.display='none';
+        liveWebview.className = 'live-webview hide';
+        pageImage.className = 'page-image hide';
         
         setLoadingUi(true,loadingStatePage);
 
@@ -564,11 +572,11 @@
             setLoadingUi(false);
 
             if(viewType == 'live' || viewType == 'js') {
-                liveWrap.className = 'live-wrap';
-                liveWebview.style.display='flex';
+                liveWrap.className = 'live-wrap active';
+                liveWebview.className = 'live-webview active';
                 } else {
                 pageImageWrap.className = 'page-image-wrap';
-                pageImage.style.display='block';
+                pageImage.className = 'page-image active';
             }
         
             if (!result.ok) {
@@ -597,9 +605,10 @@
         
         removeLiveMessage();
         
-        liveWebview.src = 'about:blank';
-        emptyState.style.display = 'none';
-        errorState.className = 'error-state';
+        liveWebview.src='';
+        
+        emptyState.className = 'empty-state hide';
+        errorState.className = 'error-state hide';
         errorExplainer.className = 'error-explainer hide';
         
         if(type == "live") {
@@ -662,17 +671,17 @@
         if (result.live) {
             // show webview, hide image
             pageImageWrap.className = 'page-image-wrap'; // hide image wrap
-            liveWrap.className = 'live-wrap.active'; // show live wrap
+            liveWrap.className = 'live-wrap active'; // show live wrap
             setWebviewURL(result.url);
             // reset image to blank.
             pageImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
         } else {
             // show screenshot, hide webview
             liveWebview.src = '';
-            liveWrap.className = 'live-wrap.hide'; // hide live wrap
+            liveWrap.className = 'live-wrap hide'; // hide live wrap
             pageImageWrap.className = 'page-image-wrap active'; // show image wrap
             pageImage.src = 'data:image/png;base64,' + result.imageBase64;
-            pageImage.style.display = 'block';
+            pageImage.className = 'page-image active';
         }
 
         setLinks(result.links);
@@ -712,7 +721,7 @@
         // Is there an error?
         if(msg.error) {
             if(msg.redirect == true) {
-                launchReload.style.display = 'flex';
+                launchReload.className = 'launchReload active';
             }
         }
 
@@ -726,31 +735,31 @@
             b = new URL(b).hostname
             
             if(a != b) {
-                wantsToGoTo.style.display = 'none';
-                launchReload.style.display = 'none';
+                wantsToGoTo.className = 'toGoTo hide';
+                launchReload.className = 'launchReload hide';
             }
         }
         
         var gotoUrl = msg.to;
         
-        console.log(msg);
+        // console.log(msg);
         
         // Not a redirect.
         if(!msg.redirect || msg.redirect == false) {
-            wantsToGoTo.style.display = 'none';
-            launchReload.style.display = 'none'; 
+            wantsToGoTo.className = 'toGoTo hide';
+            launchReload.className = 'launchReload hide';
         }
         
         if(msg.redirect) {
             gotoUrl = sanitizeUrl(msg.to);
             wantsToGoTo.textContent = 'Wants to go to: \n\n' + gotoUrl;
-            wantsToGoTo.style.display = 'flex'; 
+            wantsToGoTo.className = 'toGoTo active';            
         }  
         
         // We found a signature.
         if(msg.reconresult == false) {
-            wantsToGoTo.style.display = 'none';
-            launchReload.style.display = 'none';      
+            wantsToGoTo.className = 'toGoTo hide';
+            launchReload.className = 'launchReload hide';     
         }
         
         if(msg.status == 'undefined') {
@@ -764,8 +773,8 @@
             gotoUrl = sanitizeUrl(msg.to);
             if (['301','302','303','307','308'].includes(msg.status)) { 
                 wantsToGoTo.textContent = 'Wants to go to: \n\n' + gotoUrl;
-                wantsToGoTo.style.display = 'flex'; 
-                launchReload.style.display = 'flex';
+                wantsToGoTo.className = 'toGoTo active';
+                launchReload.className = 'launchReload active';
             }  
             
             launchReload.onclick = ()=> { 
@@ -786,8 +795,8 @@
         errorExplainer.innerHTML = formatted;
         errorState.className = 'error-state active';
         statusDomain.textContent = 'error';
-        launchReport.style.display = 'flex';
-        liveWebview.src = 'about:blank';
+        launchReport.className = 'launchReport active';
+        liveWebview.src = '';
     }
 
     function updateNavButtons() {
@@ -819,7 +828,7 @@
 
         if (filtered.length === 0) {
             linkList.innerHTML = '<div class="panel-empty">' +
-                '<span style="font-size:20px;opacity:0.3">&#9135;</span>' +
+                '<span id="panelSymbol">&#9135;</span>' +
                 (allLinks.length === 0 ? 'no links yet' : 'no matches') +
                 '</div>';
             return;
@@ -935,22 +944,30 @@
         resizing = true;
         resizeStartX = e.clientX;
         panelStartW = document.getElementById('sidePanel').offsetWidth;
-        document.body.style.cursor = 'col-resize';
-        document.body.style.userSelect = 'none';
+        document.body.classList.add('resizing');
     });
 
     document.addEventListener('mousemove', function(e) {
         if (!resizing) return;
         var delta = resizeStartX - e.clientX;
         var newW = Math.max(180, Math.min(520, panelStartW + delta));
-        document.getElementById('sidePanel').style.width = newW + 'px';
+        // document.getElementById('sidePanel').style.width = newW + 'px';
+        const panel = document.getElementById('sidePanel');
+        panel.style.setProperty('--side-panel-width', newW + 'px');
     });
 
     document.addEventListener('mouseup', function() {
         if (resizing) {
             resizing = false;
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
+            document.body.classList.remove('resizing');
+        }
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'f') {
+            e.preventDefault();
+            document.getElementById('searchBox').className = 'search-box active';
+            document.getElementById('search-input').focus();
         }
     });
 

@@ -64,6 +64,11 @@
       height: 100%;
       margin: 0;
     }
+
+    body.resizing {
+      cursor: col-resize;
+      user-select: none;
+    }
     
     .shell {
        display: flex;
@@ -332,6 +337,9 @@
       display: flex;
       flex-direction: column; 
        width: 89%;      
+       background-image:url('../img/fumby.png');
+       background-repeat: no-repeat;
+       background-position: center;
     }
 
     .viewport-inner {
@@ -355,6 +363,14 @@
        padding: 40px;
     }
 
+    .empty-state.active {
+       display: flex;
+    }
+
+    .empty-state.hide {
+       display: none;
+    }
+    
     .empty-icon {
        width: 56px;
        height: 56px;
@@ -464,8 +480,7 @@
     .loading-step.active-step { color: var(--text-mid); }
     .loading-step.active-step::before { content: '> '; }
     
-    .error-state {
-       display: none;
+    #errorState {
        flex-direction: column;
        align-items: center;
        justify-content: center;
@@ -479,19 +494,58 @@
     }
     
     .error-state.active { display: flex; }
+    .error-state.hide { display: none; }
+    
     .error-msg { 
         color: var(--text); max-width: 580px; line-height: 1.7; white-space: pre-wrap;
     }
 
-    #wantsToGoTo {
+    #wantsToGoTo { 
         color: var(--text);
     }
     
-    .launchReport {}
+    .toGoTo.active { display:flex; }
+    .toGoTo.hide { display:none; }  
+    
+    #launchReport {
+       align-items: center;
+       gap: 5px;
+       padding: 5px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--panel);
+       color: var(--text-mid);
+       font-family: var(--mono);
+       font-size: 11px;
+       cursor: pointer;
+       white-space: nowrap;
+       transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+
+    #launchReport:hover {
+       border-color: var(--accent);
+       color: var(--accent);
+       background: rgba(74, 240, 160, 0.05);}
+    }
+    
     .launchReport.active { display:flex; }
     .launchReport.hide { display:none; }   
     
-    .launchReload { display:none; }
+    #launchReload {
+       align-items: center;
+       gap: 5px;
+       padding: 5px 12px;
+       border: 1px solid var(--border);
+       border-radius: var(--radius);
+       background: var(--panel);
+       color: var(--text-mid);
+       font-family: var(--mono);
+       font-size: 11px;
+       cursor: pointer;
+       white-space: nowrap;
+       transition: border-color 0.15s, color 0.15s, background 0.15s;
+    }
+    
     .launchReload.active { display:flex; }
     .launchReload.hide { display:none; }    
     
@@ -500,6 +554,7 @@
        flex-direction: column;
        align-items: center;
        justify-content: center;
+       background: var(--bg);
        gap: 14px;
        flex:1;
        padding: 20px;
@@ -529,6 +584,22 @@
        image-rendering: -webkit-optimize-contrast;
     }
 
+    .page-image.active {
+        display: block;
+    }
+    
+    .page-image.hide {
+        display: none;
+    }
+    
+    .live-webview.active {
+        display:flex;
+    }
+    
+    .live-webview.hide {
+        display: none;
+    }
+    
     /* ---- SIDE PANEL ---- */
  
     .side-panel {
@@ -749,6 +820,14 @@
         display:none;
     }
     
+    .hideElement {
+        display:none;
+    }
+ 
+    .showElement {
+        display:flex;
+    }
+     
     .live-warning-close {
        margin-left: auto;
        background: none;
@@ -790,6 +869,14 @@
         z-index:100; 
         font-size:12px;
     }
+
+    .confirm-box.active {
+        display:flex; 
+    }
+    
+    .confirm-box.hide {
+        display:none; 
+    }
     
     #jsStatus {
         color: var(--accent);
@@ -800,17 +887,24 @@
     #liveWrap {
       flex: 1; /* Takes remaining space */
       min-height: 0; /* Fixes flex overflow issues */
-      display: flex;
       flex-direction: column;
-      display:none;
     }
-
+    
+    .live-wrap.active {
+        display:flex; 
+    }
+    
+    .live-wrap.hide {
+        display:none; 
+    }
+    
     /* Webview styling */
     webview {
       display:flex;
-      flex: 1; /* Fills #liveWrap */
+      flex: 1;
       width: 99%;
-      min-height: 0; /* Fixes flex overflow issues */
+      min-height: 0;
+      height:100%;
       background: white;
     }
 
@@ -843,7 +937,6 @@
     }
     
     #searchBox {
-        display: none;
         position: fixed;
         top: 76px;
         left: 1px;
@@ -852,6 +945,14 @@
         padding: 1px;
         border-radius: 4px;
     }
+    
+    .search-box.active {
+        display: block;
+    }
+    
+    .search-box.hide {
+        display: none;
+    }   
     
     #search-next, #search-prev, #search-close {
          float: left!important;
@@ -875,3 +976,83 @@
         float: left;
     }
     
+    #confirmMsg {
+        margin-left:12px;
+        float:left;
+    }
+    
+    #confirmYes {
+        margin-left:12px;
+        float:left;
+    }
+
+    #confirmNo {
+        margin-left:6px;
+        float:left;
+    }
+    
+    #linkListSymbol {
+        font-size:20px;
+        opacity:0.3;
+    }
+    
+    #statusTitle {
+        max-width:300px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+    }
+    
+    
+    #warningSymbol {
+        color:var(--danger);
+    }
+
+    #torLabel.tor-off {
+      color: var(--danger);
+    }
+
+    #torLabel.tor-connected {
+      color: #4caf50;
+    }
+
+    #torLabel.tor-connecting {
+      color: #ff9800;
+    }
+    
+    /* Safe state */
+    #shieldBadge.shield-safe {
+      border-color: rgba(74, 240, 160, 0.2);
+      color: var(--accent);
+    }
+
+    #shieldDot.shield-safe {
+      background: var(--accent);
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    /* Danger state */
+    #shieldBadge.shield-danger {
+      border-color: rgba(240, 74, 106, 0.2);
+      color: var(--danger);
+    }
+
+    #shieldDot.shield-danger {
+      background: var(--danger);
+      box-shadow: 0 0 6px var(--danger);
+    }
+
+    #jsStatus.js-on,
+    #statusSafe.js-on {
+      color: var(--danger);
+    }
+
+    #jsStatus.js-off,
+    #statusSafe.js-off {
+      color: var(--accent);
+    }
+    
+    #panelSymol {
+        font-size:20px;
+        opacity:0.3;
+    }

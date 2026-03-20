@@ -82,7 +82,6 @@ let PATTERNS = [
     /a=candidate/ig,
     /a=ice-/ig,
     /a=fingerprint/ig,
-
 ];
 
 PATTERNS = [...PATTERNS, ...strictjs.STRICT_PATTERNS];

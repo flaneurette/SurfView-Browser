@@ -12,9 +12,8 @@
     base-uri 'none';
     form-action 'none';
   ">
-
 <title>SurfView</title>
-<link rel="stylesheet" href="css/style.css?version=1.6.3">
+<link rel="stylesheet" href="../css/style.css?version=1.6.7">
 </head>
 <body tabindex="-1">
 <div class="shell">
@@ -99,9 +98,10 @@
         </div>
   
         <div class="empty-state" id="emptyState">
-          <div class="empty-icon">&#9681;</div>
+         <!-- <div class="empty-icon">&#9681;</div>
           <div class="empty-title">no page loaded</div>
           <div class="empty-sub">enter a url above.</div>
+          -->
         </div>
         
         <div class="loading-state" id="loadingState">
@@ -135,13 +135,13 @@
 
         <div class="live-wrap" id="liveWrap">
           <div class="live-warning" id="liveWarning">
-            <span style="color:var(--danger)">&#9888;</span>
+            <span id="warningSymbol">&#9888;</span>
             live mode active - this is a real browser. However, scripts are disabled, toggle scripts on for scripting.
             <button class="live-warning-close" id="liveWarningClose">x</button>
           </div>
         <webview
           id="liveWebview"
-          src="about:blank"
+          src="default.html"
           partition="temp:webview"
           referrerpolicy="no-referrer"
           webpreferences="webgl=false,
@@ -167,7 +167,6 @@
             navigateOnDragDrop= false,
             autoplayPolicy:'user-gesture-required'
             "
-          style="width: 99%; height: 100%; display: flex; background: #0e0f11;"
         />
         </div>
       </div>
@@ -195,7 +194,7 @@
 
       <div class="link-list" id="linkList">
         <div class="panel-empty">
-          <span style="font-size:20px;opacity:0.3">&#9135;</span>
+          <span id="linkListSymbol">&#9135;</span>
           no links yet
         </div>
       </div>
@@ -217,7 +216,7 @@
      
     <div class="status-item status-ok" id="statusSafe">scripts blocked</div>
     <div class="status-item" id="statusDomain">--</div>
-    <div class="status-item" id="statusTitle" style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+    <div class="status-item" id="statusTitle"></div>
     <div class="spacer"></div>
     <div class="status-item" id="statusLinks">0 links</div>
     
@@ -227,10 +226,10 @@
 </div>
             
 <div id="confirmBox">
-  <span id="confirmMsg" style="margin-left:12px;float:left;"></span>
-  <button id="confirmYes" class="btn btn-primary" style="margin-left:12px;float:left;">Remove</button>
-  <button id="confirmNo" class="btn btn-primary" style="margin-left:6px;float:left;">Cancel</button>
+  <span id="confirmMsg"></span>
+  <button id="confirmYes" class="btn btn-primary">Remove</button>
+  <button id="confirmNo" class="btn btn-primary">Cancel</button>
 </div>
-<script src="renderer.js"></script>
+<script src="./renderer/renderer.js"></script>
 </body>
 </html>
