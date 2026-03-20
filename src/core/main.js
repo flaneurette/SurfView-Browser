@@ -56,7 +56,7 @@ let torAddress = 'socks5://127.0.0.1';
 let jsEnabled = false; // default: off
 
 // Dev debugging
-const devdebug = true;
+const devdebug = false;
 
 let debugLog = [];
 let torPath, torDataDir, geoipPath, geoip6Path;
