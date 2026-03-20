@@ -3,6 +3,8 @@ src/tor/tor-data
 unit-tests/
 node_modules/
 dist/
+build-tools/project.bat
+build-tools/project.bat.lnk
 
 # puppeteer chromium download cache
 .local-chromium/
