@@ -7,4 +7,4 @@ npm start
 cmd /k
 """
 
-Path("/workspace/start_surfview.bat").write_text(batch_content)
+Path("/workspace/project.bat").write_text(batch_content)
