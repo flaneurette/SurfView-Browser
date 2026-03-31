@@ -1,8 +1,9 @@
+// #####################################################################
+// WEBSCANNER
+// #####################################################################
 
-let strictjs = require('./strict.js');
-
-// Set to false on production builds, as we can't see logging anyway.
-let logging = true;
+// Set to false on production builds, as we can't see scanner_logging anyway.
+let scanner_logging = true;
 
 let PATTERNS = [
 
@@ -84,7 +85,7 @@ let PATTERNS = [
     /a=fingerprint/ig,
 ];
 
-PATTERNS = [...PATTERNS, ...strictjs.STRICT_PATTERNS];
+PATTERNS = [...PATTERNS, ...STRICT_PATTERNS];
 
 function filterFalsepositives(code) {
     // Noticed these in next.js, very odd, but false positives.
@@ -112,7 +113,7 @@ function detectWebRTC(code,uri) {
 
     for (const p of PATTERNS) {
         if (p.test(code)) {
-            if(logging == true) console.log(p,uri);
+            if(scanner_logging == true) console.log(p,uri);
             return {
                 status:1,
                 file: uri, 
@@ -141,7 +142,7 @@ function matchPatterns(source,uri) {
     
     for (const p of PATTERNS) {
         if (p.test(source)) {
-            if(logging == true) console.log(p,uri);
+            if(scanner_logging == true) console.log(p,uri);
             return {
                 status:1,
                 file: uri, 
@@ -251,7 +252,7 @@ function detectInSource(source,uri) {
     let prepare = false;
     let scanstart = false;
     
-    // first detect if it's js, otherwise we waste resources.    
+    // First detect if it's JavaScript, otherwise we waste resources.    
     prepare = looksLikeJavaScript(source);
    
     if(prepare == true || prepare === true || prepare === 'true') {
@@ -264,7 +265,7 @@ function detectInSource(source,uri) {
     const seen = new Set();
     
         while (true) {
-            // avoid infinite loops
+            // Avoid infinite loops
             if (seen.has(current)) break;
             seen.add(current);
 
@@ -345,5 +346,3 @@ function decodeBase64Strings(source) {
 
     return decoded;
 }
-
-module.exports = { detectWebRTC };

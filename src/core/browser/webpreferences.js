@@ -1,0 +1,28 @@
+
+let webPreferences = {
+    partition: 'nopersist',
+    contextIsolation: true,
+    nodeIntegration: false,
+    nodeIntegrationInSubFrames:false,
+    nodeIntegrationInWorker:false,
+    sandbox: true,
+    webSecurity: true,
+    allowRunningInsecureContent: false,
+    disableCache: true,
+    disableWebRTC: true,
+    webgl:false,
+    webviewTag:true,
+    experimentalFeatures:false,
+    disableDialogs : true,
+    safeDialogs : true,
+    spellcheck: false,
+    enableWebSQL : false,
+    plugins : false,
+    disableCache : true,
+    navigateOnDragDrop: false,
+    disableBlinkFeatures: 'Autofill,ServiceWorker',
+    safeDialogsMessage :'Blocked',
+    disableBlinkFeatures:'Autofill,ServiceWorker',
+    autoplayPolicy : 'user-gesture-required',
+    referrerpolicy: "no-referrer"
+}

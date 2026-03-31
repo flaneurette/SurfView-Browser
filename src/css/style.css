@@ -322,8 +322,8 @@
       overflow: hidden;
       height: 100%;
       display: flex;
-      flex-direction: column; /* Stack children vertically */
-      position: relative; /* Needed for absolute-positioned sidebar */
+      flex-direction: column;
+      position: relative;
     }
 
     /* ---- VIEWPORT ---- */
@@ -333,13 +333,13 @@
        overflow: auto;
        background: var(--bg);
        position: relative;
-      min-height: 0; /* Fixes flex overflow issues */
+      min-height: 0;
       display: flex;
       flex-direction: column; 
-       width: 89%;      
-       background-image:url('../img/fumby.png');
-       background-repeat: no-repeat;
-       background-position: center;
+      width: 89%;      
+     /* background-image:url('../img/fumby.png'); */
+      background-repeat: no-repeat;
+      background-position: center;
     }
 
     .viewport-inner {
@@ -497,7 +497,7 @@
     .error-state.hide { display: none; }
     
     .error-msg { 
-        color: var(--text); max-width: 580px; line-height: 1.7; white-space: pre-wrap;
+        color: var(--text-dim); max-width: 580px; line-height: 1.7; white-space: pre-wrap;
     }
 
     #wantsToGoTo { 
@@ -600,6 +600,58 @@
         display: none;
     }
     
+    .bookmarkMenu { 
+
+    }    
+    
+    .bookmarkMenu-active {
+        display:flex; 
+        position:fixed; 
+        right:200px;
+        font-size:12px;
+    }
+
+    #modalWindow {
+        padding: 30px;
+    }
+    
+    /* ---- BOOKMARK MENU ---- */
+    
+    #bookmarkMenu {
+        flex: 1;
+        flex-direction: row;
+        font-size: 11px;
+        color: var(--text-mid);
+        font-family: var(--mono);
+    }
+    
+    #bookmarksFolders {
+        padding-bottom:5px;
+        margin-bottom:5px;
+        border-bottom: 1px solid #333;
+    }
+    
+    #bookmarksFoldersCtrl {
+        display:flex;
+        flex: 1;
+        flex-direction: row;
+        align-items:left;
+        min-width: 250px;
+    }
+    
+    .bookmarkMenu-hide {
+        display:none; 
+    }
+    
+    #inputCreateFolder {
+      cursor: text; 
+      outline: none;
+    }
+    
+    #btnCreateFolder {
+        margin-left:15px;
+    }
+    
     /* ---- SIDE PANEL ---- */
  
     .side-panel {
@@ -607,7 +659,7 @@
       right: 0;
       top: 0;
       bottom: 0;
-      width: 250px; /* Adjust as needed */
+      width: 250px;
       z-index: 4;
       background: var(--bg);
       border-left: 1px solid var(--border);
@@ -885,8 +937,8 @@
 
     /* Live webview container */
     #liveWrap {
-      flex: 1; /* Takes remaining space */
-      min-height: 0; /* Fixes flex overflow issues */
+      flex: 1;
+      min-height: 0; 
       flex-direction: column;
     }
     
@@ -914,26 +966,26 @@
     
     /* For WebKit browsers (Chrome, Edge, Electron) */
     ::-webkit-scrollbar {
-      width: 12px; /* Width of the vertical scrollbar */
-      height: 12px; /* Height of the horizontal scrollbar */
+      width: 12px;
+      height: 12px;
     }
 
     ::-webkit-scrollbar-track {
-      background: #2a2a2a; /* Track (background) color */
+      background: #2a2a2a;
     }
 
     ::-webkit-scrollbar-thumb {
-      background: #555; /* Thumb (draggable part) color */
+      background: #555;
       border-radius: 6px;
-      border: 2px solid #2a2a2a; /* Creates padding around the thumb */
+      border: 2px solid #2a2a2a;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: #777; /* Thumb color on hover */
+      background: #777;
     }
 
     ::-webkit-scrollbar-corner {
-      background: #2a2a2a; /* Corner (where vertical and horizontal meet) */
+      background: #2a2a2a;
     }
     
     #searchBox {
@@ -1055,4 +1107,34 @@
     #panelSymol {
         font-size:20px;
         opacity:0.3;
+    }
+
+    input[type="checkbox"] {
+      -webkit-appearance: none;
+    }
+
+    input[type="checkbox"]::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: .5em;
+      margin-top: -3px;
+      border: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    input[type="checkbox"]::before {
+      position: relative;
+    }
+
+    input[type="checkbox"]:checked {
+      position: relative;
+    }
+
+    input[type="checkbox"]:checked + label:after {
+      content: "\2713";
+      color: #fff;
+      position: relative;
+      font-weight: 300;
+      margin-left: -19px;
     }

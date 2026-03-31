@@ -3,7 +3,9 @@
 // Communicates with main only via window.surfview (exposed by preload.js).
 // Never touches the network directly.
 
-(function() {
+// disable anon function when debugging:
+
+//(function() {
 
     'use strict';
 
@@ -14,7 +16,9 @@
     var navIndex = -1;
     var loading = false;
     let loadTimeout = null;
-    var imageModeEnabled = true;
+    var imageModeEnabled = false;
+    var webscannerEnabled = false;
+    var privacyEnabled = true;
 
     // Webview javascript
     let jsEnabled1 = false; // default: off
@@ -59,6 +63,18 @@
     var launchReload = document.getElementById('launchReload');
     var errorExplainer = document.getElementById('errorExplainer');
     var searchBox = document.getElementById('searchBox');
+    var liveModeToggle = document.getElementById('liveModeToggle');
+    var webscanner = document.getElementById('webscanner');
+    var privacy = document.getElementById('privacy');
+    var mainBar = document.getElementById('mainBar');
+    var bookmarkMenu = document.getElementById('bookmarkMenu');
+    var viewport = document.getElementById('viewport');
+    var main = document.getElementById('main');
+    var inputCreateFolder = document.getElementById('inputCreateFolder');
+    
+    let resized = false;
+    let whx = window.innerHeight;
+    let wwx = window.innerWidth;
     
     var liveModal = 'inactive';
     liveWarning.className = 'hideElement';
@@ -67,9 +83,40 @@
     errorState.className = 'error-state hide';
     searchBox.className = 'search-box hide';
     
-    liveWebview.addEventListener('did-fail-load', (event) => {
-      console.log('Load failed:', event.errorCode, event.errorDescription)
-    })
+    // Set default to "live mode";
+    setJSstyles(2);
+
+    if(webscannerEnabled == true) webscanner.checked = true;
+    if(privacyEnabled == true) privacy.checked = true;
+    
+    // Define the handler
+    const onResize = () => {
+        resized = true;
+        whx = window.innerHeight;
+        wwx = window.innerWidth;
+    };
+
+    // Function to setup listeners
+    const setupListeners = () => {
+        // First remove any existing listeners to prevent duplicates
+        ['resize', 'fullscreenchange'].forEach(e => window.removeEventListener(e, onResize));
+
+        // Then add new listeners
+        ['resize', 'fullscreenchange'].forEach(e => window.addEventListener(e, onResize));
+    };
+
+    // Initial setup
+    setupListeners();
+
+    mainBar.addEventListener('mousedown', (event) => {
+        // Bookmark click boundary.
+        whx = window.innerHeight;
+        wwx = window.innerWidth;
+        if(event.button == 2 && event.clientX > 180 && event.clientX < (wwx-250)) {
+            // Right click.
+            window.surfview.showWindow(400,120,event.clientX,80,'src/core/forms/bookmark.html');
+        }
+    });
 
     // Search on input
     document.getElementById('search-input').addEventListener('input', (e) => {
@@ -92,12 +139,11 @@
     });
 
     // Close button
-        document.getElementById('search-close').addEventListener('click', () => {
+    document.getElementById('search-close').addEventListener('click', () => {
         document.getElementById('searchBox').className = 'hideElement';
         window.surfview.stopSearchInWebview();
     });
-         
-         
+
     // Right-click anywhere in the window
     document.addEventListener('contextmenu', (e) => {
       e.preventDefault();
@@ -118,6 +164,7 @@
     });
 
     liveWebview.addEventListener('will-navigate', (e) => {
+        e.preventDefault();
         window.surfview.navigateIntercept(e.url);
         liveWebview.src='';
         if(jsEnabled1 == true) {
@@ -145,38 +192,6 @@
     let rawUrl = urlInput.value.trim();
     let uri = sanitizeUrl(rawUrl);
 
-    statusJS.addEventListener('click', () => {
-
-        if(jsEnabled1 == false) {
-            jsEnabled1 = true;
-            } else if(jsEnabled1 == true) {
-            jsEnabled1 = false;
-        }
-        
-        const jsClass = jsEnabled1 ? 'js-on' : 'js-off';
-
-        jsStatus.classList.remove('js-on', 'js-off');
-        jsStatus.classList.add(jsClass);
-        jsStatus.textContent = jsEnabled1 ? 'JS ON' : 'JS OFF';
-
-        statusSafe.classList.remove('js-on', 'js-off');
-        statusSafe.classList.add(jsClass);
-        statusSafe.textContent = jsEnabled1 ? 'javascript enabled on webview.' : 'scripts blocked';
-
-        if(jsEnabled1 == true) { 
-            window.surfview.setJS(true);
-            liveWarning.className = 'hideElement';
-            if (!uri) return;
-            loadUrl(uri, true, "js");
-            } else {
-            window.surfview.setJS(false);
-            liveWarning.className = 'hideElement';
-            if (!uri) return;
-            loadUrl(uri, true, "live");
-        }
-        
-    });
-
     // bookmarking
     btnBookmark.addEventListener('click', function() {
         bookmarkUrl(urlInput.value.trim());
@@ -194,17 +209,11 @@
     });
 
     btnBack.addEventListener('click', function() {
-        if (navIndex <= 0) return;
-        navIndex--;
-        console.log(navHistory[navIndex]);
-        whatIsAllowed(navHistory[navIndex]);
+        window.surfview.goBack();
     });
 
     btnFwd.addEventListener('click', function() {
-        if (navIndex >= navHistory.length - 1) return;
-        navIndex++;
-        console.log(navHistory[navIndex]);
-        whatIsAllowed(navHistory[navIndex]);
+        window.surfview.goForward();
     });
 
     btnReload.addEventListener('click', function() {
@@ -252,42 +261,153 @@
         });
     });
 
-    // image mode toggle
-    imageModeToggle.addEventListener('change', function() {
-        
-        imageModeEnabled = this.checked;
-        var rawUrl = urlInput.value.trim();
-
-        if (imageModeEnabled) {
-            
-            if(liveModal != 'active') {
-                setShield(true);
-            } else {
-                setShield(false);   
-            }
-            
-            liveWrap.className = 'live-wrap hide';
-            liveModal = 'active';
-            if (rawUrl) {
-                loadUrl(sanitizeUrl(rawUrl), true, "image");
-            }
-        } else {
+    function setJSstyles(status) {
+ 
+        /*
+            1: js enabled = image mode off, live mode on.
+            2: js disabled = image mode on, or live mode on.
+            3: image mode enabled = js and live mode off.
+            4: live mode enabled = image and live mode off.
+        */
+    
+        if(status == 1) {
+            // js on.
+            statusJS.checked = true;
             setShield(false);
+            liveWarning.className = 'hideElement';
+            liveWrap.className = 'live-wrap hide';
+            window.surfview.setJS(true);
+            window.surfview.setImageMode(false);
+            imageModeEnabled = false;
+            imageModeToggle.checked = false;
+            liveModeToggle.checked = true;
+            webscannerEnabled = true;
+            webscanner.checked = true;
+            privacyEnabled = true;
+            privacy.checked = true;
+        } else if(status == 2) {
+            // Live mode
             pageImageWrap.className = 'page-image-wrap';
             emptyState.className = 'empty-state hide';
             liveWarning.className = 'showElement';
             liveWrap.className = 'live-wrap active';
-            if (rawUrl) {
-                var url = sanitizeUrl(rawUrl);
-                if (!url) return;
-                loadUrl(url, true, "live");
-                statusDomain.textContent = 'loading...';
-                statusTime.textContent = '';
-            }
-            setLinks([]);
+            jsEnabled1 = false;
+            statusJS.checked = false;
+            setShield(false);
+            liveWarning.className = 'showElement';
+            liveWrap.className = 'live-wrap active';
+            window.surfview.setJS(false,'on');
+            window.surfview.setImageMode(false);
+            imageModeEnabled = false;
+            imageModeToggle.checked = false;
+            liveModeToggle.checked = true;
+            statusTime.textContent = ''; 
+            webscannerEnabled = false;
+            webscanner.checked = false;            
+        } else {
+            // Image only
+            liveWrap.className = 'live-wrap hide';
+            liveModal = 'active';
+            jsEnabled1 = false;
+            statusJS.checked = false;
+            setShield(true);
+            liveWarning.className = 'showElement';
+            liveWrap.className = 'live-wrap active';
+            window.surfview.setJS(false,'on');
+            window.surfview.setImageMode(true);
+            imageModeEnabled = true;
+            imageModeToggle.checked = true;
+            liveModeToggle.checked = false;
+            webscannerEnabled = false;
+            webscanner.checked = false;
+        }
+    }
+    
+    statusJS.addEventListener('click', () => {
+
+        if(jsEnabled1 == false) {
+            jsEnabled1 = true;
+            } else if(jsEnabled1 == true) {
+            jsEnabled1 = false;
+        }
+          
+        if(jsEnabled1 == true) { 
+            setJSstyles(1);
+            if (!uri) return;
+            loadUrl(uri, true, "js");
+            } else {
+            setJSstyles(2);
+            if (!uri) return;
+            loadUrl(uri, true, "live");
+        }
+        
+    });
+
+    // Live mode toggle
+    liveModeToggle.addEventListener('change', function() {
+        if(liveModeToggle.checked == true) {
+            setJSstyles(2);
+            } else {
+            setJSstyles(3);
         }
     });
 
+    // Webscanner mode toggle
+    webscanner.addEventListener('change', function() {
+        if(webscanner.checked == true) {
+            webscannerEnabled = true;
+            window.surfview.setWebscanner(true);
+            } else {
+            webscannerEnabled = false;
+            window.surfview.setWebscanner(false);
+        }
+    });
+
+    // Privacy mode toggle
+    privacy.addEventListener('change', function() {
+        if(privacy.checked == true) {
+            privacyEnabled = true;
+            window.surfview.setPrivacy(true);
+            } else {
+            privacyEnabled = false;
+            window.surfview.setPrivacy(false);
+        }
+    });
+    
+    // image mode toggle
+    imageModeToggle.addEventListener('change', function() {
+
+        imageModeEnabled = this.checked;
+        var rawUrl = urlInput.value.trim();
+
+        if (imageModeEnabled) {
+            // Image mode
+            setJSstyles(3);
+            
+            if(liveModal != 'active') {
+                setShield(true);
+                } else {
+                setShield(false);   
+            }
+            
+            setShield(true);
+            
+            if (rawUrl) {
+                loadUrl(sanitizeUrl(rawUrl), true, "image");
+            }
+            
+        } else {
+            
+            // Live mode.
+            setJSstyles(2);
+            if (rawUrl) {
+                loadUrl(sanitizeUrl(rawUrl), true, "live");
+            }
+            
+            setLinks([]);
+        }
+    });
+        
     function removeLiveMessage() {
             
         if(window.getComputedStyle(liveWarning).display != 'none') {
@@ -327,22 +447,18 @@
         torLabel.classList.add('tor-connecting');
       }
     }
-
-    // Poll status until ready on startup
-    const torPoll = setInterval(async () => {
-        const status = await window.surfview.torStatus();
-        updateTorLabel(status.enabled, status.ready);
-        if (status.ready || !status.enabled) clearInterval(torPoll);
-    }, 1000);
-
+    
     torSwitch.addEventListener('change', async () => {
         const enabled = torSwitch.checked;
         torSwitch.disabled = true;
         updateTorLabel(enabled, false);
 
+        if(enabled) {
+            setJSstyles(2);
+        }
+
         const result = await window.surfview.toggleTor(enabled);
         updateTorLabel(result.torEnabled, result.torEnabled ? result.ok : false);
-
         // If turning on, poll until connected
         if (result.torEnabled && result.ok) {
             updateTorLabel(true, true);
@@ -350,6 +466,13 @@
 
         torSwitch.disabled = false;
     });
+
+    // Poll status until ready on startup
+    const torPoll = setInterval(async () => {
+        const status = await window.surfview.torStatus();
+        updateTorLabel(status.enabled, status.ready);
+        if (status.ready || !status.enabled) clearInterval(torPoll);
+    }, 1000);
 
     function setShield(safe) {
       // Remove old states
@@ -360,13 +483,10 @@
         shieldBadge.classList.add('shield-safe');
         shieldDot.classList.add('shield-safe');
         shieldLabel.textContent = 'SAFE MODE';
-        modeLabel.textContent = 'image mode';
-        statusSafe.className = 'status-item status-ok';
       } else {
         shieldBadge.classList.add('shield-danger');
         shieldDot.classList.add('shield-danger');
         shieldLabel.textContent = 'LIVE MODE';
-        modeLabel.textContent = 'live mode';
       }
     }
 
@@ -378,131 +498,6 @@
             urlInput.select();
         }
     });
-
-    // bookmarking urls
-
-    function shortUrl(url) {
-        return url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0]; // domain only
-    }
-
-    function bookmarkUrl(raw) {
-        
-        if (!raw) return;
-
-        if (raw.length >= 512) {
-            window.surfview.dialog("URL length exceeds maximum length of 512 characters. Cannot add bookmark.")
-            return;
-        }
-
-        if (raw.length <= 2) {
-            window.surfview.dialog("URL length is too short. Cannot add bookmark.")
-            return;
-        }
-
-        var url = sanitizeUrl(raw);
-        url = url.replace(/\/$/, '');
-        url = url.replace('https://', '');
-        url = url.replace('www.', '');
-        
-        const dom = document.getElementById('bookmarks-ul');
-        const pipe = document.createElement('li');
-
-        pipe.appendChild(document.createTextNode('/'));
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = '#';
-        a.onclick = function(e) {
-            e.preventDefault();
-            whatIsAllowed(url);
-        };
-        a.oncontextmenu = function(e) {
-            e.preventDefault();
-            removeBookmark(url);
-            e.stopPropagation();
-            window.focus();
-            document.body.focus();
-        };
-        a.appendChild(document.createTextNode(shortUrl(url)));
-        li.appendChild(a);
-        dom.appendChild(pipe);
-        dom.appendChild(li);
-
-        // write to bookmarks file.
-        var store = jsoncmd(url);
-        return;
-    }
-
-
-    function jsoncmd(uri) {
-        window.surfview.saveBookmark(uri).then(function(result) {
-            if (!result.success) {
-                if (result.reason === 'duplicate') {
-                    window.surfview.dialog('Bookmark already exists.');
-                    } else if (result.reason === 'limit') {
-                    window.surfview.dialog('Bookmark limit reached.');
-                }
-            }
-        }).catch(function(err) {
-            console.error('saveBookmark failed:', err);
-        });
-    }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const searchBox = document.getElementById('search-input');
-        if (searchBox) {
-          window.surfview.stopSearchInWebview();
-          searchBox.closest('div').remove();
-        }
-      }
-    });
- 
-    function loadBookmarks() {
-        window.surfview.readBookmarks().then(function(urls) {
-            const dom = document.getElementById('bookmarks-ul');
-            dom.innerHTML = ''; // clears all existing li's before redraw
-            urls.forEach(function(url) {
-                const pipe = document.createElement('li');
-                pipe.appendChild(document.createTextNode('/'));
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#';
-                a.onclick = function(e) {
-                    e.preventDefault();
-                    whatIsAllowed(url);
-                };
-                a.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    removeBookmark(url);
-                    e.stopPropagation();
-                    window.focus();
-                    document.body.focus();
-                };
-                a.appendChild(document.createTextNode(shortUrl(url)));
-                li.appendChild(a);
-                dom.appendChild(pipe);
-                dom.appendChild(li);
-            });
-        });
-    }
-
-    // call it when the page loads
-    loadBookmarks();
-
-    function removeBookmark(url) {
-        var box = document.getElementById('confirmBox');
-        document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
-        box.className = 'confirm-box active';
-        document.getElementById('confirmYes').onclick = function() {
-            box.className = 'confirm-box hide';
-            window.surfview.removeBookmark(url).then(function(ok) {
-                if (ok) loadBookmarks();
-            });
-        };
-        document.getElementById('confirmNo').onclick = function() {
-            box.className = 'confirm-box hide';
-        };
-    }
 
     // main load function
     function loadUrl(raw, isNavigation = false, vType = "image") {
@@ -567,7 +562,11 @@
             }, delays[i]);
         });
         
-        window.surfview.renderUrl(url, viewType).then(function(result) {
+        window.surfview.renderUrl(url, viewType)
+        
+    }
+        
+        /*.then(function(result) {
 
             setLoadingUi(false);
 
@@ -578,13 +577,13 @@
                 pageImageWrap.className = 'page-image-wrap';
                 pageImage.className = 'page-image active';
             }
-        
+
             if (!result.ok) {
                 showError(result);
                 return;
             }
 
-            if (!isNavigation) {
+            if (isNavigation) {
                 navHistory.splice(navIndex + 1);
                 navHistory.push(url);
                 navIndex = navHistory.length - 1;
@@ -599,7 +598,8 @@
             liveWebview.src='';
             showError(err || 'Unknown error');
         });
-    }
+
+    */
 
     function setLoadingUi(on,type) {
         
@@ -672,7 +672,8 @@
             // show webview, hide image
             pageImageWrap.className = 'page-image-wrap'; // hide image wrap
             liveWrap.className = 'live-wrap active'; // show live wrap
-            setWebviewURL(result.url);
+            //setWebviewURL(result.url);
+            liveWebview.src = result.url;
             // reset image to blank.
             pageImage.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
         } else {
@@ -797,11 +798,6 @@
         statusDomain.textContent = 'error';
         launchReport.className = 'launchReport active';
         liveWebview.src = '';
-    }
-
-    function updateNavButtons() {
-        btnBack.disabled = navIndex <= 0;
-        btnFwd.disabled = navIndex >= navHistory.length - 1;
     }
 
     // link panel
@@ -971,4 +967,131 @@
         }
     });
 
-})();
+    // bookmarking urls
+
+    function shortUrl(url) {
+        return url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0]; // domain only
+    }
+
+    function bookmarkUrl(raw) {
+        
+        if (!raw) return;
+
+        if (raw.length >= 512) {
+            window.surfview.dialog("URL length exceeds maximum length of 512 characters. Cannot add bookmark.")
+            return;
+        }
+
+        if (raw.length <= 2) {
+            window.surfview.dialog("URL length is too short. Cannot add bookmark.")
+            return;
+        }
+
+        var url = sanitizeUrl(raw);
+        url = url.replace(/\/$/, '');
+        url = url.replace('https://', '');
+        url = url.replace('www.', '');
+        
+        const dom = document.getElementById('bookmarks-ul');
+        const pipe = document.createElement('li');
+
+        pipe.appendChild(document.createTextNode('/'));
+        const li = document.createElement('li');
+        const a = document.createElement('a');
+        a.href = '#';
+        a.onclick = function(e) {
+            e.preventDefault();
+            whatIsAllowed(url);
+        };
+        a.oncontextmenu = function(e) {
+            e.preventDefault();
+            removeBookmark(url);
+            e.stopPropagation();
+            window.focus();
+            document.body.focus();
+        };
+        a.appendChild(document.createTextNode(shortUrl(url)));
+        li.appendChild(a);
+        dom.appendChild(pipe);
+        dom.appendChild(li);
+
+        // write to bookmarks file.
+        var store = jsoncmd(url);
+        return;
+    }
+
+
+    function jsoncmd(uri) {
+        window.surfview.saveBookmark(uri).then(function(result) {
+            if (!result.success) {
+                if (result.reason === 'duplicate') {
+                    window.surfview.dialog('Bookmark already exists.');
+                    } else if (result.reason === 'limit') {
+                    window.surfview.dialog('Bookmark limit reached.');
+                }
+            }
+        }).catch(function(err) {
+            console.error('saveBookmark failed:', err);
+        });
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        const searchBox = document.getElementById('search-input');
+        if (searchBox) {
+          window.surfview.stopSearchInWebview();
+          searchBox.closest('div').remove();
+        }
+      }
+    });
+ 
+    function loadBookmarks() {
+        window.surfview.readBookmarks().then(function(urls) {
+            const dom = document.getElementById('bookmarks-ul');
+            dom.innerHTML = ''; // clears all existing li's before redraw
+            urls.forEach(function(url) {
+                const pipe = document.createElement('li');
+                pipe.appendChild(document.createTextNode('/'));
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#';
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    whatIsAllowed(url);
+                };
+                a.oncontextmenu = function(e) {
+                    e.preventDefault();
+                    removeBookmark(url);
+                    e.stopPropagation();
+                    window.focus();
+                    document.body.focus();
+                };
+                a.appendChild(document.createTextNode(shortUrl(url)));
+                li.appendChild(a);
+                dom.appendChild(pipe);
+                dom.appendChild(li);
+            });
+        });
+    }
+
+    function removeBookmark(url) {
+        var box = document.getElementById('confirmBox');
+        document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
+        box.className = 'confirm-box active';
+        document.getElementById('confirmYes').onclick = function() {
+            box.className = 'confirm-box hide';
+            window.surfview.removeBookmark(url).then(function(ok) {
+                if (ok) loadBookmarks();
+            });
+        };
+        document.getElementById('confirmNo').onclick = function() {
+            box.className = 'confirm-box hide';
+        };
+    }
+    
+    // call it when the page loads
+    loadBookmarks();
+    
+// disable anon function when debugging:
+ 
+//})();

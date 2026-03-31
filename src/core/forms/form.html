@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy"
+  content="
+    default-src 'none';
+    style-src 'self' 'unsafe-inline';
+    font-src 'self';
+    img-src 'self' data: blob:;
+    script-src 'self';
+    base-uri 'none';
+    form-action 'none';
+  ">
+<title>SurfView</title>
+<link rel="stylesheet" href="../../css/style.css?version=1.6.7">
+</head>
+<body>
+    <div id="modalWindow">
+        <div id="bookmarkMenu" class="bookmarkMenu">
+            <div id="bookmarksFolders">
+                <label for="inputCreateFolder">Bookmark folders</label>
+            </div>
+            <div id="bookmarksFoldersCtrl">
+                <input type="text" id="inputCreateFolder" value="folder name..." class="btn btn-primary">
+                <button class="btn btn-icon" id="btnCreateFolder" title="Create folder">Create new folder</button>
+            </div>
+        </div>
+    </div>
+  <script>
+    document.getElementById('submitBtn').addEventListener('click', () => {
+      const value = document.getElementById('myInput').value
+      window.surfview.ipcRenderer.invoke('form-submit', value)
+    });
+    document.getElementById('inputCreateFolder').addEventListener('focus', (event) => {
+        document.getElementById('inputCreateFolder').value = '';
+    });
+  </script>
+</body>
+</html>

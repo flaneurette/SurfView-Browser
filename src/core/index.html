@@ -8,7 +8,7 @@
     style-src 'self' 'unsafe-inline';
     font-src 'self';
     img-src 'self' data: blob:;
-    script-src 'self';
+    script-src 'self' 'unsafe-inline';
     base-uri 'none';
     form-action 'none';
   ">
@@ -20,11 +20,18 @@
 
   <!-- TITLEBAR -->
   
-  <div class="titlebar">
+  <div class="titlebar" id="mainBar">
     <div class="titlebar-logo">SURF<span>VIEW</span></div>
     <div class="shield-badge" id="shieldBadge">
       <div class="shield-dot" id="shieldDot"></div>
       <span id="shieldLabel">SAFE MODE</span>
+    </div>
+        <div id="searchBox">
+        <input type="text" class="btn btn-primary" id="search-input" placeholder="Search..." />
+        <button class="btn btn-primary" id="search-next">-&gt;&gt;</button>
+        <button class="btn btn-primary" id="search-prev">&lt;&lt;-</button>
+        <button class="btn btn-primary" id="search-close">Close</button>
+        <div id="search-results">0/0</div>
     </div>
     <div id="bookmarks">
         <ul id="bookmarks-ul">
@@ -42,21 +49,12 @@
       <span id="torLabel">tor off.</span>
     </div>
     
-    <!-- MODE SWITCH -->
-    <div class="mode-toggle">
-      <span id="modeLabel">Image mode</span>
-      <label class="toggle-switch">
-        <input type="checkbox" checked id="imageModeToggle">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-      </label>
-    </div>
   </div>
 
   <!-- URL BAR -->
   <div class="urlbar" id="urlbar">
-    <button class="btn btn-icon" id="btnBack" title="Back" disabled>&#8592;</button>
-    <button class="btn btn-icon" id="btnFwd" title="Forward" disabled>&#8594;</button>
+    <button class="btn btn-icon" id="btnBack" title="Back">&#8592;</button>
+    <button class="btn btn-icon" id="btnFwd" title="Forward">&#8594;</button>
     <button class="btn btn-icon" id="btnReload" title="Reload">&#8635;</button>
     <div class="urlbar-input-wrap">
       <span class="urlbar-prefix">https://</span>
@@ -70,15 +68,7 @@
   </div>
 
   <!-- MAIN -->
-  <div class="main">
-
-    <div id="searchBox">
-        <input type="text" class="btn btn-primary" id="search-input" placeholder="Search..." />
-        <button class="btn btn-primary" id="search-next">-&gt;&gt;</button>
-        <button class="btn btn-primary" id="search-prev">&lt;&lt;-</button>
-        <button class="btn btn-primary" id="search-close">Close</button>
-        <div id="search-results">0/0</div>
-    </div>
+  <div class="main" id="main">
 
     <!-- VIEWPORT -->
     <div class="viewport" id="viewport">
@@ -98,10 +88,9 @@
         </div>
   
         <div class="empty-state" id="emptyState">
-         <!-- <div class="empty-icon">&#9681;</div>
+         <img src="../img/fumby.png" width="250" alt="SurfView"/>
           <div class="empty-title">no page loaded</div>
           <div class="empty-sub">enter a url above.</div>
-          -->
         </div>
         
         <div class="loading-state" id="loadingState">
@@ -139,35 +128,7 @@
             live mode active - this is a real browser. However, scripts are disabled, toggle scripts on for scripting.
             <button class="live-warning-close" id="liveWarningClose">x</button>
           </div>
-        <webview
-          id="liveWebview"
-          src="default.html"
-          partition="temp:webview"
-          referrerpolicy="no-referrer"
-          webpreferences="webgl=false,
-            disableWebRTC=true,
-            nodeIntegration=false,
-            contextIsolation=true,
-            nodeIntegrationInSubFrames=false,
-            nodeIntegrationInWorker=false,
-            sandbox=true,
-            webviewTag=true,
-            webSecurity=true,
-            allowRunningInsecureContent=false,
-            experimentalFeatures=false,
-            disableDialogs = true,
-            safeDialogs = true,
-            safeDialogsMessage ='Blocked',
-            spellcheck= false,
-            enableWebSQL = false,
-            plugins = false,
-            disableCache = true,
-            enableBlinkFeatures= '',
-            disableBlinkFeatures='Autofill,ServiceWorker',
-            navigateOnDragDrop= false,
-            autoplayPolicy:'user-gesture-required'
-            "
-        />
+        <div id="liveWebview" style="width: 100%; height: 100%;"></div>
         </div>
       </div>
     </div>
@@ -206,18 +167,18 @@
   <div class="statusbar">
   
     <div class="status-item">
-    <label class="toggle-switch">
-        <input type="checkbox" id="statusJS">
-        <div class="toggle-track"></div>
-        <div class="toggle-thumb"></div>
-    </label>
-    <span id="jsStatus">JS OFF</span>
-    </div>
+    <label for="imageModeToggle" id="modeStatusImg">Image Mode:</label> <input type="checkbox" id="imageModeToggle"><label for="imageModeToggle"></label>
+    <label for="liveModeToggle" id="modeStatusLive">Live Mode:</label> <input type="checkbox" id="liveModeToggle" checked><label for="liveModeToggle"></label>
+    <label for="statusJS" id="modeStatusJS">Javascript:</label> <input type="checkbox" id="statusJS"><label for="statusJS"></label>
      
-    <div class="status-item status-ok" id="statusSafe">scripts blocked</div>
-    <div class="status-item" id="statusDomain">--</div>
-    <div class="status-item" id="statusTitle"></div>
+    </div>
+    <div class="status-item">  
+    <label for="webscanner">Webscanner:</label> <input type="checkbox" id="webscanner"><label for="webscanner"></label>
+    <label for="privacy">Privacy:</label><input type="checkbox" id="privacy" checked><label for="privacy"></label>
+    </div>
     <div class="spacer"></div>
+    <div class="status-item" id="statusDomain"></div>
+    <div class="status-item" id="statusTitle"></div>
     <div class="status-item" id="statusLinks">0 links</div>
     
     <div class="status-item" id="statusRenderTime"></div>
@@ -231,5 +192,6 @@
   <button id="confirmNo" class="btn btn-primary">Cancel</button>
 </div>
 <script src="./renderer/renderer.js"></script>
+<script id="dynamicScript"></script>
 </body>
 </html>

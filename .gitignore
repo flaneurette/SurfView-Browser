@@ -1,5 +1,6 @@
 # dependencies
-src/tor/tor-data
+src/tor/tor-data/
+src/core/backup/
 unit-tests/
 node_modules/
 dist/

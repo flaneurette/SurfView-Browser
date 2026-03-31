@@ -41,7 +41,8 @@
         "to": "tor",
         "filter": [
           "**/*",
-          "!**/tor-data/**"
+          "!**/tor-data/**",
+          "!**/backup/**"
         ]
       }
     ],

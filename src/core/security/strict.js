@@ -3,7 +3,20 @@
 
 const STRICT_PATTERNS = [
 
-    /\bMy\s*Special\s*Pattern/i,
+    // block canvas
+    /<\s*canvas/i,
+    /createElement\(\'canvas\'\)/i,
+    /toDataURL/i,
+    /toBlob/i,
+    /new\s*Blob/i,
+    /fillRect/i,
+    /captureStream/i,
+    /getImageData/i,
+    /getSupportedExtensions/i,
+    /SHADING_LANGUAGE_VERSION/i,
+    /UNMASKED_VENDOR_WEBGL/i,
+    /UNMASKED_RENDERER_WEBGL/i,
+    /WEBGL_debug_renderer_info/i,
     
     // iframes (we already scan iframes, but you could block them all)
     ///\(\s*\'iframe\'\s*\)/i,
@@ -17,5 +30,3 @@ const STRICT_PATTERNS = [
     ///removeTrack/i,
     ///onmessage/,
 ];
-
-module.exports = { STRICT_PATTERNS };
