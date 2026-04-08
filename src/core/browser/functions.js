@@ -12,35 +12,74 @@ function escHtml(s) {
         .replaceAll('`', '&#96;');
 }
 
-function sanitizeUrl(raw) {
+function sanitizeUrl(input, method=false) {
+
+    input = String(input).trim();
+
+    const schemes = new RegExp(
+        "^(javascript|data|vbscript|file|about|chrome|" + 
+        "settings|mailto|mailbox|blob|xlink|navigation|" +
+        "navigator|window):", "i"
+    );
     
-    let url = String(raw).trim();
-
-    url = url.replaceAll(/[\x00-\x20\x7F]/gim, '');
-    url = url.replaceAll(/[(){}\[\]`]/g, '');
-
-    if (/^(javascript|data|vbscript|file|about|chrome|settings|mailto|mailbox|blob|xlink|navigation|navigator|window):/i.test(url)) {
-        return null;
+    if (schemes.test(input)) {
+        input = input.replaceAll(schemes, '');
     }
-
-    if (!/^https?:\/\//i.test(url)) {
-        url = 'https://' + url;
-    }
-
-    try {
-        const parsed = new URL(url);
-        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-            return null;
+    
+    const replacer = (str) => {
+        try {
+            str = str.replace(/^http:\/\//i,'');
+            str = str.replace(/^https:\/\//i,'');
+            str = str.replace(/^www\./i, '');
+            return str;
+        } catch {
+            return str;
         }
-        var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-        var enc = ['%00', '%1F', '%0D', '%0A'];
-        enc.forEach(function(code) {
-            stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
-        });
-        return stripped;
-    } catch (e) {
-        return null;
+    };
+    
+    const base = (str) => {
+        try {
+            str = replacer(str);
+            str = new URL('https://' + str);
+            str = str.hostname;
+            return replacer(str);
+        } catch {
+            return str;
+        }
+    };
+
+    switch (method) {
+        
+        case 'base':
+        case 'host':
+            return base(input);
+
+        case 'domain':
+            return 'www.' + base(input);
+            
+        case 'hyperlink':
+            return 'https://' + replacer(input);
+
+        case 'secure':
+        case 'ssl':
+        case 'https':
+            return input.replace(/^http:\/\//i, 'https://');
+            
+        case 'sanitize': 
+            input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
+            input = replacer(input);
+            return 'https://' + input;
+            
+        default:
+            input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
+            input = replacer(input);
+            return 'https://' + input;
     }
+    return input;
 }
 
 function sortUrls(urls) {

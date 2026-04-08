@@ -208,9 +208,9 @@ async function launchBrowser(url) {
                     loadingState.className = 'loading-state hide';
                     loadingStateLive.className = 'loading-state hide';
                     errorMsgStatus.textContent = 'Webscanner found insecure code.';
-                    errorMsg.innerHTML = \`${ErrorMessage(scannerresult.error.toString())}\`;
+                    errorExplainer.innerHTML = \`${ErrorMessage(scannerresult.error.toString())}\`;
                     launchReload.className = 'launchReload hide';
-                    launchReport.className = 'launchReport hide';
+                    launchReport.className = 'launchReport active';
                 `);
                 insecure = true;
             } 
@@ -288,6 +288,8 @@ async function launchBrowser(url) {
             });
         }
     }
+    
+    if(devdebug) SurfBrowserView.webContents.openDevTools();
 }
 
 async function addScript(code) {
@@ -298,6 +300,7 @@ async function addScript(code) {
 }
 
 async function setupBrowserViewEventListeners() {
+    
     // Listen for load failures.
     SurfBrowserView.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
         if (isMainFrame) {
@@ -310,9 +313,9 @@ async function setupBrowserViewEventListeners() {
                 loadingState.className = 'loading-state hide';
                 loadingStateLive.className = 'loading-state hide';
                 errorMsgStatus.textContent = '${err.errorMsg}';
-                errorMsg.textContent = '${err.errorMsgExplain}';
+                errorExplainer.textContent = '${err.errorMsgExplain}';
                 launchReload.className = 'launchReload hide';
-                launchReport.className = 'launchReport hide';
+                launchReport.className = 'launchReport active';
             `);
         }
     });
@@ -322,7 +325,6 @@ async function setupBrowserViewEventListeners() {
         console.error(`Provisional load failed (did-fail-provisional-load): ${errorDescription} (Code: ${errorCode})`);
         // Handle the error (e.g., show a user-friendly message)
     });
-    
     
     // Navigation start event
     SurfBrowserView.webContents.on('did-start-navigation', (event, url, isInPlace, isMainFrame) => {
@@ -342,8 +344,26 @@ async function setupBrowserViewEventListeners() {
     });
 
     // Page finish load event
-    SurfBrowserView.webContents.on('did-finish-load', async (event) => {
-        
+    SurfBrowserView.webContents.on('did-frame-finish-load', async () => {
+        try {
+            const currentUrl = SurfBrowserView.webContents.getURL();
+            await mainWindow.webContents.executeJavaScript(`
+                (function() {
+                    urlInputField = document.getElementById('urlInput');
+                    if (urlInputField) {
+                        urlInputField.value = ${JSON.stringify(currentUrl)};
+                        urlInputField.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                })();
+            `);
+        } catch(e) {
+            console.error('Error updating URL input:', e);
+        }
+    });
+
+    // Page finish load event
+    SurfBrowserView.webContents.on('did-finish-load', async () => {
+
     });
 
     // Navigation event

@@ -11,9 +11,11 @@ const {
     session,
     dialog,
     net,
+    protocol,
     webContents,
     Menu, 
     MenuItem,
+    screen,
     globalShortcut
 } = require('electron');
 

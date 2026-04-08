@@ -2,6 +2,27 @@
 // IPC
 // #####################################################################
 
+
+/*
+More efficient:
+=================================
+// Shared logic
+async function openSourceWindow(url) {
+    await closeModalWindow();
+    const bounds = mainWindow.getBounds();
+    showWindow(300, 150, bounds.x + 20, bounds.y + 80, 'src/core/forms/source.html');
+}
+
+// IPC Handler
+ipcMain.handle('modal-source', (event, url) => openSourceWindow(url));
+
+// Internal call
+async function someOtherFunction() {
+    await openSourceWindow('some-url');
+}
+
+*/
+
 async function messageBox(message) {
   dialog.showMessageBox({
     type: 'info',
@@ -14,13 +35,107 @@ async function messageBox(message) {
 }
 
 async function closeModalWindow() {
-  if (surfModalWindow) {
-    surfModalWindow.close();
-    surfModalWindow = null;
-  }
+    if (surfModalWindow) {
+        surfModalWindow.removeAllListeners();
+        surfModalWindow.close();
+        surfModalWindow = null;
+    }
 }
 
-ipcMain.handle('show-window', (event, w,h,x=false,y=false,f) =>  {
+ipcMain.handle('modal-inspect-domain', (event) =>  {
+    let url = SurfBrowserView.webContents.getURL();
+    url = sanitizeUrl(url,'host');
+    let vt = 'https://www.virustotal.com/gui/domain/' + url;
+    SurfBrowserView.webContents.loadURL(vt);
+    closeModalWindow();
+});
+
+ipcMain.handle('modal-inspect-dev', (event, url) =>  {
+    SurfBrowserView.webContents.openDevTools();
+});
+
+ipcMain.handle('modal-save', (event, url) =>  {
+
+});
+
+ipcMain.handle('modal-folder', async (event, url) => {
+    try {
+        await closeModalWindow();
+        showWindow(350, 120, event.clientX, 80, 'src/core/forms/bookmark.html');
+        } catch (error) {
+        console.error('Error:', error);
+    }
+});
+ 
+ipcMain.handle('modal-source', async (event) => {
+    let url = SurfBrowserView.webContents.getURL();
+    if(url) {
+        SurfBrowserView.webContents.loadURL('view-source:'+url);
+        closeModalWindow();
+    }
+});
+
+async function showWindow(w,h,x,y,f) {
+    
+    let preferences = {
+        width: w,
+        height: h,
+        parent: mainWindow,
+        modal: true,
+        frame: false,
+        resizable: false,
+        webPreferences: {
+            partition: 'nopersist',
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            nodeIntegration: false,
+            nodeIntegrationInSubFrames:false,
+            nodeIntegrationInWorker:false,
+            sandbox: true,
+            webSecurity: true,
+            allowRunningInsecureContent: false,
+            disableCache: true,
+            disableWebRTC: true,
+            webgl:false,
+            webviewTag:true,
+            experimentalFeatures:false,
+            disableDialogs : true,
+            safeDialogs : true,
+            spellcheck: false,
+            enableWebSQL : false,
+            plugins : false,
+            disableCache : true,
+            navigateOnDragDrop: false,
+            disableBlinkFeatures: 'Autofill,ServiceWorker',
+            safeDialogsMessage :'Blocked',
+            disableBlinkFeatures:'Autofill,ServiceWorker',
+            autoplayPolicy : 'user-gesture-required',
+            referrerpolicy: "no-referrer"
+        }
+      };
+      
+    if(x || y) {
+        preferences.x = x;
+        preferences.y = y;
+    }
+    
+    try {
+        
+        surfModalWindow.removeAllListeners();
+    
+    } catch(e) {} 
+    
+        surfModalWindow = new BrowserWindow(preferences);
+    
+    if(x) {
+        surfModalWindow.setBounds({ x: x, y: y, width: w, height: h });
+    }
+    
+    surfModalWindow.loadFile(f);
+    surfModalWindow.id = 'surfModalWindow';
+}
+
+ipcMain.handle('show-window',  async (event, w,h,x=false,y=false,f) =>  {
 
     let preferences = {
         width: w,
@@ -69,6 +184,8 @@ ipcMain.handle('show-window', (event, w,h,x=false,y=false,f) =>  {
     } catch(e) {} 
     surfModalWindow = new BrowserWindow(preferences)
     surfModalWindow.loadFile(f);
+    surfModalWindow.id = 'surfModalWindow';
+    surfModalWindow.setBounds({ x: x, y: y, width: w, height: h });
 });
 
 ipcMain.handle('close-window', (event) => {
@@ -89,11 +206,10 @@ ipcMain.handle('go-forward', (event) =>  {
   }
 });
 
-ipcMain.handle('process-form', (event, type,value) =>  {
-  if(type == 'bookmark-folder') {
-    // create new bookmark folder.
-  }
-  closeModalWindow();
+ipcMain.handle('reload', (event) =>  {
+    if (SurfBrowserView) {
+        SurfBrowserView.webContents.reload();
+    }
 });
 
 // Shrink
@@ -197,34 +313,204 @@ ipcMain.handle('dialog', async (_event, message) => {
 
 ipcMain.handle('listener', async (_event, type) => {
     document.addEventListener(type, (_event) => {
-      callback(_event.target);
+      callback(event.target);
     }, true);
 });
 
-ipcMain.handle('read-bookmarks', async (_event) => {
+ipcMain.handle('read-bookmarks', (_event) => {
     try {
-        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
-        if (!Array.isArray(data.url)) return [];
-        return data.url.slice(0, 50);
-    } catch (e) {
-        return [];
+        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));;
+        return data;
+        } catch (e) {
+       if(devdebug) console.log(e);
     }
 });
 
-ipcMain.handle('save-bookmark', async (_event, url) => {
-    try {
-        let url = sanitizeUrl(url);
-        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
-        if (!Array.isArray(data.url)) data.url = [];
-        if (data.url.length >= 50) return { success: false, reason: 'limit' };
-        if (data.url.includes(url)) return { success: false, reason: 'duplicate' };
-        data.url.push(url);
-        fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-        return { success: true };
-    } catch (e) {
-        return { success: false, reason: 'error' };
+ipcMain.handle('booklist', async (event, folder) =>  {
+    
+    let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+    let bookmarks = data[folder];    
+    if(bookmarks) {
+        const mousePos = screen.getCursorScreenPoint();
+        bookmarkfolderSelected = folder;
+        let total = bookmarks.length;
+        let offset = 40;
+        let padding = 30;
+        let height = (total * 12) + offset + padding;
+        showWindow(250, height, (mousePos.x - 60), 80, 'src/core/forms/bookmarks-folder.html');
+    }
+    
+});
+
+
+ipcMain.handle('load-bookmark-folder', async (event) =>  {
+    if(bookmarkfolderSelected) {
+        let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+        if(data) {
+            let result = data[bookmarkfolderSelected];
+            if(result) return result;
+        }
+        
+        return false;
     }
 });
+
+
+ipcMain.handle('process-form', async (event, type, value) =>  {
+    
+  if(type == 'bookmark-folder') {
+   
+    let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+   
+    if(value) {
+        
+        folder = value;
+        
+        if(folder.match(/[~!@#$%^()+|}{"'`><,/?]+/gi)) {
+        
+          await dialog.showMessageBox({
+            type: 'info',
+            title: 'Surfview Notification',
+            message: 'Cannot add folder, only use alphanumeric characters.',
+            buttons: ['OK'],
+            cancelId: 0,
+            noLink: true
+          }); 
+        
+        } else {
+         
+        if (!data[folder]) {
+           data[folder] = [];
+           newfolder = data[folder];
+           } else {
+           newfolder = data[folder];
+        }
+
+            try {
+                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                mainWindow.webContents.executeJavaScript(`
+                    const dom = document.getElementById('bookmarks-ul');
+                    let fold = document.createElement('li'); 
+                    fold.className = 'book-folder'; 
+                    let a = document.createElement('a');
+                    if(!selectedBookmarkFolder) { 
+                        let selectedBookmarkFolder = '${folder}';
+                        } else { 
+                        selectedBookmarkFolder = '${folder}';
+                    } 
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        a.id = '${folder}';
+                        window.surfview.showBookList(this.id);
+                        e.stopPropagation();
+                        window.focus();
+                        document.body.focus();
+                    };
+                    
+                    a.innerHTML = '<span class="foldericon">🗀</span>' + ' ' + '${folder}';
+                    fold.appendChild(a);
+                    dom.appendChild(fold); 
+                `);
+                } catch(e) {
+                    if(devdebug) console.log(e);
+                }   
+        }  
+    }
+    
+  }
+  closeModalWindow();
+});
+
+ipcMain.handle('save-bookmark', async (_event, uri, folder=false) => {
+    
+    let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+    
+    if(devdebug) console.log(data);
+    
+    if (!Array.isArray(data.bookmarks)) {
+        data.bookmarks = [];
+    }
+    
+    if(folder) {
+        
+            if(folder.match(/[~!@#$%^()+|}{"'`><,/?]+/gi)) {
+                
+              await dialog.showMessageBox({
+                type: 'info',
+                title: 'Surfview Notification',
+                message: 'Cannot add folder, only use alphanumeric characters.',
+                buttons: ['OK'],
+                cancelId: 0,
+                noLink: true
+              }); 
+                
+            } else {
+   
+                if (!data[folder]) {
+                   data[folder] = [];
+                   newfolder = data[folder];
+                   } else {
+                   newfolder = data[folder];
+                }
+                
+                // add bookmark to folder
+                let lnk = sanitizeUrl(uri,'hyperlink');
+                
+                if (data.newfolder.length >= 50) {
+                    return { success: false, reason: 'limit' };
+                }
+
+                if (data.newfolder.includes(lnk)) {
+                    return { success: false, reason: 'duplicate' };
+                }
+
+                newfolder.push(lnk);
+                
+                try {
+                    fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                    } catch(e) {
+                    if(devdebug) console.log(e);
+                }
+            }
+        
+    } else {
+        
+        // Bookmarksbar.
+        try {
+            
+            let lnk = sanitizeUrl(uri,'hyperlink');
+            
+            if (!Array.isArray(data.bookmarksbar)) {
+                data.bookmarksbar = [];
+            }
+    
+            if (data.bookmarksbar.length >= 50) {
+                return { success: false, reason: 'limit' };
+            }
+
+            if (data.bookmarksbar.includes(lnk)) {
+                return { success: false, reason: 'duplicate' };
+            }
+
+            data.bookmarksbar.push(lnk);
+            
+            try {
+                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                } catch(e) {
+                if(devdebug) console.log(e);
+            }
+            
+            return { success: true };
+            
+        } catch (e) {
+            
+            if (devdebug) console.log(e);
+            
+            return { success: false, reason: 'error' };
+        }
+    }
+});
+
 
 ipcMain.handle('remove-bookmark', async (_event, url) => {
     try {
@@ -262,6 +548,16 @@ ipcMain.handle('open-external', async (_event, rawUrl) => {
 
 ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
  
+    if(vT == 'bookmark') {
+        if(jsEnabled) {
+            vT = 'js';
+            } else if(imageModeEnabled) {
+            vT = 'image';
+            } else {
+            vT = 'live';
+        }
+    }
+    
     let eventLog = [];
     let scanned = {};
 

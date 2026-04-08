@@ -23,9 +23,11 @@ const {
     session,
     dialog,
     net,
+    protocol,
     webContents,
     Menu, 
     MenuItem,
+    screen,
     globalShortcut
 } = require('electron');
 
@@ -51,7 +53,8 @@ let SurfBrowserView;
 let SurfBrowserWidth = 1012;
 let SurfBrowserHeight = 650;
 let currentIndex = 0;
-
+let urlInputField = null;
+let bookmarkfolderSelected = null;
 let isDebuggerAttached = false;
 
 // Webview javascript
@@ -391,6 +394,27 @@ const WEBVIEW_PREFERENCES = {
 // IPC
 // #####################################################################
 
+
+/*
+More efficient:
+=================================
+// Shared logic
+async function openSourceWindow(url) {
+    await closeModalWindow();
+    const bounds = mainWindow.getBounds();
+    showWindow(300, 150, bounds.x + 20, bounds.y + 80, 'src/core/forms/source.html');
+}
+
+// IPC Handler
+ipcMain.handle('modal-source', (event, url) => openSourceWindow(url));
+
+// Internal call
+async function someOtherFunction() {
+    await openSourceWindow('some-url');
+}
+
+*/
+
 async function messageBox(message) {
   dialog.showMessageBox({
     type: 'info',
@@ -403,13 +427,107 @@ async function messageBox(message) {
 }
 
 async function closeModalWindow() {
-  if (surfModalWindow) {
-    surfModalWindow.close();
-    surfModalWindow = null;
-  }
+    if (surfModalWindow) {
+        surfModalWindow.removeAllListeners();
+        surfModalWindow.close();
+        surfModalWindow = null;
+    }
 }
 
-ipcMain.handle('show-window', (event, w,h,x=false,y=false,f) =>  {
+ipcMain.handle('modal-inspect-domain', (event) =>  {
+    let url = SurfBrowserView.webContents.getURL();
+    url = sanitizeUrl(url,'host');
+    let vt = 'https://www.virustotal.com/gui/domain/' + url;
+    SurfBrowserView.webContents.loadURL(vt);
+    closeModalWindow();
+});
+
+ipcMain.handle('modal-inspect-dev', (event, url) =>  {
+    SurfBrowserView.webContents.openDevTools();
+});
+
+ipcMain.handle('modal-save', (event, url) =>  {
+
+});
+
+ipcMain.handle('modal-folder', async (event, url) => {
+    try {
+        await closeModalWindow();
+        showWindow(350, 120, event.clientX, 80, 'src/core/forms/bookmark.html');
+        } catch (error) {
+        console.error('Error:', error);
+    }
+});
+ 
+ipcMain.handle('modal-source', async (event) => {
+    let url = SurfBrowserView.webContents.getURL();
+    if(url) {
+        SurfBrowserView.webContents.loadURL('view-source:'+url);
+        closeModalWindow();
+    }
+});
+
+async function showWindow(w,h,x,y,f) {
+    
+    let preferences = {
+        width: w,
+        height: h,
+        parent: mainWindow,
+        modal: true,
+        frame: false,
+        resizable: false,
+        webPreferences: {
+            partition: 'nopersist',
+            preload: path.join(__dirname, 'preload.js'),
+            contextIsolation: true,
+            nodeIntegration: false,
+            nodeIntegrationInSubFrames:false,
+            nodeIntegrationInWorker:false,
+            sandbox: true,
+            webSecurity: true,
+            allowRunningInsecureContent: false,
+            disableCache: true,
+            disableWebRTC: true,
+            webgl:false,
+            webviewTag:true,
+            experimentalFeatures:false,
+            disableDialogs : true,
+            safeDialogs : true,
+            spellcheck: false,
+            enableWebSQL : false,
+            plugins : false,
+            disableCache : true,
+            navigateOnDragDrop: false,
+            disableBlinkFeatures: 'Autofill,ServiceWorker',
+            safeDialogsMessage :'Blocked',
+            disableBlinkFeatures:'Autofill,ServiceWorker',
+            autoplayPolicy : 'user-gesture-required',
+            referrerpolicy: "no-referrer"
+        }
+      };
+      
+    if(x || y) {
+        preferences.x = x;
+        preferences.y = y;
+    }
+    
+    try {
+        
+        surfModalWindow.removeAllListeners();
+    
+    } catch(e) {} 
+    
+        surfModalWindow = new BrowserWindow(preferences);
+    
+    if(x) {
+        surfModalWindow.setBounds({ x: x, y: y, width: w, height: h });
+    }
+    
+    surfModalWindow.loadFile(f);
+    surfModalWindow.id = 'surfModalWindow';
+}
+
+ipcMain.handle('show-window',  async (event, w,h,x=false,y=false,f) =>  {
 
     let preferences = {
         width: w,
@@ -458,6 +576,8 @@ ipcMain.handle('show-window', (event, w,h,x=false,y=false,f) =>  {
     } catch(e) {} 
     surfModalWindow = new BrowserWindow(preferences)
     surfModalWindow.loadFile(f);
+    surfModalWindow.id = 'surfModalWindow';
+    surfModalWindow.setBounds({ x: x, y: y, width: w, height: h });
 });
 
 ipcMain.handle('close-window', (event) => {
@@ -478,11 +598,10 @@ ipcMain.handle('go-forward', (event) =>  {
   }
 });
 
-ipcMain.handle('process-form', (event, type,value) =>  {
-  if(type == 'bookmark-folder') {
-    // create new bookmark folder.
-  }
-  closeModalWindow();
+ipcMain.handle('reload', (event) =>  {
+    if (SurfBrowserView) {
+        SurfBrowserView.webContents.reload();
+    }
 });
 
 // Shrink
@@ -586,34 +705,204 @@ ipcMain.handle('dialog', async (_event, message) => {
 
 ipcMain.handle('listener', async (_event, type) => {
     document.addEventListener(type, (_event) => {
-      callback(_event.target);
+      callback(event.target);
     }, true);
 });
 
-ipcMain.handle('read-bookmarks', async (_event) => {
+ipcMain.handle('read-bookmarks', (_event) => {
     try {
-        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
-        if (!Array.isArray(data.url)) return [];
-        return data.url.slice(0, 50);
-    } catch (e) {
-        return [];
+        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));;
+        return data;
+        } catch (e) {
+       if(devdebug) console.log(e);
     }
 });
 
-ipcMain.handle('save-bookmark', async (_event, url) => {
-    try {
-        let url = sanitizeUrl(url);
-        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
-        if (!Array.isArray(data.url)) data.url = [];
-        if (data.url.length >= 50) return { success: false, reason: 'limit' };
-        if (data.url.includes(url)) return { success: false, reason: 'duplicate' };
-        data.url.push(url);
-        fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-        return { success: true };
-    } catch (e) {
-        return { success: false, reason: 'error' };
+ipcMain.handle('booklist', async (event, folder) =>  {
+    
+    let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+    let bookmarks = data[folder];    
+    if(bookmarks) {
+        const mousePos = screen.getCursorScreenPoint();
+        bookmarkfolderSelected = folder;
+        let total = bookmarks.length;
+        let offset = 40;
+        let padding = 30;
+        let height = (total * 12) + offset + padding;
+        showWindow(250, height, (mousePos.x - 60), 80, 'src/core/forms/bookmarks-folder.html');
+    }
+    
+});
+
+
+ipcMain.handle('load-bookmark-folder', async (event) =>  {
+    if(bookmarkfolderSelected) {
+        let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+        if(data) {
+            let result = data[bookmarkfolderSelected];
+            if(result) return result;
+        }
+        
+        return false;
     }
 });
+
+
+ipcMain.handle('process-form', async (event, type, value) =>  {
+    
+  if(type == 'bookmark-folder') {
+   
+    let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+   
+    if(value) {
+        
+        folder = value;
+        
+        if(folder.match(/[~!@#$%^()+|}{"'`><,/?]+/gi)) {
+        
+          await dialog.showMessageBox({
+            type: 'info',
+            title: 'Surfview Notification',
+            message: 'Cannot add folder, only use alphanumeric characters.',
+            buttons: ['OK'],
+            cancelId: 0,
+            noLink: true
+          }); 
+        
+        } else {
+         
+        if (!data[folder]) {
+           data[folder] = [];
+           newfolder = data[folder];
+           } else {
+           newfolder = data[folder];
+        }
+
+            try {
+                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                mainWindow.webContents.executeJavaScript(`
+                    const dom = document.getElementById('bookmarks-ul');
+                    let fold = document.createElement('li'); 
+                    fold.className = 'book-folder'; 
+                    let a = document.createElement('a');
+                    if(!selectedBookmarkFolder) { 
+                        let selectedBookmarkFolder = '${folder}';
+                        } else { 
+                        selectedBookmarkFolder = '${folder}';
+                    } 
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        a.id = '${folder}';
+                        window.surfview.showBookList(this.id);
+                        e.stopPropagation();
+                        window.focus();
+                        document.body.focus();
+                    };
+                    
+                    a.innerHTML = '<span class="foldericon">🗀</span>' + ' ' + '${folder}';
+                    fold.appendChild(a);
+                    dom.appendChild(fold); 
+                `);
+                } catch(e) {
+                    if(devdebug) console.log(e);
+                }   
+        }  
+    }
+    
+  }
+  closeModalWindow();
+});
+
+ipcMain.handle('save-bookmark', async (_event, uri, folder=false) => {
+    
+    let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+    
+    if(devdebug) console.log(data);
+    
+    if (!Array.isArray(data.bookmarks)) {
+        data.bookmarks = [];
+    }
+    
+    if(folder) {
+        
+            if(folder.match(/[~!@#$%^()+|}{"'`><,/?]+/gi)) {
+                
+              await dialog.showMessageBox({
+                type: 'info',
+                title: 'Surfview Notification',
+                message: 'Cannot add folder, only use alphanumeric characters.',
+                buttons: ['OK'],
+                cancelId: 0,
+                noLink: true
+              }); 
+                
+            } else {
+   
+                if (!data[folder]) {
+                   data[folder] = [];
+                   newfolder = data[folder];
+                   } else {
+                   newfolder = data[folder];
+                }
+                
+                // add bookmark to folder
+                let lnk = sanitizeUrl(uri,'hyperlink');
+                
+                if (data.newfolder.length >= 50) {
+                    return { success: false, reason: 'limit' };
+                }
+
+                if (data.newfolder.includes(lnk)) {
+                    return { success: false, reason: 'duplicate' };
+                }
+
+                newfolder.push(lnk);
+                
+                try {
+                    fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                    } catch(e) {
+                    if(devdebug) console.log(e);
+                }
+            }
+        
+    } else {
+        
+        // Bookmarksbar.
+        try {
+            
+            let lnk = sanitizeUrl(uri,'hyperlink');
+            
+            if (!Array.isArray(data.bookmarksbar)) {
+                data.bookmarksbar = [];
+            }
+    
+            if (data.bookmarksbar.length >= 50) {
+                return { success: false, reason: 'limit' };
+            }
+
+            if (data.bookmarksbar.includes(lnk)) {
+                return { success: false, reason: 'duplicate' };
+            }
+
+            data.bookmarksbar.push(lnk);
+            
+            try {
+                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                } catch(e) {
+                if(devdebug) console.log(e);
+            }
+            
+            return { success: true };
+            
+        } catch (e) {
+            
+            if (devdebug) console.log(e);
+            
+            return { success: false, reason: 'error' };
+        }
+    }
+});
+
 
 ipcMain.handle('remove-bookmark', async (_event, url) => {
     try {
@@ -651,6 +940,16 @@ ipcMain.handle('open-external', async (_event, rawUrl) => {
 
 ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
  
+    if(vT == 'bookmark') {
+        if(jsEnabled) {
+            vT = 'js';
+            } else if(imageModeEnabled) {
+            vT = 'image';
+            } else {
+            vT = 'live';
+        }
+    }
+    
     let eventLog = [];
     let scanned = {};
 
@@ -711,35 +1010,74 @@ function escHtml(s) {
         .replaceAll('`', '&#96;');
 }
 
-function sanitizeUrl(raw) {
+function sanitizeUrl(input, method=false) {
+
+    input = String(input).trim();
+
+    const schemes = new RegExp(
+        "^(javascript|data|vbscript|file|about|chrome|" + 
+        "settings|mailto|mailbox|blob|xlink|navigation|" +
+        "navigator|window):", "i"
+    );
     
-    let url = String(raw).trim();
-
-    url = url.replaceAll(/[\x00-\x20\x7F]/gim, '');
-    url = url.replaceAll(/[(){}\[\]`]/g, '');
-
-    if (/^(javascript|data|vbscript|file|about|chrome|settings|mailto|mailbox|blob|xlink|navigation|navigator|window):/i.test(url)) {
-        return null;
+    if (schemes.test(input)) {
+        input = input.replaceAll(schemes, '');
     }
-
-    if (!/^https?:\/\//i.test(url)) {
-        url = 'https://' + url;
-    }
-
-    try {
-        const parsed = new URL(url);
-        if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-            return null;
+    
+    const replacer = (str) => {
+        try {
+            str = str.replace(/^http:\/\//i,'');
+            str = str.replace(/^https:\/\//i,'');
+            str = str.replace(/^www\./i, '');
+            return str;
+        } catch {
+            return str;
         }
-        var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-        var enc = ['%00', '%1F', '%0D', '%0A'];
-        enc.forEach(function(code) {
-            stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
-        });
-        return stripped;
-    } catch (e) {
-        return null;
+    };
+    
+    const base = (str) => {
+        try {
+            str = replacer(str);
+            str = new URL('https://' + str);
+            str = str.hostname;
+            return replacer(str);
+        } catch {
+            return str;
+        }
+    };
+
+    switch (method) {
+        
+        case 'base':
+        case 'host':
+            return base(input);
+
+        case 'domain':
+            return 'www.' + base(input);
+            
+        case 'hyperlink':
+            return 'https://' + replacer(input);
+
+        case 'secure':
+        case 'ssl':
+        case 'https':
+            return input.replace(/^http:\/\//i, 'https://');
+            
+        case 'sanitize': 
+            input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
+            input = replacer(input);
+            return 'https://' + input;
+            
+        default:
+            input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
+            input = replacer(input);
+            return 'https://' + input;
     }
+    return input;
 }
 
 function sortUrls(urls) {
@@ -979,10 +1317,12 @@ async function setupWebSecurity() {
 
 async function WebRTCscan(url) {
     
+    await proxyManagement();
+    
     // returns array of scanned links.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 10s timeout
-    await proxyManagement();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    
     // Direct Nodescan.
     const res = await net.fetch(url, {
         headers: {
@@ -1332,7 +1672,6 @@ function earlyReturn(matched,base) {
         matched.startsWith('chrome:') || 
         matched.startsWith('edge:') || 
         matched.startsWith('moz-extension:') ||
-        matched.startsWith('view-source:') || 
         matched.startsWith('blob:') 
     ) {
         return false;
@@ -1352,12 +1691,10 @@ function earlyReturn(matched,base) {
 const STRICT_PATTERNS = [
 
     // block canvas
-    /<\s*canvas/i,
-    /createElement\(\'canvas\'\)/i,
-    /toDataURL/i,
-    /toBlob/i,
-    /new\s*Blob/i,
-    /fillRect/i,
+    ///<\s*canvas/i,
+    ///createElement\(\'canvas\'\)/i,
+    //toDataURL/i,
+    ///fillRect/i,
     /captureStream/i,
     /getImageData/i,
     /getSupportedExtensions/i,
@@ -1365,6 +1702,9 @@ const STRICT_PATTERNS = [
     /UNMASKED_VENDOR_WEBGL/i,
     /UNMASKED_RENDERER_WEBGL/i,
     /WEBGL_debug_renderer_info/i,
+
+    ///toBlob/i,
+    ///new\s*Blob/i,
     
     // iframes (we already scan iframes, but you could block them all)
     ///\(\s*\'iframe\'\s*\)/i,
@@ -2213,9 +2553,9 @@ async function launchBrowser(url) {
                     loadingState.className = 'loading-state hide';
                     loadingStateLive.className = 'loading-state hide';
                     errorMsgStatus.textContent = 'Webscanner found insecure code.';
-                    errorMsg.innerHTML = \`${ErrorMessage(scannerresult.error.toString())}\`;
+                    errorExplainer.innerHTML = \`${ErrorMessage(scannerresult.error.toString())}\`;
                     launchReload.className = 'launchReload hide';
-                    launchReport.className = 'launchReport hide';
+                    launchReport.className = 'launchReport active';
                 `);
                 insecure = true;
             } 
@@ -2293,6 +2633,8 @@ async function launchBrowser(url) {
             });
         }
     }
+    
+    if(devdebug) SurfBrowserView.webContents.openDevTools();
 }
 
 async function addScript(code) {
@@ -2303,6 +2645,7 @@ async function addScript(code) {
 }
 
 async function setupBrowserViewEventListeners() {
+    
     // Listen for load failures.
     SurfBrowserView.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL, isMainFrame) => {
         if (isMainFrame) {
@@ -2315,9 +2658,9 @@ async function setupBrowserViewEventListeners() {
                 loadingState.className = 'loading-state hide';
                 loadingStateLive.className = 'loading-state hide';
                 errorMsgStatus.textContent = '${err.errorMsg}';
-                errorMsg.textContent = '${err.errorMsgExplain}';
+                errorExplainer.textContent = '${err.errorMsgExplain}';
                 launchReload.className = 'launchReload hide';
-                launchReport.className = 'launchReport hide';
+                launchReport.className = 'launchReport active';
             `);
         }
     });
@@ -2327,7 +2670,6 @@ async function setupBrowserViewEventListeners() {
         console.error(`Provisional load failed (did-fail-provisional-load): ${errorDescription} (Code: ${errorCode})`);
         // Handle the error (e.g., show a user-friendly message)
     });
-    
     
     // Navigation start event
     SurfBrowserView.webContents.on('did-start-navigation', (event, url, isInPlace, isMainFrame) => {
@@ -2347,8 +2689,26 @@ async function setupBrowserViewEventListeners() {
     });
 
     // Page finish load event
-    SurfBrowserView.webContents.on('did-finish-load', async (event) => {
-        
+    SurfBrowserView.webContents.on('did-frame-finish-load', async () => {
+        try {
+            const currentUrl = SurfBrowserView.webContents.getURL();
+            await mainWindow.webContents.executeJavaScript(`
+                (function() {
+                    urlInputField = document.getElementById('urlInput');
+                    if (urlInputField) {
+                        urlInputField.value = ${JSON.stringify(currentUrl)};
+                        urlInputField.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                })();
+            `);
+        } catch(e) {
+            console.error('Error updating URL input:', e);
+        }
+    });
+
+    // Page finish load event
+    SurfBrowserView.webContents.on('did-finish-load', async () => {
+
     });
 
     // Navigation event
@@ -2573,11 +2933,16 @@ app.on('did-attach-webview', (event, contents) => {
         contents.debugger.sendCommand('Emulation.setLocaleOverride', {
           locale: spoof.locale
         });
+        
 });
 
+protocol.registerSchemesAsPrivileged([
+    { scheme: 'source-view', privileges: { supportFetchAPI: true, standard: true, secure: true } }
+])
+
 app.on('ready', () => {
-  session.defaultSession.clearCache()
-  session.defaultSession.clearStorageData()
+    session.defaultSession.clearCache()
+    session.defaultSession.clearStorageData()
 })
 
 app.on('will-attach-webview', (event, webPreferences, params) => {});

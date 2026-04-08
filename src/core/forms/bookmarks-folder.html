@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SurfView</title>
+<link rel="stylesheet" href="../../css/style.css?version=1.6.7">
+</head>
+<body>
+<button id="closeRightMenu" class="close-button">&#10005;</button>
+
+    <div id="modalWindow">
+        <div id="bookmarkMenu" class="bookmarkMenu">
+        
+            <ul id="folder-open">
+            <!-- folders -->
+            </ul>
+        
+        </div>
+        
+        </div>
+    </div>
+    
+ <script src="../renderer/renderer.js"></script>
+   
+  <script>
+
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const folder = document.getElementById('folder-open');
+        window.surfview.loadBookmarkFolder().then((urls) => {
+        
+            if(urls.length <= 0) {
+            folder.appendChild(document.createTextNode('No bookmarks found.'));
+            } else {
+                urls.forEach(url => {
+                    let li = document.createElement('li');
+                    let a = document.createElement('a');
+
+                    a.href = '#';
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        window.surfview.renderUrl(url,'bookmark');
+                        window.surfview.closeWindow();
+                    };
+
+                    a.appendChild(document.createTextNode(url));
+                    li.appendChild(a);
+                    folder.appendChild(li);
+                });
+            }
+            
+        }).catch(error => {
+            console.error('Error loading bookmark folder:', error);
+        });
+
+        // Close button functionality
+        const closeButton = document.getElementById('closeRightMenu');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+            if (window.surfview && window.surfview.closeWindow) {
+                window.surfview.closeWindow();
+                } else {
+                console.error('surfview.closeWindow is not available');
+            }
+            });
+        }
+    });
+  </script>
+
+</body>
+</html>

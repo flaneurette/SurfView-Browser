@@ -19,7 +19,8 @@
     var imageModeEnabled = false;
     var webscannerEnabled = false;
     var privacyEnabled = true;
-
+    var selectedBookmarkFolder = null;
+    
     // Webview javascript
     let jsEnabled1 = false; // default: off
 
@@ -114,7 +115,7 @@
         wwx = window.innerWidth;
         if(event.button == 2 && event.clientX > 180 && event.clientX < (wwx-250)) {
             // Right click.
-            window.surfview.showWindow(400,120,event.clientX,80,'src/core/forms/bookmark.html');
+            window.surfview.showWindow(200,260,event.clientX,80,'src/core/forms/rightclick.html');
         }
     });
 
@@ -883,48 +884,80 @@
 
     }
 
-    // sanitize a url, returns null if invalid or unsafe
-    function sanitizeUrl(raw) {
+    function sanitizeUrl(input, method=false) {
 
-        var url = String(raw).trim();
+        input = String(input).trim();
 
-        // pre-strip
-        url = url.replaceAll(/[\x00-\x20\x7F]/gim, '');
-        url = url.replaceAll(/[(){}\[\]`]/g, '');
-
-        // block dangerous schemes entirely
-        var blocked = /^(javascript|data|vbscript|file|about|mailto|mailbox|settings|chrome|blob|xlink|navigation|navigator|window):/gi;
-        if (blocked.test(url)) return null;
-
-        // ensure http or https scheme
-        if (!/^https?:\/\//i.test(url)) {
-            url = 'https://' + url;
+        const schemes = new RegExp(
+            "^(javascript|data|vbscript|file|about|chrome|" + 
+            "settings|mailto|mailbox|blob|xlink|navigation|" +
+            "navigator|window):", "i"
+        );
+        
+        if (schemes.test(input)) {
+            input = input.replaceAll(schemes, '');
         }
-
-        // validate it parses as a real URL
-        try {
-            var parsed = new URL(url);
-            if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
-                return null;
+        
+        const replacer = (str) => {
+            try {
+                str = str.replace(/^http:\/\//i,'');
+                str = str.replace(/^https:\/\//i,'');
+                str = str.replace(/^www\./i, '');
+                return str;
+            } catch {
+                return str;
             }
-            // strip null bytes and control characters after normalization
-            var stripped = parsed.href.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-            var enc = ['%00', '%1F', '%0D', '%0A'];
-            enc.forEach(function(code) {
-                stripped = stripped.replaceAll(new RegExp(code, 'gim'), '');
-            });
-            return stripped;
-        } catch (e) {
-            return null;
+        };
+        
+        const base = (str) => {
+            try {
+                str = replacer(str);
+                str = new URL('https://' + str);
+                return str.hostname;
+            } catch {
+                return str;
+            }
+        };
+
+        switch (method) {
+            case 'base':
+            case 'host':
+                return base(input);
+
+            case 'domain':
+                return 'www.' + base(input);
+                
+            case 'hyperlink':
+                return 'https://www.' + replacer(input);
+
+            case 'secure':
+            case 'ssl':
+            case 'https':
+                return input.replace(/^http:\/\//i, 'https://');
+            case 'sanitize': 
+                input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+                input = input.replaceAll(/[(){}\[\]`]/g, '');
+                input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
+                input = replacer(input);
+                return 'https://' + input;
+                
+            default:
+                input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
+                input = input.replaceAll(/[(){}\[\]`]/g, '');
+                input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
+                input = replacer(input);
+                return 'https://' + input;
         }
+        return input;
     }
 
     function escHtml(s) {
         return String(s)
-            .replaceAll(/&/gim, '&amp;')
-            .replaceAll(/</gim, '&lt;')
-            .replaceAll(/>/gim, '&gt;')
-            .replaceAll(/"/gim, '&quot;');
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#39;')
+        .replaceAll('`', '&#96;');
     }
 
     function escAttr(s) {
@@ -992,47 +1025,54 @@
         url = url.replace('https://', '');
         url = url.replace('www.', '');
         
-        const dom = document.getElementById('bookmarks-ul');
-        const pipe = document.createElement('li');
+        window.surfview.saveBookmark(raw).then(function(result) {
+            
+            if(result.success == true) {
 
-        pipe.appendChild(document.createTextNode('/'));
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = '#';
-        a.onclick = function(e) {
-            e.preventDefault();
-            whatIsAllowed(url);
-        };
-        a.oncontextmenu = function(e) {
-            e.preventDefault();
-            removeBookmark(url);
-            e.stopPropagation();
-            window.focus();
-            document.body.focus();
-        };
-        a.appendChild(document.createTextNode(shortUrl(url)));
-        li.appendChild(a);
-        dom.appendChild(pipe);
-        dom.appendChild(li);
+                const dom = document.getElementById('bookmarks-ul');
+                const pipe = document.createElement('li');
 
-        // write to bookmarks file.
-        var store = jsoncmd(url);
-        return;
-    }
+                pipe.appendChild(document.createTextNode('/'));
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = '#';
+                
+                a.onclick = function(e) {
+                    e.preventDefault();
+                    whatIsAllowed(url);
+                };
 
-
-    function jsoncmd(uri) {
-        window.surfview.saveBookmark(uri).then(function(result) {
-            if (!result.success) {
-                if (result.reason === 'duplicate') {
+                a.oncontextmenu = function(e) {
+                    e.preventDefault();
+                    removeBookmark(url);
+                    e.stopPropagation();
+                    window.focus();
+                    document.body.focus();
+                };
+                
+                a.appendChild(document.createTextNode(shortUrl(url)));
+                li.appendChild(a);
+                dom.appendChild(pipe);
+                dom.appendChild(li);
+                
+                dragdrop();
+            
+            } else {
+                
+                if (result.reason == 'duplicate') {
                     window.surfview.dialog('Bookmark already exists.');
-                    } else if (result.reason === 'limit') {
+                    } else if (result.reason == 'limit') {
                     window.surfview.dialog('Bookmark limit reached.');
+                    } else {
+                    window.surfview.dialog('Failed to add bookmark.');
                 }
             }
+            
         }).catch(function(err) {
-            console.error('saveBookmark failed:', err);
+            window.surfview.dialog('Failed to add bookmark.');
         });
+
+        return;
     }
 
     document.addEventListener('keydown', (e) => {
@@ -1046,35 +1086,70 @@
     });
  
     function loadBookmarks() {
+        
         window.surfview.readBookmarks().then(function(urls) {
-            const dom = document.getElementById('bookmarks-ul');
-            dom.innerHTML = ''; // clears all existing li's before redraw
-            urls.forEach(function(url) {
-                const pipe = document.createElement('li');
-                pipe.appendChild(document.createTextNode('/'));
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#';
-                a.onclick = function(e) {
-                    e.preventDefault();
-                    whatIsAllowed(url);
-                };
-                a.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    removeBookmark(url);
-                    e.stopPropagation();
-                    window.focus();
-                    document.body.focus();
-                };
-                a.appendChild(document.createTextNode(shortUrl(url)));
-                li.appendChild(a);
-                dom.appendChild(pipe);
-                dom.appendChild(li);
-            });
+            
+        const dom = document.getElementById('bookmarks-ul');
+        
+        dom.innerHTML = '';
+
+        for (const [key, array] of Object.entries(urls)) {
+            
+            if(JSON.stringify(key) == "bookmarksbar") {
+              
+                if(array.length >=1) {
+                    
+                    array.forEach(function(url) {
+                        
+                        const pipe = document.createElement('li');
+                        pipe.appendChild(document.createTextNode('/'));
+                        const li = document.createElement('li');
+                        const a = document.createElement('a');
+                        
+                        a.href = '#';
+                        a.onclick = function(e) {
+                            e.preventDefault();
+                            whatIsAllowed(url);
+                        };
+                        
+                        a.appendChild(document.createTextNode(shortUrl(url)));
+                        li.appendChild(a);
+                        dom.appendChild(pipe);
+                        dom.appendChild(li);
+                        
+                    });
+                }
+            
+            } else {
+              
+                if(array.length >=0) {
+
+                    let fold = document.createElement('li'); 
+                    fold.className = 'book-folder'; 
+                    let a = document.createElement('a');
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        a.id = key;
+                        window.surfview.showBookList(this.id);
+                        e.stopPropagation();
+                        window.focus();
+                        document.body.focus();
+                    };
+                    
+                    a.innerHTML = '<span class="foldericon">🗀</span>' + ' ' +key
+                    fold.appendChild(a);
+                    dom.appendChild(fold);    
+                } 
+            
+          }
+          
+        }
+
         });
     }
 
     function removeBookmark(url) {
+        
         var box = document.getElementById('confirmBox');
         document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
         box.className = 'confirm-box active';
@@ -1084,14 +1159,84 @@
                 if (ok) loadBookmarks();
             });
         };
+        
         document.getElementById('confirmNo').onclick = function() {
             box.className = 'confirm-box hide';
         };
     }
-    
+ 
+    function dragdrop() {
+      
+      /*
+      const list = document.getElementById('bookmarks-ul');
+      if (!list) {
+        console.error('Element #bookmarks-ul not found');
+        return;
+      }
+
+      let draggedItem = null;
+
+      // Set all links as draggable
+      const links = document.querySelectorAll('#bookmarks-ul a');
+      links.forEach(link => {
+        link.draggable = true;
+
+        // When drag starts
+        link.addEventListener('dragstart', function(e) {
+          draggedItem = this;
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', this.href);
+          this.style.opacity = '0.5';
+          console.log('Drag started:', this.textContent); // Debug
+        });
+
+        // When drag ends
+        link.addEventListener('dragend', function() {
+          this.style.opacity = '1';
+          draggedItem = null;
+          console.log('Drag ended'); // Debug
+        });
+      });
+
+      // Handle dragover on list items
+      const listItems = document.querySelectorAll('#bookmarks-ul li');
+      listItems.forEach(item => {
+        item.addEventListener('dragover', function(e) {
+          e.preventDefault(); // Required to allow drop
+          e.dataTransfer.dropEffect = 'move';
+          this.style.backgroundColor = '#f0f0f0';
+          console.log('Dragging over:', this.textContent); // Debug
+        });
+
+        item.addEventListener('dragleave', function() {
+          this.style.backgroundColor = '';
+        });
+
+        // Handle the actual drop
+        item.addEventListener('drop', function(e) {
+          e.preventDefault();
+          this.style.backgroundColor = '';
+
+          if (draggedItem && draggedItem.parentNode !== this) {
+            console.log('Dropped:', draggedItem.textContent, 'on', this.textContent); // Debug
+
+            // Remove from old parent
+            draggedItem.parentNode.removeChild(draggedItem);
+
+            // Add to new parent
+            this.appendChild(draggedItem);
+          }
+        });
+      });
+      */
+    }
+        
     // call it when the page loads
     loadBookmarks();
-    
+ 
+    document.addEventListener('DOMContentLoaded', dragdrop());
+
+ 
 // disable anon function when debugging:
  
 //})();

@@ -34,7 +34,16 @@ contextBridge.exposeInMainWorld('surfview', {
   processForm: (type,value) => ipcRenderer.invoke('process-form', type, value),
   goBack: () => ipcRenderer.invoke('go-back'),
   goForward: () => ipcRenderer.invoke('go-forward'),
+  reload: () => ipcRenderer.invoke('reload'),
+  modalInspectDomain: () => ipcRenderer.invoke('modal-inspect-domain'),
+  modalInspectDev: () => ipcRenderer.invoke('modal-inspect-dev'),
+  modalSave: () => ipcRenderer.invoke('modal-save'),
+  modalSource: () => ipcRenderer.invoke('modal-source'),
+  modalFolder: () => ipcRenderer.invoke('modal-folder'),
+  showBookList: (value) => ipcRenderer.invoke('booklist', value),
+  loadBookmarkFolder: () => ipcRenderer.invoke('load-bookmark-folder'),
   getElementById: (id) => document.getElementById(id),
+  
 });
 
 ipcRenderer.send('preload-ready');

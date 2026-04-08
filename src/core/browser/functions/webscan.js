@@ -4,10 +4,12 @@
 
 async function WebRTCscan(url) {
     
+    await proxyManagement();
+    
     // returns array of scanned links.
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 5000); // 10s timeout
-    await proxyManagement();
+    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5s timeout
+    
     // Direct Nodescan.
     const res = await net.fetch(url, {
         headers: {
@@ -357,7 +359,6 @@ function earlyReturn(matched,base) {
         matched.startsWith('chrome:') || 
         matched.startsWith('edge:') || 
         matched.startsWith('moz-extension:') ||
-        matched.startsWith('view-source:') || 
         matched.startsWith('blob:') 
     ) {
         return false;

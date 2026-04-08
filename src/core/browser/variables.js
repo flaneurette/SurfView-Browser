@@ -9,7 +9,8 @@ let SurfBrowserView;
 let SurfBrowserWidth = 1012;
 let SurfBrowserHeight = 650;
 let currentIndex = 0;
-
+let urlInputField = null;
+let bookmarkfolderSelected = null;
 let isDebuggerAttached = false;
 
 // Webview javascript

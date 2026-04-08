@@ -28,11 +28,16 @@ app.on('did-attach-webview', (event, contents) => {
         contents.debugger.sendCommand('Emulation.setLocaleOverride', {
           locale: spoof.locale
         });
+        
 });
 
+protocol.registerSchemesAsPrivileged([
+    { scheme: 'source-view', privileges: { supportFetchAPI: true, standard: true, secure: true } }
+])
+
 app.on('ready', () => {
-  session.defaultSession.clearCache()
-  session.defaultSession.clearStorageData()
+    session.defaultSession.clearCache()
+    session.defaultSession.clearStorageData()
 })
 
 app.on('will-attach-webview', (event, webPreferences, params) => {});

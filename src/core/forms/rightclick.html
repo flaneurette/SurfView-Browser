@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SurfView</title>
+    <link rel="stylesheet" href="../../css/style.css?version=1.6.7">
+</head>
+<body>
+        
+    <button id="closeRightMenu" class="close-button">&#10005;</button>
+    <div id="modalWindow">
+        <div id="bookmarkMenu" class="bookmarkMenu">
+            <div class="context-menu" id="contextMenu">
+                <ul>
+                    <li><a href="#" id="goBack">Back</a></li>
+                    <li><a href="#" id="goForward">Forward</a></li>
+                    <li><a href="#" id="reload">Reload</a></li>
+                    <li class="separator"></li>
+                    <li><a href="#" id="modalInspectDomain">Scan with Virus Total</a></li>
+                    <!-- <li><a href="#">Print...</a></li> -->
+                    <li class="separator"></li>
+                    <li><a href="#" id="modalSource">View Page Source</a></li>
+                    <li><a href="#" id="modalInspectDev">Inspect</a></li>
+                    <li class="separator"></li>
+                    <li><a href="#" id="modalFolder">New folder...</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+   
+        const closeButton = document.getElementById('closeRightMenu');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                window.surfview.closeWindow();
+            });
+        }
+
+        // Wait for DOM to be fully loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Close button functionality
+            const closeButton = document.getElementById('closeRightMenu');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    if (window.surfview && window.surfview.closeWindow) {
+                        window.surfview.closeWindow();
+                    } else {
+                        console.error('surfview.closeWindow is not available');
+                    }
+                });
+            }
+            
+            document.addEventListener('click', (e) => {
+            
+                const link = e.target.closest('a');
+                if (!link) return;
+
+                e.preventDefault();
+                
+                const id = link.id;
+
+                const methodMap = {
+                    goBack: 'goBack',
+                    goForward: 'goForward',
+                    reload: 'reload',
+                    modalInspectDomain: 'modalInspectDomain',
+                    modalInspectDev: 'modalInspectDev',
+                    modalSave: 'modalSave',
+                    modalSource: 'modalSource',
+                    modalFolder: 'modalFolder'
+                };
+
+                if (methodMap[id]) {
+                    window.surfview[methodMap[id]]();
+                }
+            });
+    
+        });
+    </script>
+</body>
+</html>

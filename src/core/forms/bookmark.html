@@ -18,13 +18,19 @@
         </div>
     </div>
   <script>
+  
     document.getElementById('btnCreateFolder').addEventListener('click', () => {
-        const value = document.getElementById('inputCreateFolder').value;
-        window.surfview.processForm('bookmark-folder', value);
+    
+            const value = document.getElementById('inputCreateFolder').value;
+            
+            window.surfview.processForm('bookmark-folder', value);
     });
+    
     document.getElementById('inputCreateFolder').addEventListener('focus', (event) => {
         document.getElementById('inputCreateFolder').value = '';
     });
+    
+    
   </script>
 </body>
 </html>

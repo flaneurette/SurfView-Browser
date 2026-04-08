@@ -4,12 +4,10 @@
 const STRICT_PATTERNS = [
 
     // block canvas
-    /<\s*canvas/i,
-    /createElement\(\'canvas\'\)/i,
-    /toDataURL/i,
-    /toBlob/i,
-    /new\s*Blob/i,
-    /fillRect/i,
+    ///<\s*canvas/i,
+    ///createElement\(\'canvas\'\)/i,
+    //toDataURL/i,
+    ///fillRect/i,
     /captureStream/i,
     /getImageData/i,
     /getSupportedExtensions/i,
@@ -17,6 +15,9 @@ const STRICT_PATTERNS = [
     /UNMASKED_VENDOR_WEBGL/i,
     /UNMASKED_RENDERER_WEBGL/i,
     /WEBGL_debug_renderer_info/i,
+
+    ///toBlob/i,
+    ///new\s*Blob/i,
     
     // iframes (we already scan iframes, but you could block them all)
     ///\(\s*\'iframe\'\s*\)/i,

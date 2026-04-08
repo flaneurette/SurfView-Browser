@@ -1,8 +1,10 @@
-const { webFrame, contextBridge, ipcRenderer } = require('electron');
+const { webFrame } = require('electron');
 
 const privacy_script = `
 
-    (function() {
+    //(function() {
+    
+    try { 
     
     Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
         value: HTMLCanvasElement.prototype.getContext,
@@ -23,7 +25,6 @@ const privacy_script = `
         });
     });
 
-    // Block audio contexts
     ['OfflineAudioContext', 'AudioContext', 'webkitOfflineAudioContext'].forEach(key => {
         try {
             Object.defineProperty(window, key, { get: () => undefined });
@@ -106,7 +107,6 @@ const privacy_script = `
         } catch(e) {}
     });
 
-    // Block additional navigator properties
     [
         'PluginArray', 'MimeTypeArray', 'NetworkInformation', 'Scheduling',
         'UserActivation', 'Geolocation', 'DeprecatedStorageQuota',
@@ -146,7 +146,6 @@ const privacy_script = `
         } catch(e) {}
     });
 
-    // Performance override
     try {
         Object.defineProperty(window, 'performance', {
             get: () => ({
@@ -159,22 +158,147 @@ const privacy_script = `
         });
     } catch(e) {}
 
-    // Document overrides
     try {
+        
         Object.defineProperty(document, 'fonts', { get: () => [] });
-    } catch(e) {}
+        window.getComputedStyle = function() {
+            return false;
+        }
 
-    // Override getClientRects
-    Element.getClientRects = function() { return false; }
-    Element.getBoundingClientRect = function() { return false; }
+        Object.defineProperty(document.fonts, 'ready', {
+          get: function() {
+            return Promise.resolve();
+          },
+          configurable: true
+        });
 
-    // Various
-    Object.defineProperty(navigator, 'doNotTrack', { value: null });
-    Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined });
-    Object.defineProperty(window, 'speechSynthesis', { value: undefined });
-    window.SpeechSynthesisUtterance = undefined;
+        const originalLoad = document.fonts.load;
+        document.fonts.load = function() {
+          return Promise.resolve([]);
+        };
 
-    })();
+        ['offsetWidth', 'offsetHeight', 'clientWidth', 'clientHeight'].forEach(prop => {
+          let proto = HTMLElement.prototype;
+          let descriptor;
+
+          while (proto && !descriptor) {
+            descriptor = Object.getOwnPropertyDescriptor(proto, prop);
+            proto = Object.getPrototypeOf(proto);
+          }
+
+          if (!descriptor) return;
+
+          const originalGet = descriptor.get;
+
+          Object.defineProperty(HTMLElement.prototype, prop, {
+            get: function() {
+              const realValue = originalGet.call(this);
+
+              if (
+                this.textContent.trim() !== '' ||
+                this.tagName === 'SPAN' ||
+                this.tagName === 'DIV' ||
+                this.tagName === 'P' ||
+                this.tagName === 'A'
+              ) {
+
+                const noise = Math.floor(realValue * 0.1 * (Math.random() * 2 - 1));
+                return Math.max(1, realValue + noise); // Ensure value is at least 1
+              }
+
+              return realValue;
+            },
+            configurable: true // Allow redefinition later
+          });
+        });
+
+        const originalGetComputedStyle = window.getComputedStyle;
+        window.getComputedStyle = function(element, pseudoElt) {
+          const style = originalGetComputedStyle.call(this, element, pseudoElt);
+
+          Object.defineProperty(style, 'fontFamily', {
+            get: () => ['Arial', 'Times New Roman', 'Courier New'][Math.floor(Math.random() * 3)]
+          });
+
+          Object.defineProperty(style, 'fontSize', {
+            get: () => {
+              const realSize = parseFloat(originalGetComputedStyle.call(this, element, pseudoElt).fontSize);
+              return Math.floor(realValue * 0.1 * (Math.random() * 2 - 1));
+            }
+          });
+
+          return style;
+        };
+
+        CanvasRenderingContext2D.prototype.measureText = function(text) {
+          return { width: Math.floor(Math.random() * 100) + 50 };
+        };
+        
+        const OriginalFontFace = FontFace;
+        window.FontFace = function(family, source, descriptors) {
+          return new OriginalFontFace('Arial', '', {});
+        };
+ 
+        ['scrollWidth', 'scrollHeight'].forEach(prop => {
+          const original = Object.getOwnPropertyDescriptor(HTMLElement.prototype, prop);
+          if (!original) return;
+
+          Object.defineProperty(HTMLElement.prototype, prop, {
+            get: function() {
+              const realValue = original.get.call(this);
+              if (this.textContent.trim() !== '') {
+                return Math.max(1, realValue + (Math.random() * 6 - 3));
+              }
+              return realValue;
+            },
+            configurable: true
+          });
+        });
+
+        // Randomize getBoundingClientRect()
+        const originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
+        Element.prototype.getBoundingClientRect = function() {
+          const rect = originalGetBoundingClientRect.call(this);
+          if (this.textContent.trim() !== '') {
+            rect.width += (Math.random() * 14 - 2); 
+            rect.height += (Math.random() * 14 - 2);
+          }
+          return rect;
+        };
+          
+        // Override HTMLElement.prototype.style to block fontFamily assignments
+        const originalStyleDescriptor = Object.getOwnPropertyDescriptor(
+          HTMLElement.prototype,
+          'style'
+        );
+
+        Object.defineProperty(HTMLElement.prototype, 'style', {
+          get: function() {
+            const style = originalStyleDescriptor.get.call(this);
+            Object.defineProperty(style, 'fontFamily', {
+              get: () => 'Arial, sans-serif',
+              set: () => {
+              },
+              configurable: true
+            });
+
+            return style;
+          },
+          configurable: true
+        });
+          
+       } catch(e) {}
+
+        Element.getClientRects = function() { return false; }
+        Element.getBoundingClientRect = function() { return false; }
+        Object.defineProperty(navigator, 'doNotTrack', { value: null });
+        Object.defineProperty(navigator, 'globalPrivacyControl', { value: undefined });
+        Object.defineProperty(window, 'speechSynthesis', { value: undefined });
+        window.SpeechSynthesisUtterance = undefined;
+
+        } catch(e) {}
+    
+   //})();
 `;
 
 webFrame.executeJavaScript(privacy_script);
