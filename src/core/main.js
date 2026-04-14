@@ -39,7 +39,7 @@ const files = [
     surf.join('animate',  'ease.js'),
     surf.join('animate',  'animateBrowserView.js'),   
 ];
-
+ 
 include.js(files, browserapp, { watch: true, debug: false, backup: false });
 
 require('./app.js');
