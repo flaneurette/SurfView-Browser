@@ -15,6 +15,7 @@ const files = [
     surf.join('browser',  'switches.js'),
     surf.join('browser',  'arrays.js'),
     surf.join('browser',  'objects.js'),
+    surf.join('browser',  'surfvalues.js'),
     surf.join('browser',  'ipc.js'),
     surf.join('browser',  'functions.js'),
     surf.join('browser',  'functions', 'tor.js'),

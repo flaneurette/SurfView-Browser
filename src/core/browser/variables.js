@@ -12,6 +12,8 @@ let currentIndex = 0;
 let urlInputField = null;
 let bookmarkfolderSelected = null;
 let isDebuggerAttached = false;
+let sessionManager = null;
+let tmpMasterPassword = null;
 
 // Webview javascript
 let jsEnabled = false; // default: off

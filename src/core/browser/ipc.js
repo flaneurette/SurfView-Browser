@@ -45,7 +45,7 @@ async function closeModalWindow() {
 ipcMain.handle('modal-inspect-domain', (event) =>  {
     let url = SurfBrowserView.webContents.getURL();
     url = sanitizeUrl(url,'host');
-    let vt = 'https://www.virustotal.com/gui/domain/' + url;
+    let vt = 'https://www.example.com' + url;
     SurfBrowserView.webContents.loadURL(vt);
     closeModalWindow();
 });
@@ -319,7 +319,16 @@ ipcMain.handle('listener', async (_event, type) => {
 
 ipcMain.handle('read-bookmarks', (_event) => {
     try {
-        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));;
+        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
+        return data;
+        } catch (e) {
+       if(devdebug) console.log(e);
+    }
+});
+
+ipcMain.handle('load-folders', (event) =>  {
+    try {
+        const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
         return data;
         } catch (e) {
        if(devdebug) console.log(e);
@@ -327,7 +336,6 @@ ipcMain.handle('read-bookmarks', (_event) => {
 });
 
 ipcMain.handle('booklist', async (event, folder) =>  {
-    
     let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
     let bookmarks = data[folder];    
     if(bookmarks) {
@@ -339,9 +347,7 @@ ipcMain.handle('booklist', async (event, folder) =>  {
         let height = (total * 12) + offset + padding;
         showWindow(250, height, (mousePos.x - 60), 80, 'src/core/forms/bookmarks-folder.html');
     }
-    
 });
-
 
 ipcMain.handle('load-bookmark-folder', async (event) =>  {
     if(bookmarkfolderSelected) {
@@ -350,11 +356,83 @@ ipcMain.handle('load-bookmark-folder', async (event) =>  {
             let result = data[bookmarkfolderSelected];
             if(result) return result;
         }
-        
         return false;
     }
 });
 
+ipcMain.handle('get-url', async (event) =>  {
+    if(urlInputField) {
+        return urlInputField;
+        } else {
+     return false; 
+    }
+});
+
+ipcMain.handle('add-pass', async (event, url, user, passwd, pin) =>  {
+   return addPassword(url, user, passwd, pin);
+});
+
+ipcMain.handle('decrypt-entry-pwm', async (event,method,data,pin) =>  {
+   return decryptUserField(method,data,pin);
+});
+
+ipcMain.handle('get-value', async (event, name) =>  {
+    if(name) {
+        let sv = getPath('surfvalues.json');
+        let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        return data[name];
+    }
+});
+
+ipcMain.handle('fetch-pw', async (event, pw) =>  {
+    return unlockVault(pw);
+});
+
+ipcMain.handle('set-value', async (event, name, value) =>  {
+    if(name) {
+        let sv = getPath('surfvalues.json');
+        let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        if(!data) {
+            fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
+                data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+            });
+        }
+        data[name] = value;
+        fs.writeFileSync(sv, JSON.stringify(data, null, 2));
+        if(devdebug) console.log('Saved surfvalues to file!');
+    return true;
+    }
+});
+
+ipcMain.handle('add-bookmark', async (event, url) =>  {
+    const mousePos = screen.getCursorScreenPoint();
+    let offset = 40;
+    let padding = 30;
+    let height = (5 * 12) + offset + padding;
+    showWindow(350, height, (mousePos.x - 350), 80, 'src/core/forms/add-bookmark.html');
+});
+
+ipcMain.handle('init-vault', async (event, pw) =>  {
+    return initVault(pw);
+});
+
+ipcMain.handle('clear-pass', async (event, pw) =>  {
+    tmpMasterPassword = null;
+});
+
+ipcMain.handle('unlock-vault', async (event, pw) =>  {
+    tmpMasterPassword = pw;
+    return unlockVault(pw);
+});
+
+ipcMain.handle('load-passwords', async (event) =>  {
+    let data = JSON.parse(fs.readFileSync(getPWMPath(), 'utf8'));
+    if(data) {
+        let result = data;
+        if(result) return result;
+    }
+    return;
+});
 
 ipcMain.handle('process-form', async (event, type, value) =>  {
     
@@ -416,12 +494,11 @@ ipcMain.handle('process-form', async (event, type, value) =>  {
                 }   
         }  
     }
-    
   }
   closeModalWindow();
 });
 
-ipcMain.handle('save-bookmark', async (_event, uri, folder=false) => {
+ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
     
     let data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
     
@@ -433,45 +510,33 @@ ipcMain.handle('save-bookmark', async (_event, uri, folder=false) => {
     
     if(folder) {
         
-            if(folder.match(/[~!@#$%^()+|}{"'`><,/?]+/gi)) {
-                
-              await dialog.showMessageBox({
-                type: 'info',
-                title: 'Surfview Notification',
-                message: 'Cannot add folder, only use alphanumeric characters.',
-                buttons: ['OK'],
-                cancelId: 0,
-                noLink: true
-              }); 
-                
-            } else {
-   
-                if (!data[folder]) {
-                   data[folder] = [];
-                   newfolder = data[folder];
-                   } else {
-                   newfolder = data[folder];
-                }
-                
-                // add bookmark to folder
-                let lnk = sanitizeUrl(uri,'hyperlink');
-                
-                if (data.newfolder.length >= 50) {
-                    return { success: false, reason: 'limit' };
-                }
+        if(!data[folder]) {
+            data[folder] = [];
+            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+        }
+        
+        let newfolder = data[folder];
+        
+        // add bookmark to folder
+        let lnk = sanitizeUrl(uri,'hyperlink');
+        
+        if (newfolder.length >= 150) {
+            return { success: false, reason: 'limit' };
+        }
 
-                if (data.newfolder.includes(lnk)) {
-                    return { success: false, reason: 'duplicate' };
-                }
+        if (newfolder.includes(lnk)) {
+            return { success: false, reason: 'duplicate' };
+        }
 
-                newfolder.push(lnk);
-                
-                try {
-                    fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-                    } catch(e) {
-                    if(devdebug) console.log(e);
-                }
-            }
+        newfolder.push(lnk);
+        
+        try {
+            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+            } catch(e) {
+            if(devdebug) console.log(e);
+        }
+        
+        closeModalWindow();
         
     } else {
         
@@ -484,7 +549,7 @@ ipcMain.handle('save-bookmark', async (_event, uri, folder=false) => {
                 data.bookmarksbar = [];
             }
     
-            if (data.bookmarksbar.length >= 50) {
+            if (data.bookmarksbar.length >= 150) {
                 return { success: false, reason: 'limit' };
             }
 
@@ -510,7 +575,6 @@ ipcMain.handle('save-bookmark', async (_event, uri, folder=false) => {
         }
     }
 });
-
 
 ipcMain.handle('remove-bookmark', async (_event, url) => {
     try {
@@ -544,7 +608,6 @@ ipcMain.handle('open-external', async (_event, rawUrl) => {
         await shell.openExternal(url);
     } catch (_) {}
 });
-
 
 ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
  

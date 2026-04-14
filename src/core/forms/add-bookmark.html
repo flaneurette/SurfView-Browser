@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SurfView</title>
+<link rel="stylesheet" href="../../css/style.css?version=1.6.7">
+</head>
+<body>
+<button id="closeRightMenu" class="close-button">&#10005;</button>
+
+    <div id="modalWindow">
+        <div id="bookmarkMenu" class="bookmarkMenu">
+            <div id="bookmarksFolders">
+                <label for="inputCreateFolder">Add to folder:</label>
+            </div>
+            <div id="bookmarksFoldersCtrl">
+                <select name="toFolder" id="toFolder" class="btn btn-primary">
+                    <option value="bookmarksbar">Bookmarksbar</option>
+                </select>
+                <button class="btn btn-icon" id="btnCreateFolder" title="Create folder">Add to folder.</button>
+            </div>
+        </div>
+    </div>
+    
+ <script src="../renderer/renderer.js?1=1"></script>
+   
+  <script>
+
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+        
+        const folder = document.getElementById('toFolder');
+        const btnCreateFolder = document.getElementById('btnCreateFolder');
+        
+        window.surfview.loadFolders().then((folders) => {
+        
+            if(folders.length <= 0) {
+            
+            } else {
+            
+                Object.keys(folders).forEach(name => {
+                    let opt = document.createElement('option');
+                    opt.value = name;
+                    opt.textContent = name;
+                    folder.appendChild(opt);
+                });
+                
+                btnCreateFolder.addEventListener('click', () => {
+                let folder = document.getElementById('toFolder');
+                    bookmarkUrl(folder.value).then(function() {
+                        window.surfview.closeWindow();
+                    });
+                });
+            }
+            
+        }).catch(error => {
+            console.error('Error loading bookmark folder:', error);
+        });
+
+        // Close button functionality
+        const closeButton = document.getElementById('closeRightMenu');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+            if (window.surfview && window.surfview.closeWindow) {
+                window.surfview.closeWindow();
+                } else {
+                console.error('surfview.closeWindow is not available');
+            }
+            });
+        }
+    });
+  </script>
+
+</body>
+</html>

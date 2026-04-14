@@ -8,6 +8,7 @@ const activeWatchers = new Map(); // Maps file paths to their watcher references
 let backup = true;
   
 function js(files, out, options = {}) {
+    
     let { watch = false, debug = false, backup = false} = options;
 
     if (debug) {

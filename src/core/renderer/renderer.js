@@ -8,6 +8,9 @@
 //(function() {
 
     'use strict';
+    
+    // Reset PWM session.
+    window.surfview.setValue('sessionPWM', 'reset');
 
     // state
     var allLinks = [];
@@ -72,196 +75,260 @@
     var viewport = document.getElementById('viewport');
     var main = document.getElementById('main');
     var inputCreateFolder = document.getElementById('inputCreateFolder');
+    var pwManager = document.getElementById('btnPasswordManager');
     
     let resized = false;
     let whx = window.innerHeight;
     let wwx = window.innerWidth;
-    
-    var liveModal = 'inactive';
-    liveWarning.className = 'hideElement';
-    
-    errorExplainer.className = 'error-explainer hide';
-    errorState.className = 'error-state hide';
-    searchBox.className = 'search-box hide';
-    
-    // Set default to "live mode";
-    setJSstyles(2);
 
-    if(webscannerEnabled == true) webscanner.checked = true;
-    if(privacyEnabled == true) privacy.checked = true;
-    
-    // Define the handler
-    const onResize = () => {
-        resized = true;
-        whx = window.innerHeight;
-        wwx = window.innerWidth;
-    };
+    try {
+        
+        var liveModal = 'inactive';
+        liveWarning.className = 'hideElement';
 
-    // Function to setup listeners
-    const setupListeners = () => {
-        // First remove any existing listeners to prevent duplicates
-        ['resize', 'fullscreenchange'].forEach(e => window.removeEventListener(e, onResize));
-
-        // Then add new listeners
-        ['resize', 'fullscreenchange'].forEach(e => window.addEventListener(e, onResize));
-    };
-
-    // Initial setup
-    setupListeners();
-
-    mainBar.addEventListener('mousedown', (event) => {
-        // Bookmark click boundary.
-        whx = window.innerHeight;
-        wwx = window.innerWidth;
-        if(event.button == 2 && event.clientX > 180 && event.clientX < (wwx-250)) {
-            // Right click.
-            window.surfview.showWindow(200,260,event.clientX,80,'src/core/forms/rightclick.html');
-        }
-    });
-
-    // Search on input
-    document.getElementById('search-input').addEventListener('input', (e) => {
-        window.surfview.searchInWebview(e.target.value);
-    });
-
-    // Next/Previous buttons
-    document.getElementById('search-next').addEventListener('click', () => {
-        window.surfview.searchInWebview(
-          document.getElementById('search-input').value,
-          { forward: true }
-        );
-    });
-    
-    document.getElementById('search-prev').addEventListener('click', () => {
-        window.surfview.searchInWebview(
-          document.getElementById('search-input').value,
-          { forward: false }
-        );
-    });
-
-    // Close button
-    document.getElementById('search-close').addEventListener('click', () => {
-        document.getElementById('searchBox').className = 'hideElement';
-        window.surfview.stopSearchInWebview();
-    });
-
-    // Right-click anywhere in the window
-    document.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      window.surfview.showContextMenu();
-    });
-
-    // Right-click on URL bar (if needed)
-    document.getElementById('urlbar')?.addEventListener('contextmenu', (e) => {
-      e.preventDefault();
-      window.surfview.showContextMenu();
-    });
-   
-    // Error reports
-    launchReport.addEventListener('click', function() {
-        launchReport.className = 'launchReport hide';
-        errorExplainer.className = 'error-explainer active';
+        errorExplainer.className = 'error-explainer hide';
         errorState.className = 'error-state hide';
-    });
+        searchBox.className = 'search-box hide';
+        
+        // Set default to "live mode";
+        setJSstyles(2);
+    
+        if(webscannerEnabled == true) webscanner.checked = true;
+        if(privacyEnabled == true) privacy.checked = true;
+        
+        // Define the handler
+        const onResize = () => {
+            resized = true;
+            whx = window.innerHeight;
+            wwx = window.innerWidth;
+        };
 
-    liveWebview.addEventListener('will-navigate', (e) => {
-        e.preventDefault();
-        window.surfview.navigateIntercept(e.url);
-        liveWebview.src='';
-        if(jsEnabled1 == true) {
-            loadUrl(e.url, true, "js")
-            } else {
-            loadUrl(e.url, true, "live")
-        }
-    });
+        // Function to setup listeners
+        const setupListeners = () => {
+            // First remove any existing listeners to prevent duplicates
+            ['resize', 'fullscreenchange'].forEach(e => window.removeEventListener(e, onResize));
 
-    liveWebview.addEventListener('new-window', (e) => {
-        window.surfview.navigateIntercept(e.url);
-        liveWebview.src='';
-        if(jsEnabled1 == true) {
-            loadUrl(e.url, true, "js")
-            } else {
-            loadUrl(e.url, true, "live")
-        }
-    });
- 
+            // Then add new listeners
+            ['resize', 'fullscreenchange'].forEach(e => window.addEventListener(e, onResize));
+        };
+
+        // Initial setup
+        setupListeners();
+
+        mainBar.addEventListener('mousedown', (event) => {
+            // Bookmark click boundary.
+            whx = window.innerHeight;
+            wwx = window.innerWidth;
+            if(event.button == 2 && event.clientX > 180 && event.clientX < (wwx-250)) {
+                // Right click.
+                window.surfview.showWindow(200,260,event.clientX,80,'src/core/forms/rightclick.html');
+            }
+        });
+
+        // Search on input
+        document.getElementById('search-input').addEventListener('input', (e) => {
+            window.surfview.searchInWebview(e.target.value);
+        });
+
+        // Next/Previous buttons
+        document.getElementById('search-next').addEventListener('click', () => {
+            window.surfview.searchInWebview(
+              document.getElementById('search-input').value,
+              { forward: true }
+            );
+        });
+        
+        document.getElementById('search-prev').addEventListener('click', () => {
+            window.surfview.searchInWebview(
+              document.getElementById('search-input').value,
+              { forward: false }
+            );
+        });
+
+        pwManager.addEventListener('click', () => {
+            let w = parseInt(window.innerWidth / 2);
+            window.surfview.showWindow(600,500,w,150,'src/core/forms/password-manager.html');
+        });
+        
+        // Close button
+        document.getElementById('search-close').addEventListener('click', () => {
+            document.getElementById('searchBox').className = 'hideElement';
+            window.surfview.stopSearchInWebview();
+        });
+
+        // Right-click anywhere in the window
+        document.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          window.surfview.showContextMenu();
+        });
+
+        // Right-click on URL bar (if needed)
+        document.getElementById('urlbar')?.addEventListener('contextmenu', (e) => {
+          e.preventDefault();
+          window.surfview.showContextMenu();
+        });
+       
+        // Error reports
+        launchReport.addEventListener('click', function() {
+            launchReport.className = 'launchReport hide';
+            errorExplainer.className = 'error-explainer active';
+            errorState.className = 'error-state hide';
+        });
+
+        liveWebview.addEventListener('will-navigate', (e) => {
+            e.preventDefault();
+            window.surfview.navigateIntercept(e.url);
+            liveWebview.src = '';
+            if(jsEnabled1 == true) {
+                loadUrl(e.url, true, "js")
+                } else {
+                loadUrl(e.url, true, "live")
+            }
+        });
+
+        liveWebview.addEventListener('new-window', (e) => {
+            window.surfview.navigateIntercept(e.url);
+            liveWebview.src='';
+            if(jsEnabled1 == true) {
+                loadUrl(e.url, true, "js")
+                } else {
+                loadUrl(e.url, true, "live")
+            }
+        });
+
+        // bookmarking
+        btnBookmark.addEventListener('click', function() {
+            window.surfview.setValue('bookmark',urlInput.value.trim());
+            window.surfview.addBookmark();
+        });
+
+        // url bar events
+        urlInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                whatIsAllowed(urlInput.value);
+            }
+        });
+
+        btnRender.addEventListener('click', function() {
+            whatIsAllowed(urlInput.value);
+        });
+
+        btnBack.addEventListener('click', function() {
+            window.surfview.goBack();
+        });
+
+        btnFwd.addEventListener('click', function() {
+            window.surfview.goForward();
+        });
+
+        btnReload.addEventListener('click', function() {
+            liveWarning.className = 'hideElement';
+            var url = sanitizeUrl(urlInput.value.trim());
+            if (!url) return;
+            whatIsAllowed(url);
+        });
+
+        liveWarningClose.addEventListener('click', function() {
+            document.getElementById('liveWarning').className = 'hideElement';
+        });
+
+        // webview navigation events: keep url bar in sync
+        liveWebview.addEventListener('did-navigate', function(e) {
+            var url = sanitizeUrl(e.url);
+            if (!url || url === 'about:blank') return;
+            urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
+            try {
+                statusDomain.textContent = new URL(url).hostname;
+            } catch (_) {}
+        });
+
+        liveWebview.addEventListener('did-navigate-in-page', function(e) {
+            var url = sanitizeUrl(e.url);
+            if (!url || url === 'about:blank') return;
+            urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
+        });
+
+        liveWebview.addEventListener('page-title-updated', function(e) {
+            statusTitle.textContent = e.title ? '- ' + escHtml(e.title) : '';
+        });
+
+        // filter + tabs
+        filterInput.addEventListener('input', renderLinks);
+
+        document.querySelectorAll('.panel-tab').forEach(function(tab) {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.panel-tab').forEach(function(t) {
+                    t.className = 'panel-tab';
+                });
+                tab.className = 'panel-tab active';
+                currentTab = tab.getAttribute('data-tab');
+                renderLinks();
+            });
+        });
+    
+    } catch(e) { console.log(e); }
+    
+    
     try {
     // focus urlbar by default
     urlInput.focus();
-    } catch (e) {}
 
     let rawUrl = urlInput.value.trim();
     let uri = sanitizeUrl(rawUrl);
 
-    // bookmarking
-    btnBookmark.addEventListener('click', function() {
-        bookmarkUrl(urlInput.value.trim());
-    });
+    } catch (e) {}
 
-    // url bar events
-    urlInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            whatIsAllowed(urlInput.value);
+    function getValue(val) {
+        window.surfview.getValue(val);    
+    }
+
+    function setValue(name,val) {
+        window.surfview.setValue(name,val);    
+    }
+    
+    function removeLiveMessage() {
+            
+        if(window.getComputedStyle(liveWarning).display != 'none') {
+            liveWarning.className = 'hideElement';
+        } else if(liveModal == 'active') {
+            liveWarning.className = 'hideElement';
         }
-    });
-
-    btnRender.addEventListener('click', function() {
-        whatIsAllowed(urlInput.value);
-    });
-
-    btnBack.addEventListener('click', function() {
-        window.surfview.goBack();
-    });
-
-    btnFwd.addEventListener('click', function() {
-        window.surfview.goForward();
-    });
-
-    btnReload.addEventListener('click', function() {
-        liveWarning.className = 'hideElement';
-        var url = sanitizeUrl(urlInput.value.trim());
-        if (!url) return;
-        whatIsAllowed(url);
-    });
-
-    liveWarningClose.addEventListener('click', function() {
-        document.getElementById('liveWarning').className = 'hideElement';
-    });
-
-    // webview navigation events: keep url bar in sync
-    liveWebview.addEventListener('did-navigate', function(e) {
-        var url = sanitizeUrl(e.url);
-        if (!url || url === 'about:blank') return;
-        urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
-        try {
-            statusDomain.textContent = new URL(url).hostname;
-        } catch (_) {}
-    });
-
-    liveWebview.addEventListener('did-navigate-in-page', function(e) {
-        var url = sanitizeUrl(e.url);
-        if (!url || url === 'about:blank') return;
-        urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
-    });
-
-    liveWebview.addEventListener('page-title-updated', function(e) {
-        statusTitle.textContent = e.title ? '- ' + escHtml(e.title) : '';
-    });
-
-    // filter + tabs
-    filterInput.addEventListener('input', renderLinks);
-
-    document.querySelectorAll('.panel-tab').forEach(function(tab) {
-        tab.addEventListener('click', function() {
-            document.querySelectorAll('.panel-tab').forEach(function(t) {
-                t.className = 'panel-tab';
-            });
-            tab.className = 'panel-tab active';
-            currentTab = tab.getAttribute('data-tab');
-            renderLinks();
-        });
-    });
-
+        
+        return;
+    }
+    
+    function whatIsAllowed(url) {
+        if (imageModeEnabled) {
+            loadUrl(url, true, "image");
+            return;
+        } else if (jsEnabled1) {
+            loadUrl(url, true, "js");
+            return;
+        } else {
+            loadUrl(url, true, "live");
+            return;
+        }
+    }
+    
+    function decryptEntry(method,data,pin) {
+        return window.surfview.decryptEntry(method,data,pin);
+    }
+    
+    function updateTorLabel(enabled, ready) {
+      // Remove all state classes first
+      torLabel.classList.remove('tor-off', 'tor-connected', 'tor-connecting');
+      if (!enabled) {
+        torLabel.textContent = 'tor: off';
+        torLabel.classList.add('tor-off');
+      } else if (ready) {
+        torLabel.textContent = 'tor: connected';
+        torLabel.classList.add('tor-connected');
+      } else {
+        torLabel.textContent = 'tor: connecting...';
+        torLabel.classList.add('tor-connecting');
+      }
+    }
+    
     function setJSstyles(status) {
  
         /*
@@ -324,157 +391,130 @@
         }
     }
     
-    statusJS.addEventListener('click', () => {
-
-        if(jsEnabled1 == false) {
-            jsEnabled1 = true;
-            } else if(jsEnabled1 == true) {
-            jsEnabled1 = false;
-        }
-          
-        if(jsEnabled1 == true) { 
-            setJSstyles(1);
-            if (!uri) return;
-            loadUrl(uri, true, "js");
-            } else {
-            setJSstyles(2);
-            if (!uri) return;
-            loadUrl(uri, true, "live");
-        }
+    try {
         
-    });
+        statusJS.addEventListener('click', () => {
 
-    // Live mode toggle
-    liveModeToggle.addEventListener('change', function() {
-        if(liveModeToggle.checked == true) {
-            setJSstyles(2);
-            } else {
-            setJSstyles(3);
-        }
-    });
-
-    // Webscanner mode toggle
-    webscanner.addEventListener('change', function() {
-        if(webscanner.checked == true) {
-            webscannerEnabled = true;
-            window.surfview.setWebscanner(true);
-            } else {
-            webscannerEnabled = false;
-            window.surfview.setWebscanner(false);
-        }
-    });
-
-    // Privacy mode toggle
-    privacy.addEventListener('change', function() {
-        if(privacy.checked == true) {
-            privacyEnabled = true;
-            window.surfview.setPrivacy(true);
-            } else {
-            privacyEnabled = false;
-            window.surfview.setPrivacy(false);
-        }
-    });
-    
-    // image mode toggle
-    imageModeToggle.addEventListener('change', function() {
-
-        imageModeEnabled = this.checked;
-        var rawUrl = urlInput.value.trim();
-
-        if (imageModeEnabled) {
-            // Image mode
-            setJSstyles(3);
-            
-            if(liveModal != 'active') {
-                setShield(true);
+            if(jsEnabled1 == false) {
+                jsEnabled1 = true;
+                } else if(jsEnabled1 == true) {
+                jsEnabled1 = false;
+            }
+              
+            if(jsEnabled1 == true) { 
+                setJSstyles(1);
+                if (!uri) return;
+                loadUrl(uri, true, "js");
                 } else {
-                setShield(false);   
+                setJSstyles(2);
+                if (!uri) return;
+                loadUrl(uri, true, "live");
             }
             
-            setShield(true);
-            
-            if (rawUrl) {
-                loadUrl(sanitizeUrl(rawUrl), true, "image");
+        });
+
+        // Live mode toggle
+        liveModeToggle.addEventListener('change', function() {
+            if(liveModeToggle.checked == true) {
+                setJSstyles(2);
+                } else {
+                setJSstyles(3);
             }
-            
-        } else {
-            
-            // Live mode.
-            setJSstyles(2);
-            if (rawUrl) {
-                loadUrl(sanitizeUrl(rawUrl), true, "live");
+        });
+
+        // Webscanner mode toggle
+        webscanner.addEventListener('change', function() {
+            if(webscanner.checked == true) {
+                webscannerEnabled = true;
+                window.surfview.setWebscanner(true);
+                } else {
+                webscannerEnabled = false;
+                window.surfview.setWebscanner(false);
             }
-            
-            setLinks([]);
-        }
-    });
+        });
+
+        // Privacy mode toggle
+        privacy.addEventListener('change', function() {
+            if(privacy.checked == true) {
+                privacyEnabled = true;
+                window.surfview.setPrivacy(true);
+                } else {
+                privacyEnabled = false;
+                window.surfview.setPrivacy(false);
+            }
+        });
         
-    function removeLiveMessage() {
-            
-        if(window.getComputedStyle(liveWarning).display != 'none') {
-            liveWarning.className = 'hideElement';
-        } else if(liveModal == 'active') {
-            liveWarning.className = 'hideElement';
-        }
-        
-        return;
-    }
+        // image mode toggle
+        imageModeToggle.addEventListener('change', function() {
+
+            imageModeEnabled = this.checked;
+            var rawUrl = urlInput.value.trim();
+
+            if (imageModeEnabled) {
+                // Image mode
+                setJSstyles(3);
+                
+                if(liveModal != 'active') {
+                    setShield(true);
+                    } else {
+                    setShield(false);   
+                }
+                
+                setShield(true);
+                
+                if (rawUrl) {
+                    loadUrl(sanitizeUrl(rawUrl), true, "image");
+                }
+                
+            } else {
+                
+                // Live mode.
+                setJSstyles(2);
+                if (rawUrl) {
+                    loadUrl(sanitizeUrl(rawUrl), true, "live");
+                }
+                
+                setLinks([]);
+            }
+        });
     
-    function whatIsAllowed(url) {
-        if (imageModeEnabled) {
-            loadUrl(url, true, "image");
-            return;
-        } else if (jsEnabled1) {
-            loadUrl(url, true, "js");
-            return;
-        } else {
-            loadUrl(url, true, "live");
-            return;
-        }
-    }
+        torSwitch.addEventListener('change', async () => {
+            const enabled = torSwitch.checked;
+            torSwitch.disabled = true;
+            updateTorLabel(enabled, false);
+
+            if(enabled) {
+                setJSstyles(2);
+            }
+
+            const result = await window.surfview.toggleTor(enabled);
+            updateTorLabel(result.torEnabled, result.torEnabled ? result.ok : false);
+            // If turning on, poll until connected
+            if (result.torEnabled && result.ok) {
+                updateTorLabel(true, true);
+            }
+
+            torSwitch.disabled = false;
+        });
+
+        // Poll status until ready on startup
+        const torPoll = setInterval(async () => {
+            const status = await window.surfview.torStatus();
+            updateTorLabel(status.enabled, status.ready);
+            if (status.ready || !status.enabled) clearInterval(torPoll);
+        }, 1000);
+
+        // keyboard shortcut: Ctrl+L / Cmd+L to focus url bar
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
+                e.preventDefault();
+                urlInput.focus();
+                urlInput.select();
+            }
+        });
     
-    function updateTorLabel(enabled, ready) {
-      // Remove all state classes first
-      torLabel.classList.remove('tor-off', 'tor-connected', 'tor-connecting');
-
-      if (!enabled) {
-        torLabel.textContent = 'tor: off';
-        torLabel.classList.add('tor-off');
-      } else if (ready) {
-        torLabel.textContent = 'tor: connected';
-        torLabel.classList.add('tor-connected');
-      } else {
-        torLabel.textContent = 'tor: connecting...';
-        torLabel.classList.add('tor-connecting');
-      }
-    }
+    } catch(e) { console.log(e); }
     
-    torSwitch.addEventListener('change', async () => {
-        const enabled = torSwitch.checked;
-        torSwitch.disabled = true;
-        updateTorLabel(enabled, false);
-
-        if(enabled) {
-            setJSstyles(2);
-        }
-
-        const result = await window.surfview.toggleTor(enabled);
-        updateTorLabel(result.torEnabled, result.torEnabled ? result.ok : false);
-        // If turning on, poll until connected
-        if (result.torEnabled && result.ok) {
-            updateTorLabel(true, true);
-        }
-
-        torSwitch.disabled = false;
-    });
-
-    // Poll status until ready on startup
-    const torPoll = setInterval(async () => {
-        const status = await window.surfview.torStatus();
-        updateTorLabel(status.enabled, status.ready);
-        if (status.ready || !status.enabled) clearInterval(torPoll);
-    }, 1000);
-
     function setShield(safe) {
       // Remove old states
       shieldBadge.classList.remove('shield-safe', 'shield-danger');
@@ -490,15 +530,6 @@
         shieldLabel.textContent = 'LIVE MODE';
       }
     }
-
-    // keyboard shortcut: Ctrl+L / Cmd+L to focus url bar
-    document.addEventListener('keydown', function(e) {
-        if ((e.ctrlKey || e.metaKey) && e.key === 'l') {
-            e.preventDefault();
-            urlInput.focus();
-            urlInput.select();
-        }
-    });
 
     // main load function
     function loadUrl(raw, isNavigation = false, vType = "image") {
@@ -564,7 +595,6 @@
         });
         
         window.surfview.renderUrl(url, viewType)
-        
     }
         
         /*.then(function(result) {
@@ -964,49 +994,68 @@
         return String(s).replaceAll(/"/gim, '&quot;').replaceAll(/'/gim, '&#39;');
     }
 
-    // resize handle
-    var resizing = false;
-    var resizeStartX = 0;
-    var panelStartW = 280;
+    try {
+        
+        // resize handle
+        var resizing = false;
+        var resizeStartX = 0;
+        var panelStartW = 280;
 
-    document.getElementById('resizeHandle').addEventListener('mousedown', function(e) {
-        resizing = true;
-        resizeStartX = e.clientX;
-        panelStartW = document.getElementById('sidePanel').offsetWidth;
-        document.body.classList.add('resizing');
-    });
+        document.getElementById('resizeHandle').addEventListener('mousedown', function(e) {
+            resizing = true;
+            resizeStartX = e.clientX;
+            panelStartW = document.getElementById('sidePanel').offsetWidth;
+            document.body.classList.add('resizing');
+        });
 
-    document.addEventListener('mousemove', function(e) {
-        if (!resizing) return;
-        var delta = resizeStartX - e.clientX;
-        var newW = Math.max(180, Math.min(520, panelStartW + delta));
-        // document.getElementById('sidePanel').style.width = newW + 'px';
-        const panel = document.getElementById('sidePanel');
-        panel.style.setProperty('--side-panel-width', newW + 'px');
-    });
+        document.addEventListener('mousemove', function(e) {
+            if (!resizing) return;
+            var delta = resizeStartX - e.clientX;
+            var newW = Math.max(180, Math.min(520, panelStartW + delta));
+            // document.getElementById('sidePanel').style.width = newW + 'px';
+            const panel = document.getElementById('sidePanel');
+            panel.style.setProperty('--side-panel-width', newW + 'px');
+        });
 
-    document.addEventListener('mouseup', function() {
-        if (resizing) {
-            resizing = false;
-            document.body.classList.remove('resizing');
-        }
-    });
+        document.addEventListener('mouseup', function() {
+            if (resizing) {
+                resizing = false;
+                document.body.classList.remove('resizing');
+            }
+        });
 
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'f') {
-            e.preventDefault();
-            document.getElementById('searchBox').className = 'search-box active';
-            document.getElementById('search-input').focus();
-        }
-    });
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'f') {
+                e.preventDefault();
+                document.getElementById('searchBox').className = 'search-box active';
+                document.getElementById('search-input').focus();
+            }
+        });
 
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            const searchBox = document.getElementById('search-input');
+            if (searchBox) {
+              window.surfview.stopSearchInWebview();
+              searchBox.closest('div').remove();
+            }
+          }
+        });
+    
+    } catch(e) { }
+    
     // bookmarking urls
 
     function shortUrl(url) {
         return url.replace(/^https?:\/\//, '').replace(/\/$/, '').split('/')[0]; // domain only
     }
 
-    function bookmarkUrl(raw) {
+    function bookmarkUrl(folder) {
+        
+        window.surfview.getValue('bookmark').then(function(raw) {
+
+        console.log(folder);
+        console.log(raw);
         
         if (!raw) return;
 
@@ -1021,41 +1070,43 @@
         }
 
         var url = sanitizeUrl(raw);
+        
         url = url.replace(/\/$/, '');
         url = url.replace('https://', '');
         url = url.replace('www.', '');
         
-        window.surfview.saveBookmark(raw).then(function(result) {
+        window.surfview.saveBookmark(folder,raw).then(function(result) {
             
             if(result.success == true) {
 
-                const dom = document.getElementById('bookmarks-ul');
-                const pipe = document.createElement('li');
+                if(folder == 'bookmarksbar') {
+                    
+                    const dom = document.getElementById('bookmarks-ul');
+                    const pipe = document.createElement('li');
 
-                pipe.appendChild(document.createTextNode('/'));
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = '#';
-                
-                a.onclick = function(e) {
-                    e.preventDefault();
-                    whatIsAllowed(url);
-                };
+                    pipe.appendChild(document.createTextNode('/'));
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    
+                    a.onclick = function(e) {
+                        e.preventDefault();
+                        whatIsAllowed(url);
+                    };
 
-                a.oncontextmenu = function(e) {
-                    e.preventDefault();
-                    removeBookmark(url);
-                    e.stopPropagation();
-                    window.focus();
-                    document.body.focus();
-                };
-                
-                a.appendChild(document.createTextNode(shortUrl(url)));
-                li.appendChild(a);
-                dom.appendChild(pipe);
-                dom.appendChild(li);
-                
-                dragdrop();
+                    a.oncontextmenu = function(e) {
+                        e.preventDefault();
+                        removeBookmark(url);
+                        e.stopPropagation();
+                        window.focus();
+                        document.body.focus();
+                    };
+                    
+                    a.appendChild(document.createTextNode(shortUrl(url)));
+                    li.appendChild(a);
+                    dom.appendChild(pipe);
+                    dom.appendChild(li);
+                }
             
             } else {
                 
@@ -1072,80 +1123,80 @@
             window.surfview.dialog('Failed to add bookmark.');
         });
 
+        });
+        
         return;
     }
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        const searchBox = document.getElementById('search-input');
-        if (searchBox) {
-          window.surfview.stopSearchInWebview();
-          searchBox.closest('div').remove();
-        }
-      }
-    });
  
     function loadBookmarks() {
         
-        window.surfview.readBookmarks().then(function(urls) {
+        try {
             
-        const dom = document.getElementById('bookmarks-ul');
-        
-        dom.innerHTML = '';
+            window.surfview.readBookmarks().then(function(urls) {
+                
+            try { 
+            
+            const dom = document.getElementById('bookmarks-ul');
+            
+            dom.innerHTML = '';
+           
 
-        for (const [key, array] of Object.entries(urls)) {
-            
-            if(JSON.stringify(key) == "bookmarksbar") {
-              
-                if(array.length >=1) {
-                    
-                    array.forEach(function(url) {
+            for (const [key, array] of Object.entries(urls)) {
+                
+                if(JSON.stringify(key) == "bookmarksbar") {
+                  
+                    if(array.length >=1) {
                         
-                        const pipe = document.createElement('li');
-                        pipe.appendChild(document.createTextNode('/'));
-                        const li = document.createElement('li');
-                        const a = document.createElement('a');
-                        
-                        a.href = '#';
+                        array.forEach(function(url) {
+                            
+                            const pipe = document.createElement('li');
+                            pipe.appendChild(document.createTextNode('/'));
+                            const li = document.createElement('li');
+                            const a = document.createElement('a');
+                            
+                            a.href = '#';
+                            a.onclick = function(e) {
+                                e.preventDefault();
+                                whatIsAllowed(url);
+                            };
+                            
+                            a.appendChild(document.createTextNode(shortUrl(url)));
+                            li.appendChild(a);
+                            dom.appendChild(pipe);
+                            dom.appendChild(li);
+                            
+                        });
+                    }
+                
+                } else {
+                  
+                    if(array.length >=0) {
+
+                        let fold = document.createElement('li'); 
+                        fold.className = 'book-folder'; 
+                        let a = document.createElement('a');
                         a.onclick = function(e) {
                             e.preventDefault();
-                            whatIsAllowed(url);
+                            a.id = key;
+                            window.surfview.showBookList(this.id);
+                            e.stopPropagation();
+                            window.focus();
+                            document.body.focus();
                         };
                         
-                        a.appendChild(document.createTextNode(shortUrl(url)));
-                        li.appendChild(a);
-                        dom.appendChild(pipe);
-                        dom.appendChild(li);
-                        
-                    });
-                }
-            
-            } else {
+                        a.innerHTML = '<span class="foldericon">🗀</span>' + ' ' +key
+                        fold.appendChild(a);
+                        dom.appendChild(fold);    
+                    }
+              }
               
-                if(array.length >=0) {
+            }
 
-                    let fold = document.createElement('li'); 
-                    fold.className = 'book-folder'; 
-                    let a = document.createElement('a');
-                    a.onclick = function(e) {
-                        e.preventDefault();
-                        a.id = key;
-                        window.surfview.showBookList(this.id);
-                        e.stopPropagation();
-                        window.focus();
-                        document.body.focus();
-                    };
-                    
-                    a.innerHTML = '<span class="foldericon">🗀</span>' + ' ' +key
-                    fold.appendChild(a);
-                    dom.appendChild(fold);    
-                } 
-            
-          }
-          
-        }
+            } catch(e) { console.log(e); }
 
-        });
+            });
+        
+        } catch(e) { console.log(e); }
     }
 
     function removeBookmark(url) {
@@ -1165,78 +1216,9 @@
         };
     }
  
-    function dragdrop() {
-      
-      /*
-      const list = document.getElementById('bookmarks-ul');
-      if (!list) {
-        console.error('Element #bookmarks-ul not found');
-        return;
-      }
-
-      let draggedItem = null;
-
-      // Set all links as draggable
-      const links = document.querySelectorAll('#bookmarks-ul a');
-      links.forEach(link => {
-        link.draggable = true;
-
-        // When drag starts
-        link.addEventListener('dragstart', function(e) {
-          draggedItem = this;
-          e.dataTransfer.effectAllowed = 'move';
-          e.dataTransfer.setData('text/plain', this.href);
-          this.style.opacity = '0.5';
-          console.log('Drag started:', this.textContent); // Debug
-        });
-
-        // When drag ends
-        link.addEventListener('dragend', function() {
-          this.style.opacity = '1';
-          draggedItem = null;
-          console.log('Drag ended'); // Debug
-        });
-      });
-
-      // Handle dragover on list items
-      const listItems = document.querySelectorAll('#bookmarks-ul li');
-      listItems.forEach(item => {
-        item.addEventListener('dragover', function(e) {
-          e.preventDefault(); // Required to allow drop
-          e.dataTransfer.dropEffect = 'move';
-          this.style.backgroundColor = '#f0f0f0';
-          console.log('Dragging over:', this.textContent); // Debug
-        });
-
-        item.addEventListener('dragleave', function() {
-          this.style.backgroundColor = '';
-        });
-
-        // Handle the actual drop
-        item.addEventListener('drop', function(e) {
-          e.preventDefault();
-          this.style.backgroundColor = '';
-
-          if (draggedItem && draggedItem.parentNode !== this) {
-            console.log('Dropped:', draggedItem.textContent, 'on', this.textContent); // Debug
-
-            // Remove from old parent
-            draggedItem.parentNode.removeChild(draggedItem);
-
-            // Add to new parent
-            this.appendChild(draggedItem);
-          }
-        });
-      });
-      */
-    }
-        
     // call it when the page loads
     loadBookmarks();
- 
-    document.addEventListener('DOMContentLoaded', dragdrop());
 
- 
 // disable anon function when debugging:
  
 //})();

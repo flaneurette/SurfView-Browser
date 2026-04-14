@@ -15,8 +15,6 @@
                     <li><a href="#" id="goBack">Back</a></li>
                     <li><a href="#" id="goForward">Forward</a></li>
                     <li><a href="#" id="reload">Reload</a></li>
-                    <li class="separator"></li>
-                    <li><a href="#" id="modalInspectDomain">Scan with Virus Total</a></li>
                     <!-- <li><a href="#">Print...</a></li> -->
                     <li class="separator"></li>
                     <li><a href="#" id="modalSource">View Page Source</a></li>
@@ -31,15 +29,14 @@
     <script>
    
         const closeButton = document.getElementById('closeRightMenu');
+        
         if (closeButton) {
             closeButton.addEventListener('click', () => {
                 window.surfview.closeWindow();
             });
         }
 
-        // Wait for DOM to be fully loaded
         document.addEventListener('DOMContentLoaded', () => {
-            // Close button functionality
             const closeButton = document.getElementById('closeRightMenu');
             if (closeButton) {
                 closeButton.addEventListener('click', () => {

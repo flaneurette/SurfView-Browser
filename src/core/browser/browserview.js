@@ -147,15 +147,17 @@ async function applySpoofing() {
     
     SurfBrowserView.webContents.debugger.on('detach', (event, reason) => {
         try {
-        if(devdebug) console.log("Debugger detached:", reason);
-            if (reason !== 'target_closed' || reason !== 'target closed' ) { // Avoid infinite loop if the page is gone
-                SurfBrowserView.webContents.debugger.attach('1.3');
-            }
+            if(devdebug) console.log("Debugger detached:", reason);
+                if (reason !== 'target_closed' || reason !== 'target closed' ) { 
+                    SurfBrowserView.webContents.debugger.attach('1.3');
+                }
         } catch(e) {}
     });          
 }
 
 async function launchBrowser(url) {
+
+    urlInputField = url;
 
     await proxyManagement();
 
