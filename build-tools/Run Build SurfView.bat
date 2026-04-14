@@ -7,6 +7,9 @@ set "TOR_DATA_FOLDER2=%USERPROFILE%\Desktop\Git\SurfView-Browser\node_modules\el
 set "DIST=%USERPROFILE%\Desktop\Git\SurfView-Browser\dist"
 set "PROJECT_DIR=%USERPROFILE%\Desktop\Git\SurfView-Browser"
 
+type nul > "%PROJECT_DIR%\src\data\passwords.json"
+type nul > "%PROJECT_DIR%\src\data\bookmarks.json"
+
 :: Check if TOR_DATA_FOLDER exists
 if not exist "%TOR_DATA_FOLDER%\" (
     echo Error: Folder does not exist: "%TOR_DATA_FOLDER%"
