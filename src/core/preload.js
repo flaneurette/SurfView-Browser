@@ -49,10 +49,15 @@ contextBridge.exposeInMainWorld('surfview', {
   unlockVault: (pw) =>  ipcRenderer.invoke('unlock-vault', pw),
   fetchPw: (pw) =>  ipcRenderer.invoke('fetch-pw', pw),
   getUrl: () =>  ipcRenderer.invoke('get-url'),
-  initVault: (pw) =>  ipcRenderer.invoke('init-vault', pw),
+  initVault: (pw, pin) =>  ipcRenderer.invoke('init-browser-vault', pw, pin),
   clearPass: (pw) =>  ipcRenderer.invoke('clear-pass', pw),
   addPass: (url, user, passwd, pin) =>   ipcRenderer.invoke('add-pass', url, user, passwd, pin),
-  decryptEntry: (method,data,pin) =>   ipcRenderer.invoke('decrypt-entry-pwm', method,data,pin),
+  decodeEntry: (method,data,pin) =>   ipcRenderer.invoke('decode-entry-pwm', method,data,pin),
+  checkPIN: (pin) =>  ipcRenderer.invoke('check-pin', pin),
+  checkPWMStatus: () =>  ipcRenderer.invoke('check-pwm-status'),
+  updatePWMStatus: () =>  ipcRenderer.invoke('update-pwm-status'),
+  loadPINbox: () =>  ipcRenderer.invoke('pin-box'),
+  unlockWebsite: (pin) => ipcRenderer.invoke('unlock-website', pin),
   getElementById: (id) => document.getElementById(id),
 });
 

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SurfView</title>
+<link rel="stylesheet" href="../../css/style.css?version=1.6.7">
+</head>
+<body>
+<button id="closeRightMenu" class="close-button">&#10005;</button>
+
+    <div id="modalWindow">
+    
+        <div id="loginBox" class="loginBox">
+
+            <div id="vault"></div>
+            <div id="res"></div>
+            <div id="addWebsite" class="addWebsite"> 
+            <h4 id="title">Enter Master PIN</h4>
+                <br />
+                <div>
+                    <input type="password" id="websitePin" name="websitePin" size="8" value="" class="btn btn-primary" />
+                    <button class="btn btn-icon" id="btnUnlock" title="" onclick="unlockWebsite();">Unlock</button>
+                </div>
+                <hr />
+            </div>
+            <div id="passwordList" class="passwordList"> 
+            </div>
+        </div>
+        
+    </div>
+    
+ <script src="../renderer/renderer.js"></script>
+   
+  <script>
+  
+    let pass = null;
+    
+    let session = window.surfview.getValue('sessionPWM');
+
+    window.surfview.getValue('url')
+    .then((url) => {
+        console.log(url);
+        if(url == false) {
+            let addWebsite = document.getElementById('addWebsite');
+            addWebsite.innerHTML = 'No website loaded to unlock!';
+        }
+    });
+                        
+    function unlockWebsite() {
+    
+        const pin = document.getElementById('websitePin').value;
+
+        if (!pin) {
+            window.surfview.dialog('Please enter a PIN.');
+            return;
+        }
+
+        window.surfview.checkPIN(pin)
+            .then((credentials) => {
+                if (credentials.ok) {
+                    return window.surfview.unlockWebsite(credentials);
+                } else {
+                    return window.surfview.getValue('url')
+                        .then((url) => {
+                            const message = url
+                                ? 'PIN is incorrect. Please try again.'
+                                : 'No website loaded to unlock!';
+                            window.surfview.dialog(message);
+                        });
+                }
+            })
+            .then(() => {
+                window.surfview.closeWindow();
+            })
+            .catch((error) => {
+                console.error('Error unlocking website:', error);
+                window.surfview.dialog('An error occurred. Please try again.');
+            });
+    }
+
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+
+        let pin = document.getElementById('websitePin');
+        pin.focus();
+        
+        // Close button functionality
+        const closeButton = document.getElementById('closeRightMenu');
+        
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                try {
+                    window.surfview.clearPass();
+                } catch(e) {}
+                if (window.surfview && window.surfview.closeWindow) {
+                    window.surfview.closeWindow();
+                    } else {
+                    console.error('surfview.closeWindow is not available');
+                }
+            });
+        }
+    });
+  </script>
+</body>
+</html>

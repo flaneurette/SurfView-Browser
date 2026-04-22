@@ -6,6 +6,7 @@
 function getBookmarksPath() {
     
     const userPath = path.join(app.getPath('userData'), 'bookmarks.json');
+    
     if (!fs.existsSync(userPath)) {
         const defaultPath = path.join(__dirname, 'data/bookmarks.json');
         if (fs.existsSync(defaultPath)) {
@@ -16,12 +17,14 @@ function getBookmarksPath() {
             }, null, 2));
         }
     }
+    
     return userPath;
 }
 
-function getPath(file) {
+function getFilePath(file) {
     
     const userPath = path.join(app.getPath('userData'), file);
+    
     if (!fs.existsSync(userPath)) {
         const defaultPath = path.join(__dirname, 'data/'+ file);
         if (fs.existsSync(defaultPath)) {
@@ -31,5 +34,6 @@ function getPath(file) {
             }, null, 2));
         }
     }
+    
     return userPath;
 }

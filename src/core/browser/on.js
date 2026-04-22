@@ -2,8 +2,6 @@
 // APP ON EVENTS
 // #####################################################################
 
-console.log(app.getPath('userData'))
-
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
 process.on('unhandledRejection', () => {});

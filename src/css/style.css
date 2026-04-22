@@ -169,8 +169,22 @@
        50% { opacity: 0.4; }
     }
 
-    .spacer { flex: 1; }
+    .spacer { flex: 1; margin-bottom:}
 
+    #spacer {
+        margin-bottom: 10px;
+    }
+    
+    #websitePin {
+        float:left;
+        margin-right: 10px;
+    }
+    
+    #MasterPin {
+        float:left;
+        margin-right: 10px;   
+    }
+    
     .mode-toggle {
        display: flex;
        align-items: center;
@@ -441,6 +455,10 @@
        background-color: var(--bg);
     }
 
+    .loading-state, .loading-state-live {
+        display: none;
+    }
+   
     .loader-wrap {
         display: flex;
         flex-direction: column;
@@ -555,7 +573,7 @@
     }
     
     .launchReport.active { display:flex; }
-    .launchReport.hide { display:none; }   
+    .launchReport.hide { display:none; } 
     
     #launchReload {
        align-items: center;
@@ -573,7 +591,7 @@
     }
     
     .launchReload.active { display:flex; }
-    .launchReload.hide { display:none; }    
+    .launchReload.hide { display:none; } 
 
     .error-detail-container {
       margin: 10px;
@@ -1092,7 +1110,6 @@
         white-space:nowrap;
     }
     
-    
     #warningSymbol {
         color:var(--danger);
     }
@@ -1149,6 +1166,10 @@
     input[type="checkbox"] {
       -webkit-appearance: none;
     }
+    
+    input[type="text"], input[type="password"], input[type="number"] {
+        outline: none;
+    }    
 
     input[type="checkbox"]::before {
       content: "";
@@ -1159,7 +1180,9 @@
       margin-top: -3px;
       border: 1px solid var(--border);
       vertical-align: middle;
+      outline: none;
     }
+    
     input[type="checkbox"]::before {
       position: relative;
     }
@@ -1174,6 +1197,17 @@
       position: relative;
       font-weight: 300;
       margin-left: -19px;
+    }
+    
+    #websiteMasterPin {
+        width: 15px !important;
+        height: 15px !important;
+        border: 1px solid #999 !important;
+    }
+    
+    #websiteMasterPinLabel {
+        margin-left: 0px;
+        font-size: 21px;
     }
     
     /* Context menu styles */
@@ -1246,7 +1280,7 @@
         cursor: text;
     }
     
-    #login div, #protectVault div, #unlockVault div {
+    #login div, #protectVault div, #unlockBrowserVault div {
         text-align: center;
         display: flex;
         align-items: center;
@@ -1254,7 +1288,7 @@
         justify-content: center;
     }
     
-    #unlockVault {
+    #unlockBrowserVault {
         display: flex;
         flex: 1;
         align-items: center;
@@ -1299,7 +1333,6 @@
     }
     
     #btnCreateWebsite {
-        margin-top:10px;
         cursor: pointer;
     }
     
@@ -1324,6 +1357,7 @@
     }
     
     #pinBox {
+      display: flex;
       width: 50px;
       cursor: text;   
     }
@@ -1334,5 +1368,13 @@
         align-items: center;
         height: 25px;
         justify-content: center;   
+    }
+    
+    #btnKey {
+        display: flex;
+    }
+    
+    #keyhide {
+        display: none;
     }
     

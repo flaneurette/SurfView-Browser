@@ -34,6 +34,25 @@ app.on('ready', () => {
     // Set the BrowserView reference in the IPC module
     mainWindow.contentView.addChildView(SurfBrowserView);
 
+    ipcMain.handle('PWMmanager', async (_event) => {
+        
+        const currentURL = SurfBrowserView.webContents.getURL();
+        
+        let url = new URL(currentURL).hostname;
+        
+        if(url) {
+
+            let vault = decodePWMVault(pin);
+            credentials = {};
+            // crypto.
+            credentials.username = '';
+            credentials.password = '';
+            
+            return credentials;            
+        }
+        
+    });
+
     SurfBrowserView.setBounds({
         x: 0,
         y: 81,
@@ -290,8 +309,6 @@ async function launchBrowser(url) {
             });
         }
     }
-    
-    if(devdebug) SurfBrowserView.webContents.openDevTools();
 }
 
 async function addScript(code) {
@@ -467,16 +484,14 @@ async function takeFullPageScreenshotAsBase64(url) {
 
 // menu...
 
-
-win.webContents.on('did-finish-load', async () => {
-  win.webContents.savePage('/tmp/test.html', 'HTMLComplete').then(() => {
-    console.log('Page was saved successfully.')
-  }).catch(err => {
-    console.log(err)
-  })
-})
-
-
+    win.webContents.on('did-finish-load', async () => {
+      win.webContents.savePage('/tmp/test.html', 'HTMLComplete').then(() => {
+        console.log('Page was saved successfully.')
+      }).catch(err => {
+        console.log(err)
+      })
+    })
+    
     mainWindow.webContents.on('before-input-event', (event, input) => {
     if (input.key === 'F12') {
         event.preventDefault();
@@ -512,7 +527,7 @@ win.webContents.on('did-finish-load', async () => {
 
     // Download handling (same as before)
     mainWindow.webContents.session.on('will-download', (event, item) => {
-    const savePath = path.join(app.getPath('downloads'), item.getFilename());
+    const savePath = path.join(app.getFilePath('downloads'), item.getFilename());
     item.setSavePath(savePath);
     item.on('done', (e, state) => {
         if (state === 'completed') {

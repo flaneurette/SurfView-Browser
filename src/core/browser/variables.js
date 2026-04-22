@@ -14,6 +14,7 @@ let bookmarkfolderSelected = null;
 let isDebuggerAttached = false;
 let sessionManager = null;
 let tmpMasterPassword = null;
+let PWMvault = null;
 
 // Webview javascript
 let jsEnabled = false; // default: off

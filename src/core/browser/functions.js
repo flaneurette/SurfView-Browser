@@ -19,7 +19,7 @@ function sanitizeUrl(input, method=false) {
     const schemes = new RegExp(
         "^(javascript|data|vbscript|file|about|chrome|" + 
         "settings|mailto|mailbox|blob|xlink|navigation|" +
-        "navigator|window):", "i"
+        "navigator|window):", "gi"
     );
     
     if (schemes.test(input)) {
@@ -32,7 +32,7 @@ function sanitizeUrl(input, method=false) {
             str = str.replace(/^https:\/\//i,'');
             str = str.replace(/^www\./i, '');
             return str;
-        } catch {
+            } catch {
             return str;
         }
     };
@@ -43,7 +43,7 @@ function sanitizeUrl(input, method=false) {
             str = new URL('https://' + str);
             str = str.hostname;
             return replacer(str);
-        } catch {
+            } catch {
             return str;
         }
     };
@@ -67,14 +67,14 @@ function sanitizeUrl(input, method=false) {
             
         case 'sanitize': 
             input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/[(){}\[\]`]/gi, '');
             input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
             input = replacer(input);
             return 'https://' + input;
             
         default:
             input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/[(){}\[\]`]/gi, '');
             input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
             input = replacer(input);
             return 'https://' + input;
@@ -83,6 +83,7 @@ function sanitizeUrl(input, method=false) {
 }
 
 function sortUrls(urls) {
+    
     const order = (url) => {
         const lower = url.toLowerCase();
         if (lower.endsWith('.js') || lower.endsWith('.jsx') || lower.endsWith('.tsx') || lower.endsWith('.java')) return 0;

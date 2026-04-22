@@ -23,6 +23,18 @@ async function someOtherFunction() {
 
 */
 
+/*
+// diagnostics
+setInterval(() => {
+  try {console.log('MP:' + tmpMasterPassword); } catch(e) {}
+  try {console.log('VAULT:' + PWMvault); } catch(e) {}
+  try { console.log('PIN:' + pin); } catch(e) {}
+  try {console.log('CREDS:' + creds); } catch(e) {}
+  try {console.log('CREDS 2:' + credentials); } catch(e) {}
+  try {console.log('password:' + password); } catch(e) {}
+}, 5000);
+*/
+
 async function messageBox(message) {
   dialog.showMessageBox({
     type: 'info',
@@ -75,6 +87,78 @@ ipcMain.handle('modal-source', async (event) => {
     }
 });
 
+ipcMain.handle('check-pin', async (event, pin) => {
+    
+    let credentials = decodePWMVault(pin);
+    let url = SurfBrowserView.webContents.getURL();
+    
+    let uri = new URL(url).hostname;
+
+    const obj = JSON.parse(credentials);
+    let returner = {};
+    
+    for(const key in obj) {
+        
+        const entry = obj[key];
+        
+        if(entry['host'] == uri) {
+            returner.username = decodeData(Buffer.from(entry['username'], 'base64'), pin);
+            returner.password = decodeData(Buffer.from(entry['password'], 'base64'), pin);
+            returner.ok = true;
+        }
+        
+    }
+    
+    if(devdebug) console.log(returner);
+    
+    return returner;
+});
+
+ipcMain.handle('unlock-website', async (event, credentials) => {
+    
+    let result = {};
+
+        if(credentials) {
+            
+            let pwm_script = `
+            
+                let creds = ${JSON.stringify({
+                    username: credentials.username,
+                    password: credentials.password
+                })};
+             
+                const usernameField = document.querySelector(
+                  'input[type="email"], input[name*="email"], input[name*="user"], input[name*="username"], input[id*="user"], input[id*="email"], input[id*="username"]'
+                );
+                
+                const passwordField = document.querySelector(
+                  'input[type="password"], input[name*="pass"], input[name*="password"], input[id*="password"], input[id*="pass"], input[id*="password"]'
+                );
+                
+                if (usernameField && passwordField) {
+                    usernameField.value = creds.username;
+                    passwordField.value = creds.password;
+                }
+                
+                creds = null;
+            `;
+            
+            SurfBrowserView.webContents.executeJavaScript(pwm_script);
+
+            result.ok = true;
+            } else {
+            result.ok = false;
+        }
+        
+    return result;
+});
+
+ipcMain.handle('pin-box', async (event) => {
+    const { width } = SurfBrowserView.getBounds();            
+    let w = parseInt(SurfBrowserView.webContents.innerWidth / 2);
+    showWindow(300,170,w,150,'src/core/forms/ask-pin.html',false);
+});
+
 async function showWindow(w,h,x,y,f) {
     
     let preferences = {
@@ -96,9 +180,9 @@ async function showWindow(w,h,x,y,f) {
             allowRunningInsecureContent: false,
             disableCache: true,
             disableWebRTC: true,
-            webgl:false,
-            webviewTag:true,
-            experimentalFeatures:false,
+            webgl: false,
+            webviewTag: true,
+            experimentalFeatures: false,
             disableDialogs : true,
             safeDialogs : true,
             spellcheck: false,
@@ -372,16 +456,49 @@ ipcMain.handle('add-pass', async (event, url, user, passwd, pin) =>  {
    return addPassword(url, user, passwd, pin);
 });
 
-ipcMain.handle('decrypt-entry-pwm', async (event,method,data,pin) =>  {
-   return decryptUserField(method,data,pin);
+ipcMain.handle('decode-entry-pwm', async (event,method,data,pin) =>  {
+   return decodeUserField(method,data,pin);
+});
+
+ipcMain.handle('check-pwm-status', async (event, variable) =>  {
+    if(PWMvault) {
+        return true;
+        } else {
+        return false;
+    }
+});
+
+ipcMain.handle('update-pwm-status', async (event) => {
+    mainWindow.webContents.executeJavaScript(`
+        let btnkey1 = document.getElementById('keyhide');
+        if (btnkey1) {
+            btnkey1.id = 'btnKey';
+            } else {
+            console.error('Element #btnKey not found!');
+        }
+    `);
 });
 
 ipcMain.handle('get-value', async (event, name) =>  {
+
     if(name) {
-        let sv = getPath('surfvalues.json');
+        
+        let url1 = mainWindow.webContents.getURL();
+        let url2 = SurfBrowserView.webContents.getURL();
+        
+        if(url1.includes('http')) {
+            return url1;
+            } else if(url2.includes('http')) {
+            return url2;
+            } else {
+        }
+        
+        let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        
         return data[name];
     }
+    
 });
 
 ipcMain.handle('fetch-pw', async (event, pw) =>  {
@@ -390,17 +507,19 @@ ipcMain.handle('fetch-pw', async (event, pw) =>  {
 
 ipcMain.handle('set-value', async (event, name, value) =>  {
     if(name) {
-        let sv = getPath('surfvalues.json');
+        let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
         if(!data) {
-            fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
-                data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-            });
+            try { 
+                fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
+                    data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+                });
+            } catch(e) {}
         }
         data[name] = value;
         fs.writeFileSync(sv, JSON.stringify(data, null, 2));
         if(devdebug) console.log('Saved surfvalues to file!');
-    return true;
+        return true;
     }
 });
 
@@ -412,16 +531,16 @@ ipcMain.handle('add-bookmark', async (event, url) =>  {
     showWindow(350, height, (mousePos.x - 350), 80, 'src/core/forms/add-bookmark.html');
 });
 
-ipcMain.handle('init-vault', async (event, pw) =>  {
-    return initVault(pw);
+ipcMain.handle('init-browser-vault', async (event, pw, pin) =>  {
+    return initVault(pw,pin);
 });
 
 ipcMain.handle('clear-pass', async (event, pw) =>  {
     tmpMasterPassword = null;
+    flushKey();
 });
 
 ipcMain.handle('unlock-vault', async (event, pw) =>  {
-    tmpMasterPassword = pw;
     return unlockVault(pw);
 });
 
@@ -465,17 +584,24 @@ ipcMain.handle('process-form', async (event, type, value) =>  {
         }
 
             try {
-                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                
+                try { 
+                    fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                } catch(e) {}
+                
                 mainWindow.webContents.executeJavaScript(`
+                
                     const dom = document.getElementById('bookmarks-ul');
                     let fold = document.createElement('li'); 
                     fold.className = 'book-folder'; 
                     let a = document.createElement('a');
+                    
                     if(!selectedBookmarkFolder) { 
                         let selectedBookmarkFolder = '${folder}';
                         } else { 
                         selectedBookmarkFolder = '${folder}';
                     } 
+                    
                     a.onclick = function(e) {
                         e.preventDefault();
                         a.id = '${folder}';
@@ -512,7 +638,9 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
         
         if(!data[folder]) {
             data[folder] = [];
-            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+            try {
+                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+            } catch(e) {}
         }
         
         let newfolder = data[folder];
@@ -532,9 +660,7 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
         
         try {
             fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-            } catch(e) {
-            if(devdebug) console.log(e);
-        }
+        } catch(e) {}
         
         closeModalWindow();
         
@@ -561,9 +687,7 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
             
             try {
                 fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-                } catch(e) {
-                if(devdebug) console.log(e);
-            }
+            } catch(e) {}
             
             return { success: true };
             
@@ -582,7 +706,9 @@ ipcMain.handle('remove-bookmark', async (_event, url) => {
         const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
         if (!Array.isArray(data.url)) return false;
         data.url = data.url.filter((u) => u !== url);
-        fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+        try { 
+            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+        } catch(e) { if(devdebug) console.log(e); }
         return true;
     } catch (e) {
         return false;

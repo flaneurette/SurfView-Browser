@@ -1,3 +1,3 @@
 // Dev debugging
-const devdebug = true;
+var devdebug = false;
 let debugLog = [];

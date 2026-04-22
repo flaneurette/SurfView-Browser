@@ -1,4 +1,5 @@
-const { webFrame } = require('electron');
+const { contextBridge, webFrame, ipcRenderer} = require('electron');
+ 
 
 const privacy_script = `
 
@@ -119,9 +120,11 @@ const privacy_script = `
         'HID', 'MediaSession', 'Permissions', 'Presentation', 'Serial',
         'USB', 'XRSystem', 'StorageBucketManager'
     ].forEach(key => {
+        
         try {
             Object.defineProperty(navigator, key, { get: () => undefined });
         } catch(e) {}
+        
     });
     
     navigator.getGamepads = () => [];
@@ -137,22 +140,25 @@ const privacy_script = `
         ['postMessage', undefined],
         ['atob', window.atob],
         ['btoa', window.btoa]
+        
     ].forEach(([key, value]) => {
+        
         try {
             Object.defineProperty(window, key, {
                 get: () => value,
                 configurable: true
             });
         } catch(e) {}
+        
     });
 
     try {
         Object.defineProperty(window, 'performance', {
             get: () => ({
                 memory: {
-                    usedJSHeapSize: 0,
-                    totalJSHeapSize: 0,
-                    jsHeapSizeLimit: 0
+                    usedJSHeapSize: Math.floor(Math.random() * 60),
+                    totalJSHeapSize: Math.floor(Math.random() * 60),
+                    jsHeapSizeLimit: Math.floor(Math.random() * 60)
                 }
             })
         });
@@ -161,6 +167,7 @@ const privacy_script = `
     try {
         
         Object.defineProperty(document, 'fonts', { get: () => [] });
+        
         window.getComputedStyle = function() {
             return false;
         }

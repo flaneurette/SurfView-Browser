@@ -76,6 +76,7 @@
     var main = document.getElementById('main');
     var inputCreateFolder = document.getElementById('inputCreateFolder');
     var pwManager = document.getElementById('btnPasswordManager');
+    var btnKey = document.getElementById('btnKey');
     
     let resized = false;
     let whx = window.innerHeight;
@@ -201,7 +202,20 @@
             window.surfview.setValue('bookmark',urlInput.value.trim());
             window.surfview.addBookmark();
         });
+        
+        // pinbox
+        btnKey.addEventListener('click', function() {
+            window.surfview.loadPINbox();
+        });
 
+        window.surfview.checkPWMStatus().then(
+            function(result) {
+                if(result == false) {
+                    btnKey.id = 'keyhide'; 
+                }
+            }
+        );
+        
         // url bar events
         urlInput.addEventListener('keydown', function(e) {
             if (e.key === 'Enter') {
@@ -310,21 +324,21 @@
         }
     }
     
-    function decryptEntry(method,data,pin) {
-        return window.surfview.decryptEntry(method,data,pin);
+    function decodeEntry(method,data,pin) {
+        return window.surfview.decodeEntry(method,data,pin);
     }
     
     function updateTorLabel(enabled, ready) {
       // Remove all state classes first
       torLabel.classList.remove('tor-off', 'tor-connected', 'tor-connecting');
       if (!enabled) {
-        torLabel.textContent = 'tor: off';
+        torLabel.textContent = 'Tor: off';
         torLabel.classList.add('tor-off');
       } else if (ready) {
-        torLabel.textContent = 'tor: connected';
+        torLabel.textContent = 'Tor: connected';
         torLabel.classList.add('tor-connected');
       } else {
-        torLabel.textContent = 'tor: connecting...';
+        torLabel.textContent = 'Tor: connecting...';
         torLabel.classList.add('tor-connecting');
       }
     }
@@ -403,12 +417,8 @@
               
             if(jsEnabled1 == true) { 
                 setJSstyles(1);
-                if (!uri) return;
-                loadUrl(uri, true, "js");
                 } else {
                 setJSstyles(2);
-                if (!uri) return;
-                loadUrl(uri, true, "live");
             }
             
         });
@@ -451,6 +461,7 @@
             var rawUrl = urlInput.value.trim();
 
             if (imageModeEnabled) {
+                
                 // Image mode
                 setJSstyles(3);
                 
@@ -462,18 +473,9 @@
                 
                 setShield(true);
                 
-                if (rawUrl) {
-                    loadUrl(sanitizeUrl(rawUrl), true, "image");
-                }
-                
             } else {
-                
                 // Live mode.
                 setJSstyles(2);
-                if (rawUrl) {
-                    loadUrl(sanitizeUrl(rawUrl), true, "live");
-                }
-                
                 setLinks([]);
             }
         });
@@ -565,6 +567,8 @@
             return;
         }
 
+        console.log();
+        
         urlInput.value = url.replaceAll(/^https?:\/\//gi, '');
 
         liveWebview.className = 'live-webview hide';
@@ -636,19 +640,21 @@
         
         removeLiveMessage();
         
-        liveWebview.src='';
+        liveWebview.src = '';
         
         emptyState.className = 'empty-state hide';
         errorState.className = 'error-state hide';
         errorExplainer.className = 'error-explainer hide';
         
         if(type == "live") {
+            loadingState.className = 'loading-state hide';
             loadingStateLive.className = 'loading-state-live active';
             ['live-step1', 'live-step2', 'live-step3', 'live-step4'].forEach(function(id) {
                 var el = document.getElementById(id);
                 if (el) el.className = 'loading-step-live';
             });
             } else {
+            loadingStateLive.className = 'loading-state-live hide';
             loadingState.className = 'loading-state active';
             ['step1', 'step2', 'step3', 'step4', 'step5'].forEach(function(id) {
                 var el = document.getElementById(id);
@@ -921,7 +927,7 @@
         const schemes = new RegExp(
             "^(javascript|data|vbscript|file|about|chrome|" + 
             "settings|mailto|mailbox|blob|xlink|navigation|" +
-            "navigator|window):", "i"
+            "navigator|window):", "gi"
         );
         
         if (schemes.test(input)) {
@@ -930,9 +936,9 @@
         
         const replacer = (str) => {
             try {
-                str = str.replace(/^http:\/\//i,'');
-                str = str.replace(/^https:\/\//i,'');
-                str = str.replace(/^www\./i, '');
+                str = str.replace(/^http:\/\//gi,'');
+                str = str.replace(/^https:\/\//gi,'');
+                str = str.replace(/^www\./gi, '');
                 return str;
             } catch {
                 return str;
@@ -963,17 +969,17 @@
             case 'secure':
             case 'ssl':
             case 'https':
-                return input.replace(/^http:\/\//i, 'https://');
+                return input.replace(/^http:\/\//gi, 'https://');
             case 'sanitize': 
                 input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-                input = input.replaceAll(/[(){}\[\]`]/g, '');
+                input = input.replaceAll(/[(){}\[\]`]/gi, '');
                 input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
                 input = replacer(input);
                 return 'https://' + input;
                 
             default:
                 input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-                input = input.replaceAll(/[(){}\[\]`]/g, '');
+                input = input.replaceAll(/[(){}\[\]`]/gi, '');
                 input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
                 input = replacer(input);
                 return 'https://' + input;

@@ -48,12 +48,16 @@ function js(files, out, options = {}) {
         jsfile += `\n})();\n`;
 
         // Create the output directory if it doesn't exist
+        
         const outDir = path.dirname(out);
+        
         if (!fs.existsSync(outDir)) {
             fs.mkdirSync(outDir, { recursive: true });
         }
 
-        fs.writeFileSync(out, jsfile);
+        try {
+            fs.writeFileSync(out, jsfile);
+        } catch(e) {}
 
         if (debug) {
             console.log('Successfully merged files to:', out);
@@ -61,7 +65,9 @@ function js(files, out, options = {}) {
 
         // Create backup if enabled
         if (backup) {
+            
             const backupDir = path.join(__dirname, 'backup');
+            
             if (!fs.existsSync(backupDir)) {
                 fs.mkdirSync(backupDir, { recursive: true });
             }
@@ -69,7 +75,9 @@ function js(files, out, options = {}) {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
             const backupFile = path.join(backupDir, `backup.app.js.${timestamp}`);
 
-            fs.writeFileSync(backupFile, jsfile);
+            try {
+                fs.writeFileSync(backupFile, jsfile);
+            } catch(e) {}
 
             if (debug) {
                 console.log('Created backup file:', backupFile);

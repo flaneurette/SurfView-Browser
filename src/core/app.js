@@ -2,7 +2,7 @@
 // ===== START OF build.js =====
 
 // Dev debugging
-const devdebug = true;
+var devdebug = false;
 let debugLog = [];
 
 
@@ -58,6 +58,7 @@ let bookmarkfolderSelected = null;
 let isDebuggerAttached = false;
 let sessionManager = null;
 let tmpMasterPassword = null;
+let PWMvault = null;
 
 // Webview javascript
 let jsEnabled = false; // default: off
@@ -424,6 +425,18 @@ async function someOtherFunction() {
 
 */
 
+/*
+// diagnostics
+setInterval(() => {
+  try {console.log('MP:' + tmpMasterPassword); } catch(e) {}
+  try {console.log('VAULT:' + PWMvault); } catch(e) {}
+  try { console.log('PIN:' + pin); } catch(e) {}
+  try {console.log('CREDS:' + creds); } catch(e) {}
+  try {console.log('CREDS 2:' + credentials); } catch(e) {}
+  try {console.log('password:' + password); } catch(e) {}
+}, 5000);
+*/
+
 async function messageBox(message) {
   dialog.showMessageBox({
     type: 'info',
@@ -476,6 +489,78 @@ ipcMain.handle('modal-source', async (event) => {
     }
 });
 
+ipcMain.handle('check-pin', async (event, pin) => {
+    
+    let credentials = decodePWMVault(pin);
+    let url = SurfBrowserView.webContents.getURL();
+    
+    let uri = new URL(url).hostname;
+
+    const obj = JSON.parse(credentials);
+    let returner = {};
+    
+    for(const key in obj) {
+        
+        const entry = obj[key];
+        
+        if(entry['host'] == uri) {
+            returner.username = decodeData(Buffer.from(entry['username'], 'base64'), pin);
+            returner.password = decodeData(Buffer.from(entry['password'], 'base64'), pin);
+            returner.ok = true;
+        }
+        
+    }
+    
+    if(devdebug) console.log(returner);
+    
+    return returner;
+});
+
+ipcMain.handle('unlock-website', async (event, credentials) => {
+    
+    let result = {};
+
+        if(credentials) {
+            
+            let pwm_script = `
+            
+                let creds = ${JSON.stringify({
+                    username: credentials.username,
+                    password: credentials.password
+                })};
+             
+                const usernameField = document.querySelector(
+                  'input[type="email"], input[name*="email"], input[name*="user"], input[name*="username"], input[id*="user"], input[id*="email"], input[id*="username"]'
+                );
+                
+                const passwordField = document.querySelector(
+                  'input[type="password"], input[name*="pass"], input[name*="password"], input[id*="password"], input[id*="pass"], input[id*="password"]'
+                );
+                
+                if (usernameField && passwordField) {
+                    usernameField.value = creds.username;
+                    passwordField.value = creds.password;
+                }
+                
+                creds = null;
+            `;
+            
+            SurfBrowserView.webContents.executeJavaScript(pwm_script);
+
+            result.ok = true;
+            } else {
+            result.ok = false;
+        }
+        
+    return result;
+});
+
+ipcMain.handle('pin-box', async (event) => {
+    const { width } = SurfBrowserView.getBounds();            
+    let w = parseInt(SurfBrowserView.webContents.innerWidth / 2);
+    showWindow(300,170,w,150,'src/core/forms/ask-pin.html',false);
+});
+
 async function showWindow(w,h,x,y,f) {
     
     let preferences = {
@@ -497,9 +582,9 @@ async function showWindow(w,h,x,y,f) {
             allowRunningInsecureContent: false,
             disableCache: true,
             disableWebRTC: true,
-            webgl:false,
-            webviewTag:true,
-            experimentalFeatures:false,
+            webgl: false,
+            webviewTag: true,
+            experimentalFeatures: false,
             disableDialogs : true,
             safeDialogs : true,
             spellcheck: false,
@@ -773,16 +858,49 @@ ipcMain.handle('add-pass', async (event, url, user, passwd, pin) =>  {
    return addPassword(url, user, passwd, pin);
 });
 
-ipcMain.handle('decrypt-entry-pwm', async (event,method,data,pin) =>  {
-   return decryptUserField(method,data,pin);
+ipcMain.handle('decode-entry-pwm', async (event,method,data,pin) =>  {
+   return decodeUserField(method,data,pin);
+});
+
+ipcMain.handle('check-pwm-status', async (event, variable) =>  {
+    if(PWMvault) {
+        return true;
+        } else {
+        return false;
+    }
+});
+
+ipcMain.handle('update-pwm-status', async (event) => {
+    mainWindow.webContents.executeJavaScript(`
+        let btnkey1 = document.getElementById('keyhide');
+        if (btnkey1) {
+            btnkey1.id = 'btnKey';
+            } else {
+            console.error('Element #btnKey not found!');
+        }
+    `);
 });
 
 ipcMain.handle('get-value', async (event, name) =>  {
+
     if(name) {
-        let sv = getPath('surfvalues.json');
+        
+        let url1 = mainWindow.webContents.getURL();
+        let url2 = SurfBrowserView.webContents.getURL();
+        
+        if(url1.includes('http')) {
+            return url1;
+            } else if(url2.includes('http')) {
+            return url2;
+            } else {
+        }
+        
+        let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        
         return data[name];
     }
+    
 });
 
 ipcMain.handle('fetch-pw', async (event, pw) =>  {
@@ -791,17 +909,19 @@ ipcMain.handle('fetch-pw', async (event, pw) =>  {
 
 ipcMain.handle('set-value', async (event, name, value) =>  {
     if(name) {
-        let sv = getPath('surfvalues.json');
+        let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
         if(!data) {
-            fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
-                data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-            });
+            try { 
+                fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
+                    data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+                });
+            } catch(e) { }
         }
         data[name] = value;
         fs.writeFileSync(sv, JSON.stringify(data, null, 2));
         if(devdebug) console.log('Saved surfvalues to file!');
-    return true;
+        return true;
     }
 });
 
@@ -813,16 +933,16 @@ ipcMain.handle('add-bookmark', async (event, url) =>  {
     showWindow(350, height, (mousePos.x - 350), 80, 'src/core/forms/add-bookmark.html');
 });
 
-ipcMain.handle('init-vault', async (event, pw) =>  {
-    return initVault(pw);
+ipcMain.handle('init-browser-vault', async (event, pw, pin) =>  {
+    return initVault(pw,pin);
 });
 
 ipcMain.handle('clear-pass', async (event, pw) =>  {
     tmpMasterPassword = null;
+    flushKey();
 });
 
 ipcMain.handle('unlock-vault', async (event, pw) =>  {
-    tmpMasterPassword = pw;
     return unlockVault(pw);
 });
 
@@ -866,17 +986,24 @@ ipcMain.handle('process-form', async (event, type, value) =>  {
         }
 
             try {
-                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                
+                try { 
+                    fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+                } catch(e) { }
+                
                 mainWindow.webContents.executeJavaScript(`
+                
                     const dom = document.getElementById('bookmarks-ul');
                     let fold = document.createElement('li'); 
                     fold.className = 'book-folder'; 
                     let a = document.createElement('a');
+                    
                     if(!selectedBookmarkFolder) { 
                         let selectedBookmarkFolder = '${folder}';
                         } else { 
                         selectedBookmarkFolder = '${folder}';
                     } 
+                    
                     a.onclick = function(e) {
                         e.preventDefault();
                         a.id = '${folder}';
@@ -913,7 +1040,9 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
         
         if(!data[folder]) {
             data[folder] = [];
-            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+            try {
+                fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+            } catch(e) {}
         }
         
         let newfolder = data[folder];
@@ -933,9 +1062,7 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
         
         try {
             fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-            } catch(e) {
-            if(devdebug) console.log(e);
-        }
+        } catch(e) {}
         
         closeModalWindow();
         
@@ -962,9 +1089,7 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
             
             try {
                 fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-                } catch(e) {
-                if(devdebug) console.log(e);
-            }
+                } catch(e) {}
             
             return { success: true };
             
@@ -983,7 +1108,9 @@ ipcMain.handle('remove-bookmark', async (_event, url) => {
         const data = JSON.parse(fs.readFileSync(getBookmarksPath(), 'utf8'));
         if (!Array.isArray(data.url)) return false;
         data.url = data.url.filter((u) => u !== url);
-        fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+        try { 
+            fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
+        } catch(e) {}
         return true;
     } catch (e) {
         return false;
@@ -1089,7 +1216,7 @@ function sanitizeUrl(input, method=false) {
     const schemes = new RegExp(
         "^(javascript|data|vbscript|file|about|chrome|" + 
         "settings|mailto|mailbox|blob|xlink|navigation|" +
-        "navigator|window):", "i"
+        "navigator|window):", "gi"
     );
     
     if (schemes.test(input)) {
@@ -1102,7 +1229,7 @@ function sanitizeUrl(input, method=false) {
             str = str.replace(/^https:\/\//i,'');
             str = str.replace(/^www\./i, '');
             return str;
-        } catch {
+            } catch {
             return str;
         }
     };
@@ -1113,7 +1240,7 @@ function sanitizeUrl(input, method=false) {
             str = new URL('https://' + str);
             str = str.hostname;
             return replacer(str);
-        } catch {
+            } catch {
             return str;
         }
     };
@@ -1137,14 +1264,14 @@ function sanitizeUrl(input, method=false) {
             
         case 'sanitize': 
             input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/[(){}\[\]`]/gi, '');
             input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
             input = replacer(input);
             return 'https://' + input;
             
         default:
             input = input.replaceAll(/[\x00-\x1F\x7F]/gim, '');
-            input = input.replaceAll(/[(){}\[\]`]/g, '');
+            input = input.replaceAll(/[(){}\[\]`]/gi, '');
             input = input.replaceAll(/%00|%1F|%0D|%0A/gi, '');
             input = replacer(input);
             return 'https://' + input;
@@ -1153,6 +1280,7 @@ function sanitizeUrl(input, method=false) {
 }
 
 function sortUrls(urls) {
+    
     const order = (url) => {
         const lower = url.toLowerCase();
         if (lower.endsWith('.js') || lower.endsWith('.jsx') || lower.endsWith('.tsx') || lower.endsWith('.java')) return 0;
@@ -1198,7 +1326,7 @@ function getStatus(status,url,location) {
 
 // ===== END OF browser\functions.js =====
 
-// ===== START OF browser\functions\tor.js =====
+// ===== START OF browser\functions\route.js =====
 
 // #####################################################################
 // TOR
@@ -1278,7 +1406,7 @@ function stopTor() {
 }
 
 
-// ===== END OF browser\functions\tor.js =====
+// ===== END OF browser\functions\route.js =====
 
 // ===== START OF browser\functions\bookmarks.js =====
 
@@ -1290,6 +1418,7 @@ function stopTor() {
 function getBookmarksPath() {
     
     const userPath = path.join(app.getPath('userData'), 'bookmarks.json');
+    
     if (!fs.existsSync(userPath)) {
         const defaultPath = path.join(__dirname, 'data/bookmarks.json');
         if (fs.existsSync(defaultPath)) {
@@ -1300,12 +1429,14 @@ function getBookmarksPath() {
             }, null, 2));
         }
     }
+    
     return userPath;
 }
 
-function getPath(file) {
+function getFilePath(file) {
     
     const userPath = path.join(app.getPath('userData'), file);
+    
     if (!fs.existsSync(userPath)) {
         const defaultPath = path.join(__dirname, 'data/'+ file);
         if (fs.existsSync(defaultPath)) {
@@ -1315,35 +1446,36 @@ function getPath(file) {
             }, null, 2));
         }
     }
+    
     return userPath;
 }
 
 // ===== END OF browser\functions\bookmarks.js =====
 
-// ===== START OF browser\functions\crypto.js =====
+// ===== START OF browser\functions\encode.js =====
 
 // #####################################################################
-// CRYPTO
+// 
 // #####################################################################
 
-const crypto = require('crypto');
+const c = require('crypto');
 
 const ALGORITHM = 'aes-256-gcm';
-const SALT_LENGTH = 32;
+const SECRET_LENGTH = 32;
 const IV_LENGTH = 16;
 const KEY_LENGTH = 32;
-const ITERATIONS = 100000;
+const ITERATIONS = 10000000;
 const DIGEST = 'sha512';
 let scrambled = null;
 let plain = null;
-const xorKey = crypto.randomBytes(32);
+const xorKey = c.randomBytes(32);
 
 async function generateHash(rawData) {
     // Escape all data first
     const escapedData = escHtml(rawData);
     const encoder = new TextEncoder();
     const data = encoder.encode(escapedData);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashBuffer = await c.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     if(devdebug) console.log('Web Crypto SHA-256:', hashHex);
@@ -1351,7 +1483,7 @@ async function generateHash(rawData) {
 }
 
 function getPWMPath() {
-  return path.join(app.getPath('userData'), 'passwords.json');
+    return path.join(app.getPath('userData'), 'passwords.json');
 }
 
 function storeKey(password) {
@@ -1385,72 +1517,78 @@ function flushKey() {
     flushKey();
 */
 
-function encryptData(data, password) {
-
+function encodeData(data, password) {
+    
     try {
-        
         if (typeof data !== 'string') {
             throw new Error('Data must be a string');
         }
-        
         if (typeof password !== 'string') {
-            throw new Error('password must be a string');
+            throw new Error('Password must be a string');
         }
 
-        const salt = crypto.randomBytes(16);
-        const iv = crypto.randomBytes(16);
-        const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
-        const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
-        const encryptedData = Buffer.concat([
+        const secret = c.randomBytes(16);
+        const iv = c.randomBytes(12);
+        const key = c.scryptSync(password, secret, 32, { N: 32768, r: 8, p: 1, maxmem: 1 * 1024 * 1024 * 1024 });
+        const cipher = c.createCipheriv('aes-256-gcm', key, iv);
+        
+        const encodedData = Buffer.concat([
             cipher.update(data, 'utf8'),
             cipher.final()
         ]);
 
-        return Buffer.concat([salt, iv, encryptedData]);
-        
+        const authTag = cipher.getAuthTag();
+        return Buffer.concat([secret, iv, authTag, encodedData]);
+
     } catch (e) {
         console.error('Encryption error:', e.message);
         return null;
     }
 }
 
-function decryptData(encrypted, password) {
+function decodeData(encodedBuffer, password) {
     
     try {
         
-        if (!Buffer.isBuffer(encrypted)) {
+        if (!Buffer.isBuffer(encodedBuffer)) {
             throw new Error('Encrypted data must be a Buffer');
         }
         
         if (typeof password !== 'string') {
-            throw new Error('password must be a string');
+            throw new Error('Password must be a string');
         }
         
-        const salt = encrypted.slice(0, 16);
-        const iv = encrypted.slice(16, 32);
-        const data = encrypted.slice(32);
-        const key = crypto.pbkdf2Sync(password, salt, 100000, 32, 'sha256');
-        const decipher = crypto.createDecipheriv('aes-256-cbc', key, iv);
-        const decrypted = Buffer.concat([
-            decipher.update(data),
+        const secret = encodedBuffer.subarray(0, 16);
+        const iv = encodedBuffer.subarray(16, 28);
+        const authTag = encodedBuffer.subarray(28, 44);
+        const encodedData = encodedBuffer.subarray(44);
+        const key = c.scryptSync(password, secret, 32, { N: 32768, r: 8, p: 1, maxmem: 1 * 1024 * 1024 * 1024 });
+        const decipher = c.createDecipheriv('aes-256-gcm', key, iv);
+       
+        decipher.setAuthTag(authTag);
+        
+        const decodedData = Buffer.concat([
+            decipher.update(encodedData),
             decipher.final()
         ]);
-        return decrypted.toString('utf8');
+
+        return decodedData.toString('utf8');
+
     } catch (e) {
         console.error('Decryption error:', e.message);
         return null;
     }
 }
 
-function decryptUserField(method,data,pin) {
-    let dec = decryptData(Buffer.from(data, 'base64'), pin);
+function decodeUserField(method,data,pin) {
+    let dec = decodeData(Buffer.from(data, 'base64'), pin);
     return dec;
 }
 
-function encryptPWM(file, data, password) {
+function encodePWM(file, data, password) {
     try {
-        let encrypted = encryptData(data, password);
-        fs.writeFileSync(file, encrypted);
+        let encoded = encodeData(data, password);
+        fs.writeFileSync(file, encoded);
         return true;
         } catch(e) {
         if(devdebug) console.log(e);
@@ -1468,32 +1606,132 @@ function revokeSessionPass() {
     return true;
 }
 
-function decryptPWM(file, password) {
+function decodePWM(file, password) {
     try {
-        if(devdebug) console.log(password);
-        const encrypted = fs.readFileSync(file);
-        return decryptData(encrypted, password);
+        const encoded = fs.readFileSync(file);
+        return decodeData(encoded, password);
         } catch (e) {
         if(devdebug) console.log(e);
         return false;
     }
 }
 
-function initVault(password) {
+function PINsalt() {
+    
+    let secretsalt = '';
+    
+        let ab = ['a','b','c','d','e','f','g','h','i','j','k','l',
+        'm','n','o','p','q','r','s','t','u','v','w','x','y','z'];
+        
+        for(i=0;i<64;i++) {
+            if(Math.floor(Math.random() * 2) == 0) {
+                secretsalt += ab[Math.floor(Math.random() * 26)].toUpperCase();
+                } else {
+                secretsalt += ab[Math.floor(Math.random() * 26)];
+            }
+        }
+        
+    return secretsalt;
+}
+
+function readSalt() {
+    let file = getFilePath('surfvalues.json');
+    let decoded = fs.readFileSync(file);
+    let decodedData = JSON.parse(decoded);
+    let secretsalt = decodedData["salt"];
+    return secretsalt;
+}
+
+function storeSalt(salt) {
+    
+    let sv = getFilePath('surfvalues.json');
+    let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+    
+    if(!data) {
+        fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
+            data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        });
+    }
+    
+    data['salt'] = salt;
+    fs.writeFileSync(sv, JSON.stringify(data, null, 2));
+}
+
+function encodePIN(pin, pinsalt) {
+    return sha256(pin + pinsalt);
+}
+
+function sha256(message) {
+    const msgBuffer = new TextEncoder().encode(message)
+    const hashBuffer = crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function comparePIN(password, pin) {
+    
+    let salt = readSalt();
+    let hash = sha256(pin + salt);
+
+    let file = getPWMPath();
+    let decoded = decodePWM(file, password);
+    let decodedData = JSON.parse(decoded);
+    
+    let userPIN = hash;
+    let storedPIN = decodedData["master-pincode"]; //sha256
+    
+    if(userPIN == storedPIN) {
+        return true;
+        } else {
+        return false;
+    }
+}
+
+function initVault(password,pin) {
+    
     try {
-        let file = getPWMPath();
-        let enc = encryptPWM(file, '{}', password);
+        
+        let file = getFilePath('passwords.json');
+        
+        // Create one-time pinsalt
+        let pinsalt = PINsalt();
+        
+        // Store one-time pinsalt
+        storeSalt(pinsalt);
+        
+        let pincode = encodePIN(pin, pinsalt);
+        let enc = encodePWM(file, JSON.stringify({"master-pincode": pincode}), password);
+     
         return enc;
-        } catch (e) {
+        
+        } catch (e) { 
+        
         if(devdebug) console.log(e);
         return false;
     }
+}
+
+function decodePWMVault(pin) {
+    let pinsalt = readSalt();
+    let sha = encodePIN(pin, pinsalt);
+    return decodeData(Buffer.from(PWMvault, 'base64'), sha);
 }
 
 function unlockVault(password) {
+    
+    tmpMasterPassword = password;
     let file = getPWMPath();
-    let enc = decryptPWM(file, password);
-    return enc;
+
+    let decoded = decodePWM(file, password);
+    let decodedData = JSON.parse(decoded);
+    
+    PWMvault = encodeData(decoded, decodedData["master-pincode"]).toString('base64');
+    
+    return decoded;
+}
+
+function freePIN() {
+    encodedTmpPIN = null;
 }
 
 function addPassword(domain, username, password, pin) {
@@ -1504,12 +1742,13 @@ function addPassword(domain, username, password, pin) {
   }
   
   try {
-     
+
     if(tmpMasterPassword) {
-        
+
         const vaultPath = getPWMPath();
-        const encrypted = fs.readFileSync(vaultPath);
-        let data = JSON.parse(decryptData(encrypted, tmpMasterPassword));
+        
+        let decoded = decodePWM(vaultPath, tmpMasterPassword);
+        let data = JSON.parse(decoded);
         
         let domainName = sanitizeUrl(domain, 'host');
         
@@ -1517,15 +1756,20 @@ function addPassword(domain, username, password, pin) {
             data[domainName] = {
                 host: domainName,
                 url: domain,
-                username: encryptData(username, pin).toString('base64'),
-                password: encryptData(password, pin).toString('base64'),
+                username: encodeData(username, pin).toString('base64'),
+                password: encodeData(password, pin).toString('base64'),
                 date: Date.now(),
             };
         }
         
-        fs.writeFileSync(vaultPath, encryptData(JSON.stringify(data), tmpMasterPassword));
+        fs.writeFileSync(vaultPath, encodeData(JSON.stringify(data), tmpMasterPassword));
+        
+        // Update temp vault.
+        PWMvault = encodeData(decoded, data["master-pincode"]).toString('base64');
+        console.log('2: ' + PWMvault);
+        
     } else {
-        window.surfview.dialog("Cannot retrieve tempory master password, close and re-open this window, or restart SurfView.");
+        return false;
     }
 
     return true;
@@ -1537,7 +1781,7 @@ function addPassword(domain, username, password, pin) {
 }
 
 
-// ===== END OF browser\functions\crypto.js =====
+// ===== END OF browser\functions\encode.js =====
 
 // ===== START OF browser\functions\privacy.js =====
 
@@ -2665,6 +2909,25 @@ app.on('ready', () => {
     // Set the BrowserView reference in the IPC module
     mainWindow.contentView.addChildView(SurfBrowserView);
 
+    ipcMain.handle('PWMmanager', async (_event) => {
+        
+        const currentURL = SurfBrowserView.webContents.getURL();
+        
+        let url = new URL(currentURL).hostname;
+        
+        if(url) {
+
+            let vault = decodePWMVault(pin);
+            credentials = {};
+            // crypto.
+            credentials.username = '';
+            credentials.password = '';
+            
+            return credentials;            
+        }
+        
+    });
+
     SurfBrowserView.setBounds({
         x: 0,
         y: 81,
@@ -2921,8 +3184,6 @@ async function launchBrowser(url) {
             });
         }
     }
-    
-    if(devdebug) SurfBrowserView.webContents.openDevTools();
 }
 
 async function addScript(code) {
@@ -3098,16 +3359,14 @@ async function takeFullPageScreenshotAsBase64(url) {
 
 // menu...
 
-
-win.webContents.on('did-finish-load', async () => {
-  win.webContents.savePage('/tmp/test.html', 'HTMLComplete').then(() => {
-    console.log('Page was saved successfully.')
-  }).catch(err => {
-    console.log(err)
-  })
-})
-
-
+    win.webContents.on('did-finish-load', async () => {
+      win.webContents.savePage('/tmp/test.html', 'HTMLComplete').then(() => {
+        console.log('Page was saved successfully.')
+      }).catch(err => {
+        console.log(err)
+      })
+    })
+    
     mainWindow.webContents.on('before-input-event', (event, input) => {
     if (input.key === 'F12') {
         event.preventDefault();
@@ -3143,7 +3402,7 @@ win.webContents.on('did-finish-load', async () => {
 
     // Download handling (same as before)
     mainWindow.webContents.session.on('will-download', (event, item) => {
-    const savePath = path.join(app.getPath('downloads'), item.getFilename());
+    const savePath = path.join(app.getFilePath('downloads'), item.getFilename());
     item.setSavePath(savePath);
     item.on('done', (e, state) => {
         if (state === 'completed') {
@@ -3194,8 +3453,6 @@ win.webContents.on('did-finish-load', async () => {
 // #####################################################################
 // APP ON EVENTS
 // #####################################################################
-
-console.log(app.getPath('userData'))
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 
