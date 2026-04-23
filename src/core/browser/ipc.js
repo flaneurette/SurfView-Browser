@@ -495,7 +495,6 @@ ipcMain.handle('get-value', async (event, name) =>  {
         
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-        
         return data[name];
     }
     
@@ -506,21 +505,25 @@ ipcMain.handle('fetch-pw', async (event, pw) =>  {
 });
 
 ipcMain.handle('set-value', async (event, name, value) =>  {
+    
     if(name) {
+        
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        
         if(!data) {
-            try { 
-                fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
-                    data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-                });
-            } catch(e) {}
+            data = {};
         }
+        
         data[name] = value;
-        fs.writeFileSync(sv, JSON.stringify(data, null, 2));
+        
+        fs.writeFileSync(sv, JSON.stringify(data));
+        
         if(devdebug) console.log('Saved surfvalues to file!');
+        
         return true;
     }
+    
 });
 
 ipcMain.handle('add-bookmark', async (event, url) =>  {

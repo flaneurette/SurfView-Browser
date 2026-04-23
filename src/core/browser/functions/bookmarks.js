@@ -8,14 +8,8 @@ function getBookmarksPath() {
     const userPath = path.join(app.getPath('userData'), 'bookmarks.json');
     
     if (!fs.existsSync(userPath)) {
-        const defaultPath = path.join(__dirname, 'data/bookmarks.json');
-        if (fs.existsSync(defaultPath)) {
-            fs.copyFileSync(defaultPath, userPath);
-        } else {
-            fs.writeFileSync(userPath, JSON.stringify({
-                url: []
-            }, null, 2));
-        }
+        fs.writeFileSync(userPath, JSON.stringify({
+        }, null, 2));
     }
     
     return userPath;
@@ -25,14 +19,20 @@ function getFilePath(file) {
     
     const userPath = path.join(app.getPath('userData'), file);
     
+    let data = `{}`;
+    
+    if(file == 'surfvalues.json') {
+        
+        data = `{
+          "vaultStatus": "first-run",
+          "sessionPWM": "inactive",
+          "bookmark": ""
+        }`;
+        
+    }
+    
     if (!fs.existsSync(userPath)) {
-        const defaultPath = path.join(__dirname, 'data/'+ file);
-        if (fs.existsSync(defaultPath)) {
-            fs.copyFileSync(defaultPath, userPath);
-        } else {
-            fs.writeFileSync(userPath, JSON.stringify({
-            }, null, 2));
-        }
+        fs.writeFileSync(userPath, data);
     }
     
     return userPath;

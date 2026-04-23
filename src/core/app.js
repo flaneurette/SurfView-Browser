@@ -897,7 +897,6 @@ ipcMain.handle('get-value', async (event, name) =>  {
         
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-        
         return data[name];
     }
     
@@ -908,21 +907,25 @@ ipcMain.handle('fetch-pw', async (event, pw) =>  {
 });
 
 ipcMain.handle('set-value', async (event, name, value) =>  {
+    
     if(name) {
+        
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
+        
         if(!data) {
-            try { 
-                fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
-                    data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-                });
-            } catch(e) {}
+            data = {};
         }
+        
         data[name] = value;
-        fs.writeFileSync(sv, JSON.stringify(data, null, 2));
+        
+        fs.writeFileSync(sv, JSON.stringify(data));
+        
         if(devdebug) console.log('Saved surfvalues to file!');
+        
         return true;
     }
+    
 });
 
 ipcMain.handle('add-bookmark', async (event, url) =>  {
@@ -1420,14 +1423,8 @@ function getBookmarksPath() {
     const userPath = path.join(app.getPath('userData'), 'bookmarks.json');
     
     if (!fs.existsSync(userPath)) {
-        const defaultPath = path.join(__dirname, 'data/bookmarks.json');
-        if (fs.existsSync(defaultPath)) {
-            fs.copyFileSync(defaultPath, userPath);
-        } else {
-            fs.writeFileSync(userPath, JSON.stringify({
-                url: []
-            }, null, 2));
-        }
+        fs.writeFileSync(userPath, JSON.stringify({
+        }, null, 2));
     }
     
     return userPath;
@@ -1437,14 +1434,20 @@ function getFilePath(file) {
     
     const userPath = path.join(app.getPath('userData'), file);
     
+    let data = `{}`;
+    
+    if(file == 'surfvalues.json') {
+        
+        data = `{
+          "vaultStatus": "first-run",
+          "sessionPWM": "inactive",
+          "bookmark": ""
+        }`;
+        
+    }
+    
     if (!fs.existsSync(userPath)) {
-        const defaultPath = path.join(__dirname, 'data/'+ file);
-        if (fs.existsSync(defaultPath)) {
-            fs.copyFileSync(defaultPath, userPath);
-        } else {
-            fs.writeFileSync(userPath, JSON.stringify({
-            }, null, 2));
-        }
+        fs.writeFileSync(userPath, data);
     }
     
     return userPath;
