@@ -916,7 +916,7 @@ ipcMain.handle('set-value', async (event, name, value) =>  {
                 fs.writeFileSync(sv, JSON.stringify(data, null, 2)).then(function() {
                     data = JSON.parse(fs.readFileSync(sv, 'utf8'));
                 });
-            } catch(e) { }
+            } catch(e) {}
         }
         data[name] = value;
         fs.writeFileSync(sv, JSON.stringify(data, null, 2));
@@ -989,7 +989,7 @@ ipcMain.handle('process-form', async (event, type, value) =>  {
                 
                 try { 
                     fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-                } catch(e) { }
+                } catch(e) {}
                 
                 mainWindow.webContents.executeJavaScript(`
                 
@@ -1089,7 +1089,7 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
             
             try {
                 fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-                } catch(e) {}
+            } catch(e) {}
             
             return { success: true };
             
@@ -1110,7 +1110,7 @@ ipcMain.handle('remove-bookmark', async (_event, url) => {
         data.url = data.url.filter((u) => u !== url);
         try { 
             fs.writeFileSync(getBookmarksPath(), JSON.stringify(data, null, 2));
-        } catch(e) {}
+        } catch(e) { if(devdebug) console.log(e); }
         return true;
     } catch (e) {
         return false;
@@ -1591,7 +1591,6 @@ function encodePWM(file, data, password) {
         fs.writeFileSync(file, encoded);
         return true;
         } catch(e) {
-        if(devdebug) console.log(e);
         return false;
     }
 }
@@ -1766,7 +1765,6 @@ function addPassword(domain, username, password, pin) {
         
         // Update temp vault.
         PWMvault = encodeData(decoded, data["master-pincode"]).toString('base64');
-        console.log('2: ' + PWMvault);
         
     } else {
         return false;
