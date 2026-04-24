@@ -59,31 +59,31 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - Integrated Tor, now Onion routing is available for Surfview! 
 - Webview loading of live websites (with JavaScript blocked)
 - Now allowing JavaScript through a toggle switch. (use at your own risk)
-- Stricter Content-Security-Policy on both `viewport` and `webview`.
+- Stricter Content-Security-Policy on both viewport and webview.
 - Limit screenshot buffer to 15MB to prevent overflow.
 - Additional chrome flags, for very strict policy.
 - Better security and tightening of code
 - Bookmark adjustments.
 - Much code overhaul.
 - Thorough testing, AI peer reviewing.
-- Webview is no longer persistent, but temporary for each request. (better privacy) `partition="temp:webview"`
+- Webview is no longer persistent, but temporary for each request. (better privacy) partition="temp:webview"
 - Updated to Chrome nightly 147.0.7727.0 (will not show, as we spoof user-agent)
-- March 15th: fingerprinting is now made very difficult, even with JavaScript enabled. `webgl`, `geolocation`, `network`, `battery`, `mediaDevices` are disabled.
-- March 15th: not leaking through `canvas`.
-- March 15th: custom `locale` and `timezone` headers are injected before requests, spoofing them correctly.
-- March 15th: added `spoof.js` where you can set your own spoofed profile. (randomized every session)
-- March 15th: `WebRTC` is now detected when JavaScript is `on` and blocked before it can execute.
+- March 15th: fingerprinting is now made very difficult, even with JavaScript enabled. webgl, geolocation, network, battery, mediaDevices are disabled.
+- March 15th: not leaking through canvas.
+- March 15th: custom locale and timezone headers are injected before requests, spoofing them correctly.
+- March 15th: added spoof.js where you can set your own spoofed profile. (randomized every session)
+- March 15th: WebRTC is now detected when JavaScript is on and blocked before it can execute.
 - March 15th: SurfView passed all browserleaks.com JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
-- Mach 15th: When JavaScript is enabled, SurfView inspects JavaScript before it executes and renders, and also runs deobfuscation routines to prevent JavaScript obfuscation and encoding, to hide payloads, or complex RegExp bypassing.  It is also possible to block additional JavaScript tags in `strict.js`
+- Mach 15th: When JavaScript is enabled, SurfView inspects JavaScript before it executes and renders, and also runs deobfuscation routines to prevent JavaScript obfuscation and encoding, to hide payloads, or complex RegExp bypassing.  It is also possible to block additional JavaScript tags in strict.js
 - Mach 15th: It is now very difficult to fingerprint SurfView as it emits no detectable prints (passed many tests), but remember: JavaScript comes with a risk. Only enable/toggle it, if you need it in a specific website. If disabled, it's next to impossible to fingerprint.
 - March 16th: all internal nodejs requests also proxy over Tor, if enabled/toggled. No leaking of requests over different IP's
 - March 16th: better proxy management internals.
-- March 16th: `webrtc.js` updated with better detection signatures.
+- March 16th: webrtc.js updated with better detection signatures.
 - March 16th: deeper reverse engineering of obfuscated JavaScript to detect attacks or unmasking when JS is enabled.
-- March 18th: Its now possible to search with `Ctrl+F`
+- March 18th: Its now possible to search with Ctrl+F
 - March 18th: Its now possible to save webpages.
 - March 18th: New menu.
-- March 18th: When JavaScript is enabled: file reconnaissance is done much more optimized and is much faster now. It scans for signatures of unsafe code, and blocks it before any page render, and displays a security report. It especially tries to find WebRTC signatures, but also `iframes`, `objects` and does `reverse-engineering` in real time to detect obfuscated scripts.
+- March 18th: When JavaScript is enabled: file reconnaissance is done much more optimized and is much faster now. It scans for signatures of unsafe code, and blocks it before any page render, and displays a security report. It especially tries to find WebRTC signatures, but also iframes, objects and does reverse-engineering in real time to detect obfuscated scripts.
 - March 18th: When JS enabled, SurfView file recon, scans all files before render. It computes a unique sha hash, and stores it in memory. This prevents re-scanning each file for the same session. If a hash changes, the page render will be blocked.
 - April: integrated the SurfView password vault and password manager, many optimizations, code overhaul.
 - April: generates a first-run vault initialization, with a unique salt for every instance.
@@ -95,10 +95,10 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 ## Tor use
 
-If using Tor, try to prevent toggling JavaScript on. While SurfView does detect `WebRTC` and blocks it before it can run, it cannot detect it 100% bulletproof. The nature of JavaScript, is, that it's extremely difficult to cover all edgecases.
+If using Tor, try to prevent toggling JavaScript on. While SurfView does detect WebRTC and blocks it before it can run, it cannot detect it 100% bulletproof. The nature of JavaScript, is, that it's extremely difficult to cover all edgecases.
 A persistent attacker could write a sophisticated script, enabling WebRTC and unmasking your real ip.
 
-To be 100% sure: use a extra `tailscale`, `wireguard` or `VPN` tunnel, and then use Tor as the extra `hop`. If Tor breaks, only the tunnel IP is then known. This is layered `redundancy`.
+To be 100% sure: use a extra tailscale, wireguard or VPN tunnel, and then use Tor as the extra hop. If Tor breaks, only the tunnel IP is then known. This is layered redundancy.
 
 ## Checks
 
