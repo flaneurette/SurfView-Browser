@@ -6,13 +6,13 @@ SurfView is a security-focused browser, that has 3 security modes.
 - `Live mode`: user toggled. No JavaScript, only HTML. Sandboxed.
 - `JS mode`: user toggled. HTML + JavaScript. Sandboxed.
 
-It also bundles `tor.exe` with it, and it has a `tor toggle`, so you can surf freely and secure.
+It also bundles tor.exe with it, and it has a tor toggle, so you can surf freely and secure.
 
 <img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
 
-What `Image mode` genuinely protects against:
+What Image mode genuinely protects against:
 
 - JavaScript execution - fully blocked at the Puppeteer level
 - XSS, XSRF, 3rd party content, drive-by downloads, malicious iframes - all dead
@@ -42,15 +42,15 @@ See [BUILD.md](BUILD.md)
 
 New in SurfView v1.7-8:
 
-- Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main `tor.exe`.
-If for some reason you don't trust it, just replace it with your own `tor.exe`. As simple as that. Download it from torproject -> expert-package.
+- Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main tor.exe.
+If for some reason you don't trust it, just replace it with your own tor.exe. As simple as that. Download it from torproject -> expert-package.
 
-- Javascript is now allowed through a switch. Just toggle it `on/off`, in case you need it. It's turned off by default.
+- Javascript is now allowed through a switch. Just toggle it on/off, in case you need it. It's turned off by default.
 When enabled it runs in a webview sandbox, which is very restricted by default. 
 
-- WebRTC is now detected when JavaScript is `on` and blocked. 
+- WebRTC is now detected when JavaScript is on and blocked. 
 
-- SurfView passes all `browserleaks.com` JavaScript tests
+- SurfView passes all browserleaks.com JavaScript tests
 
 - Integrated a vault password manager.
 
