@@ -32,8 +32,6 @@ Download your preferred version from the Releases page and install it.
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView-1.7.8-win.zip)
 
-Other platforms, no longer supported.
-
 ### 🏄 Build from source
 
 Roll your own:
