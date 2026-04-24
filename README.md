@@ -137,4 +137,5 @@ The authors cannot be held responsibile for any damage or liability,
 especially occuring with the use of the SurfView browser, it's code, 
 modifications, uses, browsing and surfing, etc. Use at your own risk.
 
-Tor.exe licended under GNU. Visit the original website for more information.
+Tor.exe licended under GNU General Public License (GPL). 
+Visit the original website for more information.
