@@ -85,7 +85,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - March 18th: New menu.
 - March 18th: When JavaScript is enabled: file `reconnaissance` is done much more optimized and is much faster now. It scans for `signatures` of unsafe code, and blocks it before any page render, and displays a security report. It especially tries to find WebRTC signatures, but also `iframes`, `objects` and does `reverse-engineering` in real time to detect obfuscated scripts.
 - March 18th: When JS enabled, `SurfView file recon`, scans all files before render. It computes a `unique sha hash`, and stores it in memory. This prevents re-scanning each file for the same session. If a hash changes, the page render will be blocked.
-- April: integrated the SurfView password vault and password manager, many optimizations, code overhaul.
+- April: integrated the SurfView `password vault` and `password manager`, many optimizations, code overhaul.
 - April: generates a first-run vault initialization, with a unique salt for every instance.
 - April: password vault is AES encrypted with a master password, additionally, every entry into that vault is also encrypted with a PIN.
 - April: many security enhancements, custom privacy script injected before every page-load, to ensure privacy.
