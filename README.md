@@ -131,4 +131,10 @@ Built on [Node.js](https://nodejs.org) / [npm](https://npmjs.com) /
 [Electron](https://electronjs.org) / [Puppeteer](https://pptr.dev)
 
 ## License
-MIT
+
+SurfView is free to use, modify, adapt. SurfView is without warranty. 
+The authors cannot be held responsibile for any damage or liability, 
+especially occuring with the use of the SurfView browser, it's code, 
+modifications, uses, browsing and surfing, etc. Use at your own risk.
+
+Tor.exe licended under GNU. Visit the original website for more information.
