@@ -52,8 +52,9 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 - WebRTC is now detected when JavaScript is `on` and blocked. 
 
-- SurfView passes all `browserleaks.com` JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
+- SurfView passes all `browserleaks.com` JavaScript tests
 
+- Integrated a vault password manager.
 
 ### Changelog
 
@@ -114,7 +115,6 @@ https://fingerprintjs.com/demo - by the fingerprint.js library authors
 https://amiunique.org/fingerprint - academic project, shows how unique you are among their dataset
 
 https://deviceinfo.me - broad device/browser info dump
-
 
 ## Motivation
 
