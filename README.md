@@ -26,11 +26,11 @@ What Image mode genuinely protects against:
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.7-8 SurfView - Rainbow
+#### v1.7-9 SurfView - Rainbow
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView.Setup.1.7.8.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView.Setup.1.7.9.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView-1.7.8-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView-1.7.9-win.zip)
 
 ### 🏄 Build from source
 
@@ -40,7 +40,7 @@ See [BUILD.md](BUILD.md)
 
 ### Updates
 
-New in SurfView v1.7-8:
+New in SurfView v1.7-9:
 
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main tor.exe.
 You can also download it from torproject -> expert-package.
@@ -91,12 +91,12 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - April: many security enhancements, custom privacy script injected before every page-load, to ensure privacy.
 - April: better mode toggling for Image, Live and JavaScript mode.
 - April: integrated website scanner: which analyzes the code of every file on that website and generates a report, this is useful if you want to inspect the safety of that website. If something malicious is found, the scanner blocks access. Can be toggled on/off.
-- April 23rd: finalized version 1.7.8
+- April 23rd: finalized version 1.7.9
 
 ## Tor use
 
 If using Tor, try to prevent toggling JavaScript on. While SurfView does detect WebRTC and blocks it before it can run, it cannot detect it 100% bulletproof. The nature of JavaScript, is, that it's extremely difficult to cover all edgecases.
-A persistent attacker could write a sophisticated script, enabling WebRTC and unmasking your real ip.
+A persistent attacker could write a sophisticated script, enabling WebRTC and unmasking your real ip. 
 
 To be 100% sure: use a extra tailscale, wireguard or VPN tunnel, and then use Tor as the extra hop. If Tor breaks, only the tunnel IP is then known. This is layered redundancy.
 

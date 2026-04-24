@@ -1018,8 +1018,9 @@ ipcMain.handle('process-form', async (event, type, value) =>  {
                     
                     a.innerHTML = '<span class="foldericon">🗀</span>' + ' ' + '${folder}';
                     fold.appendChild(a);
-                    dom.appendChild(fold); 
+                    dom.appendChild(fold);
                 `);
+                
                 } catch(e) {
                     if(devdebug) console.log(e);
                 }   
@@ -1072,6 +1073,7 @@ ipcMain.handle('save-bookmark', async (_event, folder=false, uri) => {
     } else {
         
         // Bookmarksbar.
+        
         try {
             
             let lnk = sanitizeUrl(uri,'hyperlink');
