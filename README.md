@@ -119,7 +119,7 @@ https://deviceinfo.me - broad device/browser info dump
 After seeing another 50+ security patches land in Firefox and Chrome -
 as happens every few weeks, and has for two decades - it became clear
 that patching an execution engine forever is not a sustainable security
-model. SurfView takes a different approach: remove execution in the `viewport` entirely.
+model. SurfView takes a different approach: remove execution in the viewport entirely.
 
 ## Credits
 
