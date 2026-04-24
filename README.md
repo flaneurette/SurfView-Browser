@@ -56,7 +56,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 ### Changelog
 
-- Integrated Tor, now Onion routing is available for Surfview! 
+- Integrated Tor into SurfView browser, now Onion routing is available for Surfview! 
 - Webview loading of live websites (with JavaScript blocked)
 - Now allowing JavaScript through a toggle switch. (use at your own risk)
 - Stricter Content-Security-Policy on both viewport and webview.
