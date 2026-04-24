@@ -73,19 +73,19 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - March 15th: custom `locale` and `timezone` headers are injected before requests, spoofing them correctly.
 - March 15th: added `spoof.js` where you can set your own spoofed profile. (randomized every session)
 - March 15th: `WebRTC` is now detected when JavaScript is `on` and blocked before it can execute.
-- March 15th: SurfView passed all `browserleaks.com` JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
+- March 15th: SurfView passed all browserleaks.com JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
 - Mach 15th: When JavaScript is enabled, SurfView inspects JavaScript before it executes and renders, and also runs deobfuscation routines to prevent JavaScript obfuscation and encoding, to hide payloads, or complex RegExp bypassing.  It is also possible to block additional JavaScript tags in `strict.js`
 - Mach 15th: It is now very difficult to fingerprint SurfView as it emits no detectable prints (passed many tests), but remember: JavaScript comes with a risk. Only enable/toggle it, if you need it in a specific website. If disabled, it's next to impossible to fingerprint.
-- March 16th: all internal `nodejs` requests also proxy over Tor, if enabled/toggled. No leaking of requests over different IP's
+- March 16th: all internal nodejs requests also proxy over Tor, if enabled/toggled. No leaking of requests over different IP's
 - March 16th: better proxy management internals.
 - March 16th: `webrtc.js` updated with better detection signatures.
 - March 16th: deeper reverse engineering of obfuscated JavaScript to detect attacks or unmasking when JS is enabled.
 - March 18th: Its now possible to search with `Ctrl+F`
 - March 18th: Its now possible to save webpages.
 - March 18th: New menu.
-- March 18th: When JavaScript is enabled: file `reconnaissance` is done much more optimized and is much faster now. It scans for `signatures` of unsafe code, and blocks it before any page render, and displays a security report. It especially tries to find WebRTC signatures, but also `iframes`, `objects` and does `reverse-engineering` in real time to detect obfuscated scripts.
-- March 18th: When JS enabled, `SurfView file recon`, scans all files before render. It computes a `unique sha hash`, and stores it in memory. This prevents re-scanning each file for the same session. If a hash changes, the page render will be blocked.
-- April: integrated the SurfView `password vault` and `password manager`, many optimizations, code overhaul.
+- March 18th: When JavaScript is enabled: file reconnaissance is done much more optimized and is much faster now. It scans for signatures of unsafe code, and blocks it before any page render, and displays a security report. It especially tries to find WebRTC signatures, but also `iframes`, `objects` and does `reverse-engineering` in real time to detect obfuscated scripts.
+- March 18th: When JS enabled, SurfView file recon, scans all files before render. It computes a unique sha hash, and stores it in memory. This prevents re-scanning each file for the same session. If a hash changes, the page render will be blocked.
+- April: integrated the SurfView password vault and password manager, many optimizations, code overhaul.
 - April: generates a first-run vault initialization, with a unique salt for every instance.
 - April: password vault is AES encrypted with a master password, additionally, every entry into that vault is also encrypted with a PIN.
 - April: many security enhancements, custom privacy script injected before every page-load, to ensure privacy.
