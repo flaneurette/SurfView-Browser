@@ -54,7 +54,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 - Integrated a vault password manager.
 
-### Changelog
+### SurfView browser Changelog
 
 - Integrated Tor into SurfView browser, now Onion routing is available for Surfview! 
 - Webview loading of live websites (with JavaScript blocked)
@@ -66,11 +66,11 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - Bookmark adjustments.
 - Much code overhaul.
 - Thorough testing, AI peer reviewing.
-- Webview is no longer persistent, but temporary for each request. (better privacy) partition="temp:webview"
+- Webview is no longer persistent, but temporary for each request. (better privacy)
 - Updated to Chrome nightly 147.0.7727.0 (will not show, as we spoof user-agent)
 - March 15th: fingerprinting is now made very difficult, even with JavaScript enabled. webgl, geolocation, network, battery, mediaDevices are disabled.
 - March 15th: not leaking through canvas.
-- March 15th: custom locale and timezone headers are injected before requests, spoofing them correctly.
+- March 15th: custom surfview browser locale and timezone headers are injected before requests, spoofing them correctly.
 - March 15th: added spoof.js where you can set your own spoofed profile. (randomized every session)
 - March 15th: WebRTC is now detected when JavaScript is on and blocked before it can execute.
 - March 15th: SurfView passed all browserleaks.com JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
