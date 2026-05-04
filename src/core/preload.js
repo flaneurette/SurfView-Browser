@@ -58,6 +58,7 @@ contextBridge.exposeInMainWorld('surfview', {
   updatePWMStatus: () =>  ipcRenderer.invoke('update-pwm-status'),
   loadPINbox: () =>  ipcRenderer.invoke('pin-box'),
   unlockWebsite: (pin) => ipcRenderer.invoke('unlock-website', pin),
+  createEncyptedFile: () => ipcRenderer.invoke('create-encypted-file', filePath, fileName, password),
   getElementById: (id) => document.getElementById(id),
 });
 

@@ -98,15 +98,12 @@ ipcMain.handle('check-pin', async (event, pin) => {
     let returner = {};
     
     for(const key in obj) {
-        
         const entry = obj[key];
-        
         if(entry['host'] == uri) {
             returner.username = decodeData(Buffer.from(entry['username'], 'base64'), pin);
             returner.password = decodeData(Buffer.from(entry['password'], 'base64'), pin);
             returner.ok = true;
         }
-        
     }
     
     if(devdebug) console.log(returner);
@@ -159,6 +156,15 @@ ipcMain.handle('pin-box', async (event) => {
     showWindow(300,170,w,150,'src/core/forms/ask-pin.html',false);
 });
 
+ipcMain.handle('create-encypted-file', async (event, filePath, fileName, password) => {
+    await createEncodedFile(
+        filePath,
+        fileName,
+        password,
+        (progress) => console.log(`Progress: ${progress}%`)
+    );
+});
+
 async function showWindow(w,h,x,y,f) {
     
     let preferences = {
@@ -168,6 +174,7 @@ async function showWindow(w,h,x,y,f) {
         modal: true,
         frame: false,
         resizable: false,
+        
         webPreferences: {
             partition: 'nopersist',
             preload: path.join(__dirname, 'preload.js'),
@@ -196,6 +203,7 @@ async function showWindow(w,h,x,y,f) {
             autoplayPolicy : 'user-gesture-required',
             referrerpolicy: "no-referrer"
         }
+        
       };
       
     if(x || y) {
@@ -278,16 +286,16 @@ ipcMain.handle('close-window', (event) => {
 
 ipcMain.handle('go-back', (event) =>  {
   if (currentIndex >=1) {
-    currentIndex--;
-    launchBrowser(historyStack[currentIndex]);
+        currentIndex--;
+        launchBrowser(historyStack[currentIndex]);
   }
 });
 
 ipcMain.handle('go-forward', (event) =>  {
     if (currentIndex < historyStack.length - 1) {
-    currentIndex++;
-    launchBrowser(historyStack[currentIndex]);
-  }
+        currentIndex++;
+        launchBrowser(historyStack[currentIndex]);
+    }
 });
 
 ipcMain.handle('reload', (event) =>  {
@@ -298,6 +306,7 @@ ipcMain.handle('reload', (event) =>  {
 
 // Shrink
 ipcMain.handle('shrink-browserview', () => {
+
   const { width: winW, height: winH } = mainWindow.getContentBounds()
 
   const targetW = 400

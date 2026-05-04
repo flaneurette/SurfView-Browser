@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SurfView</title>
+
+<link rel="stylesheet" href="../../css/style.css?version=1.6.7">
+<style>
+    body { 
+        overflow-y: auto;
+    }
+</style>
+</head>
+
+<body>
+
+<button id="closeRightMenu" class="close-button">&#10005;</button>
+
+    <div id="modalWindow">
+        <div id="loginBox" class="loginBox">
+            <div id="vault"></div>
+            <div id="res"></div>
+            <div id="addWebsite" class="addWebsite"> 
+            <h4>Encrypted File Manager</h4>
+                <div><label for="websiteUrl">File to encrypt and store:</label></div>
+                <div><input type="file" id="encryptedFile" name="encryptedFile" class="btn btn-primary" /></div>
+                <div><input type="password" id="encryptedPassword" name="encryptedPassword" class="btn btn-primary" /></div>
+                <div></div>
+                <div><button class="btn btn-icon" id="btnEncryptFile" title="">Store file.</button></div>
+                <hr />
+            </div>
+        </div>
+    </div>
+    
+ <script src="../renderer/renderer.js"></script>
+   
+  <script>
+  
+    let pass = null;
+    let session = window.surfview.getValue('sessionPWM');
+
+    function addWebsite() {
+    
+        let website = document.getElementById('websiteUrl');
+        let user = document.getElementById('websiteUser');
+        let passwd = document.getElementById('websitePasswd');
+        let pin = document.getElementById('websitePin');
+        window.surfview.addPass(website.value, user.value, passwd.value, pin.value).then(
+        function(result) {
+            if(result != false) { 
+                window.surfview.dialog('Added website! reload the password manager to see changes.');
+                } else {
+                window.surfview.dialog("Cannot retrieve temporary master password, close and re-open this window, or restart SurfView.");
+            }
+          }
+        );
+    }
+
+    function readFileAsArrayBuffer(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsArrayBuffer(file);
+        });
+    }
+    
+    // Wait for DOM to be fully loaded
+    document.addEventListener('DOMContentLoaded', () => {
+
+        document.getElementById('btnEncryptFile').addEventListener('click', async () => {
+        
+            const fileInput = document.getElementById('encryptedFile');
+            const file = fileInput.files[0];
+            const fileData = await readFileAsArrayBuffer(file);
+
+            if (!file) {
+                alert('Please select a file first');
+                return;
+            }
+
+            const password = document.getElementById('encryptedPassword').value;
+            
+            try {
+            
+              // Show loading state
+              document.getElementById('btnEncryptFile').disabled = true;
+              document.getElementById('btnEncryptFile').textContent = 'Encrypting...';
+
+              // Send to main process
+              const result = await window.surfview.createEncyptedFile('private-files',file,password);
+
+              if (result.success) {
+                alert(`File encrypted successfully!\nSaved as: ${result.outputPath}`);
+              } else {
+                alert('Error: ' + result.error);
+              }
+            } catch (error) {
+              console.error('Error:', error);
+              alert('Failed to encrypt file: ' + error.message);
+            } finally {
+              // Reset button state
+              document.getElementById('btnEncryptFile').disabled = false;
+              document.getElementById('btnEncryptFile').textContent = 'Encrypt File';
+            }
+          });
+
+        // Close button functionality
+        const closeButton = document.getElementById('closeRightMenu');
+        if (closeButton) {
+            closeButton.addEventListener('click', () => {
+                try {
+                    window.surfview.clearPass();
+                    window.surfview.updatePWMStatus();
+                } catch(e) {}
+                if (window.surfview && window.surfview.closeWindow) {
+                    window.surfview.updatePWMStatus().then(function() {
+                        window.surfview.closeWindow();
+                    });
+                    } else {
+                    console.error('surfview.closeWindow is not available');
+                }
+            });
+        }
+    });
+    
+    
+  </script>
+
+</body>
+</html>

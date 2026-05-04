@@ -77,6 +77,7 @@
     var inputCreateFolder = document.getElementById('inputCreateFolder');
     var pwManager = document.getElementById('btnPasswordManager');
     var btnKey = document.getElementById('btnKey');
+    var btnFileManager = document.getElementById('btnFileManager');
     
     let resized = false;
     let whx = window.innerHeight;
@@ -149,6 +150,11 @@
         pwManager.addEventListener('click', () => {
             let w = parseInt(window.innerWidth / 2);
             window.surfview.showWindow(600,500,w,150,'src/core/forms/password-manager.html');
+        });
+        
+        btnFileManager.addEventListener('click', () => {
+            let w = parseInt(window.innerWidth / 2);
+            window.surfview.showWindow(600,500,w,150,'src/core/forms/file-manager.html');
         });
         
         // Close button
@@ -304,7 +310,7 @@
             
         if(window.getComputedStyle(liveWarning).display != 'none') {
             liveWarning.className = 'hideElement';
-        } else if(liveModal == 'active') {
+            } else if(liveModal == 'active') {
             liveWarning.className = 'hideElement';
         }
         
@@ -315,10 +321,10 @@
         if (imageModeEnabled) {
             loadUrl(url, true, "image");
             return;
-        } else if (jsEnabled1) {
+            } else if (jsEnabled1) {
             loadUrl(url, true, "js");
             return;
-        } else {
+            } else {
             loadUrl(url, true, "live");
             return;
         }
@@ -334,10 +340,10 @@
       if (!enabled) {
         torLabel.textContent = 'Tor: off';
         torLabel.classList.add('tor-off');
-      } else if (ready) {
+        } else if (ready) {
         torLabel.textContent = 'Tor: connected';
         torLabel.classList.add('tor-connected');
-      } else {
+        } else {
         torLabel.textContent = 'Tor: connecting...';
         torLabel.classList.add('tor-connecting');
       }

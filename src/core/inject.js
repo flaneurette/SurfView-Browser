@@ -162,6 +162,7 @@ const privacy_script = `
                 }
             })
         });
+        
     } catch(e) {}
 
     try {

@@ -266,6 +266,7 @@ async function launchBrowser(url) {
         }
         
         setupWebSecurity();
+
         let webPreferencesView = structuredClone(webPreferences);
         
         if(jsEnabled) { 
@@ -309,6 +310,9 @@ async function launchBrowser(url) {
             });
         }
     }
+    
+    mainWindow.webContents.openDevTools();
+    SurfBrowserView.webContents.openDevTools();
 }
 
 async function addScript(code) {
@@ -479,6 +483,7 @@ async function takeFullPageScreenshotAsBase64(url) {
         }
     }
 }
+
 
 /*
 
