@@ -26,11 +26,11 @@ What Image mode genuinely protects against:
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.7-9 SurfView - Rainbow
+#### v1.8 SurfView - Rainbow
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView.Setup.1.7.9.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8/SurfView.Setup.1.8.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.7.8/SurfView-1.7.9-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8/SurfView-1.8-win.zip)
 
 ### 🏄 Build from source
 
@@ -40,7 +40,7 @@ See [BUILD.md](BUILD.md)
 
 ### Updates
 
-New in SurfView v1.7-9:
+New in SurfView v1.8:
 
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main tor.exe.
 You can also download it from torproject -> expert-package.
@@ -92,6 +92,8 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - April: better mode toggling for Image, Live and JavaScript mode.
 - April: integrated website scanner: which analyzes the code of every file on that website and generates a report, this is useful if you want to inspect the safety of that website. If something malicious is found, the scanner blocks access. Can be toggled on/off.
 - April 23rd: finalized version 1.7.9
+- May: finalized the file encryption manager, to encrypt files.
+- May: finalized version 1.8
 
 ## Tor use
 
