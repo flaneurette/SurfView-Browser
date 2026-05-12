@@ -35,6 +35,61 @@ setInterval(() => {
 }, 5000);
 */
 
+ipcMain.handle('open-file-dialog', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile']
+    });
+    if (result.canceled) return null;
+    return result.filePaths[0];
+});
+
+ipcMain.handle('create-encrypted-file', async (event, inputPath, outputPath, password) => {
+    try {
+        await createEncodedFile(inputPath, outputPath, password);
+        return { success: true, outputPath };
+        } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('decrypt-file', async (event, inputPath, password) => {
+    try {
+        await decodeEncodedFile(inputPath, password);
+        return { success: true, out: inputPath.replace('encrypted_','') };
+        } catch (err) {
+        console.error('Decrypt error:', err);
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('read-dir', async (event, dirPath) => {
+    
+    const fs = require('fs');
+    
+    const filePath = path.join(app.getPath('userData'), dirPath);
+
+    if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath);
+    }
+
+    const files = fs.readdirSync(filePath, { withFileTypes: true });
+    return files.map(file => ({
+        name: file.name,
+        isDirectory: file.isDirectory()
+    }));
+});
+
+ipcMain.handle('get-user-path', () => {
+    
+    const filePath = path.join(app.getPath('userData'), 'private-files');
+
+    if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath);
+    }
+
+    return filePath;
+});
+         
 async function messageBox(message) {
   dialog.showMessageBox({
     type: 'info',
@@ -156,15 +211,6 @@ ipcMain.handle('pin-box', async (event) => {
     showWindow(300,170,w,150,'src/core/forms/ask-pin.html',false);
 });
 
-ipcMain.handle('create-encypted-file', async (event, filePath, fileName, password) => {
-    await createEncodedFile(
-        filePath,
-        fileName,
-        password,
-        (progress) => console.log(`Progress: ${progress}%`)
-    );
-});
-
 async function showWindow(w,h,x,y,f) {
     
     let preferences = {
@@ -201,7 +247,8 @@ async function showWindow(w,h,x,y,f) {
             safeDialogsMessage :'Blocked',
             disableBlinkFeatures:'Autofill,ServiceWorker',
             autoplayPolicy : 'user-gesture-required',
-            referrerpolicy: "no-referrer"
+            referrerpolicy: "no-referrer",
+            enableWebAuthn: true,
         }
         
       };

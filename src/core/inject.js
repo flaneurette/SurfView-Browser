@@ -131,12 +131,12 @@ const privacy_script = `
    
     [
         ['indexedDB', undefined],
-        ['localStorage', undefined],
-        ['sessionStorage', undefined],
+        //['localStorage', undefined],
+        //['sessionStorage', undefined],
         ['WebAssembly', undefined],
         ['Blob', undefined],
         ['WebGLRenderingContext', undefined],
-        ['getComputedStyle', undefined],
+        //['getComputedStyle', undefined],
         ['postMessage', undefined],
         ['atob', window.atob],
         ['btoa', window.btoa]
@@ -169,10 +169,12 @@ const privacy_script = `
         
         Object.defineProperty(document, 'fonts', { get: () => [] });
         
+        /*
         window.getComputedStyle = function() {
             return false;
         }
-
+        */
+        
         Object.defineProperty(document.fonts, 'ready', {
           get: function() {
             return Promise.resolve();
@@ -220,10 +222,12 @@ const privacy_script = `
           });
         });
 
+        /*
         const originalGetComputedStyle = window.getComputedStyle;
         window.getComputedStyle = function(element, pseudoElt) {
           const style = originalGetComputedStyle.call(this, element, pseudoElt);
-
+        */
+        
           Object.defineProperty(style, 'fontFamily', {
             get: () => ['Arial', 'Times New Roman', 'Courier New'][Math.floor(Math.random() * 3)]
           });

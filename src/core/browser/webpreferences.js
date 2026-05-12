@@ -24,5 +24,6 @@ let webPreferences = {
     safeDialogsMessage :'Blocked',
     disableBlinkFeatures:'Autofill,ServiceWorker',
     autoplayPolicy : 'user-gesture-required',
-    referrerpolicy: "no-referrer"
+    referrerpolicy: "no-referrer",
+    enableWebAuthn: true,
 }

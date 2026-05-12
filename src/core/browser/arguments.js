@@ -62,6 +62,9 @@ let defaultArgs = [
     '--disable-speech-api',
     '--disable-remote-fonts',         // font fingerprinting
     '--no-pings',                 // hyperlink auditing
+    '--enable-features=WebAuthentication,WebAuthn', // hardware key
+    '--disable-features=WebAuthnFakeAuthenticator',
+
 
     // Process isolation
     '--site-per-process',

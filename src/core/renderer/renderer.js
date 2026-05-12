@@ -148,13 +148,13 @@
         });
 
         pwManager.addEventListener('click', () => {
-            let w = parseInt(window.innerWidth / 2);
-            window.surfview.showWindow(600,500,w,150,'src/core/forms/password-manager.html');
+            let w = parseInt(window.innerWidth / 2.5);
+            window.surfview.showWindow(500,500,w,150,'src/core/forms/password-manager.html');
         });
         
         btnFileManager.addEventListener('click', () => {
-            let w = parseInt(window.innerWidth / 2);
-            window.surfview.showWindow(600,500,w,150,'src/core/forms/file-manager.html');
+            let w = parseInt(window.innerWidth / 2.5);
+            window.surfview.showWindow(600,400,w,150,'src/core/forms/file-manager.html');
         });
         
         // Close button

@@ -3,58 +3,42 @@
 <head>
 <meta charset="UTF-8">
 <title>SurfView</title>
-
-<link rel="stylesheet" href="../../css/style.css?version=1.6.7">
-<style>
-    body { 
-        overflow-y: auto;
-    }
-</style>
+<link rel="stylesheet" href="../../css/style.css?version=1.6.8">
 </head>
-
-<body>
-
+<body id="body">
 <button id="closeRightMenu" class="close-button">&#10005;</button>
 
     <div id="modalWindow">
-        <div id="loginBox" class="loginBox">
-            <div id="vault"></div>
-            <div id="res"></div>
-            <div id="addWebsite" class="addWebsite"> 
+    
+        <div id="efm" class="efm">
+            
+            <div id="encryptedFileManager" class="efm"> 
+            
             <h4>Encrypted File Manager</h4>
                 <div><label for="websiteUrl">File to encrypt and store:</label></div>
-                <div><input type="file" id="encryptedFile" name="encryptedFile" class="btn btn-primary" /></div>
+                <div>
+                <button id="btnBrowse" name="encryptedFile" class="btn btn-primary">Browse File</button>
+                <span id="selectedFileName">No file selected</span>
+                </div>
+                <label>Encryption password:</label>
                 <div><input type="password" id="encryptedPassword" name="encryptedPassword" class="btn btn-primary" /></div>
-                <div></div>
-                <div><button class="btn btn-icon" id="btnEncryptFile" title="">Store file.</button></div>
+                <div>
+                <button class="btn btn-icon" id="btnEncryptFile" title="">Encrypt File</button>
+                </div>
                 <hr />
             </div>
+            <h4>Encrypted Files</h4>
+            <div id="fileList" class="fileList"></div>
         </div>
+        
     </div>
-    
- <script src="../renderer/renderer.js"></script>
-   
-  <script>
-  
+
+<script src="../renderer/renderer.js"></script>
+
+<script>
+        
     let pass = null;
     let session = window.surfview.getValue('sessionPWM');
-
-    function addWebsite() {
-    
-        let website = document.getElementById('websiteUrl');
-        let user = document.getElementById('websiteUser');
-        let passwd = document.getElementById('websitePasswd');
-        let pin = document.getElementById('websitePin');
-        window.surfview.addPass(website.value, user.value, passwd.value, pin.value).then(
-        function(result) {
-            if(result != false) { 
-                window.surfview.dialog('Added website! reload the password manager to see changes.');
-                } else {
-                window.surfview.dialog("Cannot retrieve temporary master password, close and re-open this window, or restart SurfView.");
-            }
-          }
-        );
-    }
 
     function readFileAsArrayBuffer(file) {
         return new Promise((resolve, reject) => {
@@ -65,67 +49,91 @@
         });
     }
     
-    // Wait for DOM to be fully loaded
-    document.addEventListener('DOMContentLoaded', () => {
+async function unlockFile(file,password) {
 
-        document.getElementById('btnEncryptFile').addEventListener('click', async () => {
-        
-            const fileInput = document.getElementById('encryptedFile');
-            const file = fileInput.files[0];
-            const fileData = await readFileAsArrayBuffer(file);
+    const pathLink = await window.surfview.getUserPath() + '\\' + file;
+    const pw = document.getElementById(password).value;
+    const result = await window.surfview.decryptFile(file, pw);
+    const btnEncryptFile = document.getElementById('btnEncryptFile');
 
-            if (!file) {
-                alert('Please select a file first');
-                return;
+    if (result.success) {
+        window.surfview.dialog(`Decrypted!\nSaved as: ${result.out}`);
+        } else {
+        window.surfview.dialog('Error: ' + result.error);
+    } 
+}
+    
+document.addEventListener('DOMContentLoaded', async () => {
+
+    const files = await window.surfview.readDir('private-files');
+    const privateFolderPath = await window.surfview.getUserPath('private-files');
+    const closeButton = document.getElementById('closeRightMenu');
+    
+    if (closeButton) {
+        closeButton.addEventListener('click', async () => {
+            if (window.surfview && window.surfview.closeWindow) {
+                window.surfview.updatePWMStatus().then(function() {
+                    window.surfview.closeWindow();
+                });
+            } else {
+                console.error('surfview.closeWindow is not available');
             }
+        });
+    }
 
-            const password = document.getElementById('encryptedPassword').value;
-            
-            try {
-            
-              // Show loading state
-              document.getElementById('btnEncryptFile').disabled = true;
-              document.getElementById('btnEncryptFile').textContent = 'Encrypting...';
+    const btnBrowse = document.getElementById('btnBrowse');
+    const btnEncryptFile = document.getElementById('btnEncryptFile');
+    let selectedFilePath = null;
 
-              // Send to main process
-              const result = await window.surfview.createEncyptedFile('private-files',file,password);
-
-              if (result.success) {
-                alert(`File encrypted successfully!\nSaved as: ${result.outputPath}`);
-              } else {
-                alert('Error: ' + result.error);
-              }
-            } catch (error) {
-              console.error('Error:', error);
-              alert('Failed to encrypt file: ' + error.message);
-            } finally {
-              // Reset button state
-              document.getElementById('btnEncryptFile').disabled = false;
-              document.getElementById('btnEncryptFile').textContent = 'Encrypt File';
-            }
-          });
-
-        // Close button functionality
-        const closeButton = document.getElementById('closeRightMenu');
-        if (closeButton) {
-            closeButton.addEventListener('click', () => {
-                try {
-                    window.surfview.clearPass();
-                    window.surfview.updatePWMStatus();
-                } catch(e) {}
-                if (window.surfview && window.surfview.closeWindow) {
-                    window.surfview.updatePWMStatus().then(function() {
-                        window.surfview.closeWindow();
-                    });
-                    } else {
-                    console.error('surfview.closeWindow is not available');
-                }
-            });
+    btnBrowse.addEventListener('click', async () => {
+        const filePath = await window.surfview.openFileDialog();
+        if (filePath) {
+            selectedFilePath = filePath;
+            document.getElementById('selectedFileName').textContent = filePath.split('\\').pop();
         }
     });
+
+    btnEncryptFile.addEventListener('click', async () => {
     
-    
-  </script>
+        if (!selectedFilePath) {
+            window.surfview.dialog('Please select a file first');
+            return;
+        }
+
+        const password = document.getElementById('encryptedPassword').value;
+        const fileName = selectedFilePath.split('\\').pop();
+        const outputPath = privateFolderPath + '\\' + `encrypted_${fileName}`;
+        console.log(outputPath);
+        
+        document.getElementById('btnEncryptFile').textContent = 'Encrypting file...';
+        
+        const result = await window.surfview.createEncryptedFile(selectedFilePath, outputPath, password);
+
+        if (result.success) {
+            window.surfview.dialog(`Encrypted!\nSaved as: ${result.outputPath}`);
+            document.getElementById('btnEncryptFile').textContent = 'Encrypt File';
+            document.location.reload();
+        } else {
+            window.surfview.dialog('Error: ' + result.error);
+        }
+    });
+
+    if (files.length >= 1) {
+        let body = document.getElementById('body');
+        body.style.overflowY = 'auto';
+
+        let parent = document.getElementById('fileList');
+
+        for (let i = 0; i < files.length; i++) {
+            const child = document.createElement('div');
+            child.innerHTML = `<input class="btn btn-primary" type="password" placeholder="password" id="fileListPassword${i}" /><button class="btn1 btn-primary-unlock" onclick="unlockFile('${files[i].name}','fileListPassword${i}');">🔓 - ${files[i].name}</button>`;
+            parent.appendChild(child);
+        }
+    }
+
+});
+
+</script>
 
 </body>
 </html>

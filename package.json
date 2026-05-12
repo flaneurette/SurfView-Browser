@@ -4,7 +4,7 @@
   "description": "A security focused browser.",
   "main": "src/core/main.js",
   "scripts": {
-    "start": "electron .",
+    "start": "electron --js-flags=\"--max-old-space-size=8192\" .",
     "build-win": "electron-builder --win",
     "build-mac": "electron-builder --mac",
     "build-linux": "electron-builder --linux"
@@ -12,7 +12,8 @@
   "dependencies": {
     "puppeteer": "^24.39.1",
     "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2"
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "scrypt-js": "^3.0.1"
   },
   "devDependencies": {
     "electron-builder": "^26.8.1",

@@ -1,44 +1,1 @@
-# dependencies
-src/tor/tor-data/
-src/core/backup/
-unit-tests/
-node_modules/
-dist/
-build-tools/project.bat
-build-tools/project.bat.lnk
-
-# puppeteer chromium download cache
-.local-chromium/
-.cache/
-
-# electron-builder cache
-electron-builder-cache/
-
-# logs
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# os files
-.DS_Store
-Thumbs.db
-
-# editor directories
-.vscode/
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.yaml
-*.yml
-*.blockmap
-
-# Tests
-test.js
-# Consolidated app files, generated on each launch.
-app.js
-src/core/app.js
-# No need for consecutive updates to these dynamic files.
-src/data/passwords.js
-src/data/bookmarks.js
+# dependenciessrc/tor/tor-data/src/core/backup/unit-tests/node_modules/dist/build-tools/project.batbuild-tools/project.bat.lnk# puppeteer chromium download cache.local-chromium/.cache/# electron-builder cacheelectron-builder-cache/# logsnpm-debug.log*yarn-debug.log*yarn-error.log*# os files.DS_StoreThumbs.db# editor directories.vscode/.idea/*.suo*.ntvs**.njsproj*.sln*.yaml*.yml*.blockmap# Teststest.js# Consolidated app files, generated on each launch.app.jssrc/core/app.js# No need for consecutive updates to these dynamic files.src/data/passwords.jssrc/data/bookmarks.js

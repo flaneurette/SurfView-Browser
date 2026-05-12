@@ -294,6 +294,16 @@
 
     .urlbar-input::placeholder { color: var(--text-dim); }
 
+    .btn1 {
+       display: inline-block;
+       padding: 5px 12px;
+       color: var(--text-mid);
+       font-family: var(--mono);
+       font-size: 11px;
+       cursor: pointer;
+       margin: 8px;
+    }
+    
     .btn {
        display: flex;
        align-items: center;
@@ -326,6 +336,24 @@
        background: var(--bg);
        border-color: var(--accent2);
        color: var(--accent);
+    }
+
+    .btn-primary-unlock {
+       background: var(--bg);
+       border-color: var(--bg);
+       color: var(--accent);
+    }
+    
+    #fileListPassword {
+       display: inline-block;
+       width: 120px; 
+       cursor:text;
+    }
+    
+    [id^="fileListPassword"] {
+       display: inline-block;
+       width: 120px; 
+       cursor:text;
     }
 
     .btn-primary2 {
@@ -1376,5 +1404,13 @@
     
     #keyhide {
         display: none;
+    }
+    
+    #encryptedFileManager div {
+        margin: 10px;
+    }
+    
+    #encryptedPassword {
+        cursor: text;
     }
     

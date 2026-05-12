@@ -57,7 +57,9 @@ function js(files, out, options = {}) {
 
         try {
             fs.writeFileSync(out, jsfile);
-        } catch(e) {}
+        } catch(e) { 
+            console.log(e);
+        }
 
         if (debug) {
             console.log('Successfully merged files to:', out);

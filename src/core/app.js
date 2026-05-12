@@ -161,6 +161,9 @@ let defaultArgs = [
     '--disable-speech-api',
     '--disable-remote-fonts',         // font fingerprinting
     '--no-pings',                 // hyperlink auditing
+    '--enable-features=WebAuthentication,WebAuthn', // hardware key
+    '--disable-features=WebAuthnFakeAuthenticator',
+
 
     // Process isolation
     '--site-per-process',
@@ -437,6 +440,61 @@ setInterval(() => {
 }, 5000);
 */
 
+ipcMain.handle('open-file-dialog', async () => {
+    const result = await dialog.showOpenDialog({
+        properties: ['openFile']
+    });
+    if (result.canceled) return null;
+    return result.filePaths[0];
+});
+
+ipcMain.handle('create-encrypted-file', async (event, inputPath, outputPath, password) => {
+    try {
+        await createEncodedFile(inputPath, outputPath, password);
+        return { success: true, outputPath };
+        } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('decrypt-file', async (event, inputPath, password) => {
+    try {
+        await decodeEncodedFile(inputPath, password);
+        return { success: true, out: inputPath.replace('encrypted_','') };
+        } catch (err) {
+        console.error('Decrypt error:', err);
+        return { success: false, error: err.message };
+    }
+});
+
+ipcMain.handle('read-dir', async (event, dirPath) => {
+    
+    const fs = require('fs');
+    
+    const filePath = path.join(app.getPath('userData'), dirPath);
+
+    if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath);
+    }
+
+    const files = fs.readdirSync(filePath, { withFileTypes: true });
+    return files.map(file => ({
+        name: file.name,
+        isDirectory: file.isDirectory()
+    }));
+});
+
+ipcMain.handle('get-user-path', () => {
+    
+    const filePath = path.join(app.getPath('userData'), 'private-files');
+
+    if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath);
+    }
+
+    return filePath;
+});
+         
 async function messageBox(message) {
   dialog.showMessageBox({
     type: 'info',
@@ -558,15 +616,6 @@ ipcMain.handle('pin-box', async (event) => {
     showWindow(300,170,w,150,'src/core/forms/ask-pin.html',false);
 });
 
-ipcMain.handle('create-encypted-file', async (event, filePath, fileName, password) => {
-    await createEncodedFile(
-        filePath,
-        fileName,
-        password,
-        (progress) => console.log(`Progress: ${progress}%`)
-    );
-});
-
 async function showWindow(w,h,x,y,f) {
     
     let preferences = {
@@ -603,7 +652,8 @@ async function showWindow(w,h,x,y,f) {
             safeDialogsMessage :'Blocked',
             disableBlinkFeatures:'Autofill,ServiceWorker',
             autoplayPolicy : 'user-gesture-required',
-            referrerpolicy: "no-referrer"
+            referrerpolicy: "no-referrer",
+            enableWebAuthn: true,
         }
         
       };
@@ -1204,7 +1254,6 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
    
 });
 
-
 // ===== END OF browser\ipc.js =====
 
 // ===== START OF browser\functions.js =====
@@ -1473,6 +1522,7 @@ function getFilePath(file) {
 // #####################################################################
 
 const c = require('crypto');
+const scrypt = require('scrypt-js');
 
 const ALGORITHM = 'aes-256-gcm';
 const SECRET_LENGTH = 32;
@@ -1676,7 +1726,7 @@ function encodePIN(pin, pinsalt) {
 
 function sha256(message) {
     const msgBuffer = new TextEncoder().encode(message)
-    const hashBuffer = crypto.subtle.digest('SHA-256', msgBuffer);
+    const hashBuffer = c.subtle.digest('SHA-256', msgBuffer);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
@@ -1829,78 +1879,85 @@ inputPath, outputPath, password, data = {}
 
 */
 
-function createEncodedFile(inputPath, outputPath, password) {
+
+/*
+    -----------------------------
+    N 	Memory 	Time (approx)
+    -----------------------------
+    32768 (2^15) 	~32MB 	~0.5s
+    65536 (2^16) 	~64MB 	~1s
+    131072 (2^17) 	~128MB 	~2s
+    262144 (2^18) 	~256MB 	~4s
+    524288 (2^19) 	~512MB 	~8s
+    -----------------------------
+*/
+
+async function createEncodedFile(inputPath, outputPath, password) {
     
+    const salt = c.randomBytes(16);
+    const iv = c.randomBytes(12);
+
+    const passwordBuffer = Buffer.from(password, 'utf8');
+    const key = await scrypt.scrypt(passwordBuffer, salt, 131072, 8, 1, 32);
+
     return new Promise((resolve, reject) => {
         
-        try {
+        const cipher = c.createCipheriv('aes-256-gcm', Buffer.from(key), iv);
+        const inputStream = fs.createReadStream(inputPath);
+        const outputStream = fs.createWriteStream(outputPath);
 
-            const salt = crypto.randomBytes(16);
-            const iv = crypto.randomBytes(12);
-            
-            crypto.scrypt(password, salt, 32, { N: 32768, r: 8, p: 1 }, (err, key) => {
-                if (err) throw err;
-                const cipher = crypto.createCipheriv('aes-256-gcm', key, iv);
-                const inputStream = fs.createReadStream(inputPath);
-                const outputStream = fs.createWriteStream(outputPath);
-                outputStream.write(salt);  // 16 bytes
-                outputStream.write(iv);    // 12 bytes
-                inputStream
-                    .pipe(cipher)
-                    .pipe(outputStream)
-                    .on('finish', () => {
-                        const authTag = cipher.getAuthTag();
-                        outputStream.write(authTag, () => {
-                            outputStream.close();
-                            resolve(true);
-                        });
-                    })
-                    .on('error', (err) => {
-                        reject(err);
-                    });
+        outputStream.write(salt);
+        outputStream.write(iv);
+        inputStream.pipe(cipher);
+
+        cipher.on('data', chunk => outputStream.write(chunk));
+        cipher.on('end', () => {
+            const authTag = cipher.getAuthTag();
+            outputStream.write(authTag, () => {
+                outputStream.end();
+                resolve(true);
             });
-            
-        } catch (err) {
-            reject(err);
-        }
+        });
+        cipher.on('error', reject);
+        inputStream.on('error', reject);
     });
 }
 
-function decodeEncodedFile(inputPath, outputPath, password) {
-    
+async function decodeEncodedFile(inputPath, password) {
+    const filePath = path.join(app.getPath('userData'), 'private-files');
+    const toDecode = path.join(filePath, inputPath);
+
+    const fileBuffer = fs.readFileSync(toDecode);
+    const salt = fileBuffer.slice(0, 16);
+    const iv = fileBuffer.slice(16, 28);
+    const authTag = fileBuffer.slice(fileBuffer.length - 16);
+    const encryptedData = fileBuffer.slice(28, fileBuffer.length - 16);
+
+    const passwordBuffer = Buffer.from(password, 'utf8');
+    const key = await scrypt.scrypt(passwordBuffer, salt, 131072, 8, 1, 32);
+
+    // 1) Ask the user where to save
+    const defaultName = inputPath.replace(/^encrypted_/, '');
+    const { filePath: savePath } = await dialog.showSaveDialog({
+        title: 'Save decrypted file',
+        defaultPath: path.join(app.getPath('downloads'), defaultName),
+        buttonLabel: 'Save'
+    });
+
+    if (!savePath) return false; // user cancelled
+
     return new Promise((resolve, reject) => {
-        
-        try {
-            
-            const filePath = path.join('private-files', inputPath);
-            
-            const inputStream = fs.createReadStream(filePath, { highWaterMark: 32 });
-            
-            inputStream.once('readable', () => {
-                const salt = inputStream.read(16);
-                const iv = inputStream.read(12);
-                crypto.scrypt(password, salt, 32, { N: 32768, r: 8, p: 1 }, (err, key) => {
-                    if (err) throw err;
-                    const decipher = crypto.createDecipheriv('aes-256-gcm', key, iv);
-                    const outputStream = fs.createWriteStream(outputPath);
-                    inputStream
-                        .pipe(decipher)
-                        .pipe(outputStream)
-                        .on('finish', () => {
-                            const authTag = inputStream.read(16);
-                            if (!authTag) throw new Error('Invalid encrypted file (missing auth tag)');
-                            decipher.setAuthTag(authTag);
-                            resolve(true);
-                        })
-                        .on('error', (err) => {
-                            reject(err);
-                        });
-                });
-            });
-            
-            } catch (err) {
-                reject(err);
-        }
+        const decipher = c.createDecipheriv('aes-256-gcm', key, iv);
+        decipher.setAuthTag(authTag);
+
+        const encryptedStream = require('stream').Readable.from(encryptedData);
+        const outputStream = fs.createWriteStream(savePath);
+
+        encryptedStream
+            .pipe(decipher)
+            .pipe(outputStream)
+            .on('finish', () => resolve(true))
+            .on('error', reject);
     });
 }
 
@@ -2994,7 +3051,8 @@ let webPreferences = {
     safeDialogsMessage :'Blocked',
     disableBlinkFeatures:'Autofill,ServiceWorker',
     autoplayPolicy : 'user-gesture-required',
-    referrerpolicy: "no-referrer"
+    referrerpolicy: "no-referrer",
+    enableWebAuthn: true,
 }
 
 // ===== END OF browser\webpreferences.js =====
