@@ -9,7 +9,7 @@ let backup = true;
   
 function js(files, out, options = {}) {
     
-    let { watch = false, debug = false, backup = false} = options;
+    let { watch = false, debug = false, backup = false } = options;
 
     if (debug) {
         console.log('Merging files:', files);

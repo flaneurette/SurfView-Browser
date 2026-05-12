@@ -310,9 +310,6 @@ async function launchBrowser(url) {
             });
         }
     }
-    
-    mainWindow.webContents.openDevTools();
-    SurfBrowserView.webContents.openDevTools();
 }
 
 async function addScript(code) {

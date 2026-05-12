@@ -419,13 +419,14 @@ async function decodeEncodedFile(inputPath, password) {
 
     // 1) Ask the user where to save
     const defaultName = inputPath.replace(/^encrypted_/, '');
+    
     const { filePath: savePath } = await dialog.showSaveDialog({
         title: 'Save decrypted file',
         defaultPath: path.join(app.getPath('downloads'), defaultName),
         buttonLabel: 'Save'
     });
 
-    if (!savePath) return false; // user cancelled
+    if (!savePath) return false; // User cancelled.
 
     return new Promise((resolve, reject) => {
         const decipher = c.createDecipheriv('aes-256-gcm', key, iv);

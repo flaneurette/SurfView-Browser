@@ -17,7 +17,7 @@
   },
   "devDependencies": {
     "electron-builder": "^26.8.1",
-    "electron-nightly": "^42.0.0-nightly.20260313"
+    "electron-nightly": "^44.0.0-nightly.20260512"
   },
   "build": {
     "appId": "com.surfview.app",
