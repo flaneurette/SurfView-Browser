@@ -40,6 +40,6 @@ const files = [
     surf.join('animate',  'animateBrowserView.js'),   
 ];
  
-include.js(files, browserapp, { watch: false, debug: true, backup: false });
+include.js(files, browserapp, { watch: false, debug: false, backup: false });
 
 require('./app.js');

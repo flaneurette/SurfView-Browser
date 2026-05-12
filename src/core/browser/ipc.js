@@ -57,7 +57,6 @@ ipcMain.handle('decrypt-file', async (event, inputPath, password) => {
         await decodeEncodedFile(inputPath, password);
         return { success: true, out: inputPath.replace('encrypted_','') };
         } catch (err) {
-        console.error('Decrypt error:', err);
         return { success: false, error: err.message };
     }
 });
