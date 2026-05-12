@@ -92,7 +92,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - April: better mode toggling for Image, Live and JavaScript mode.
 - April: integrated website scanner: which analyzes the code of every file on that website and generates a report, this is useful if you want to inspect the safety of that website. If something malicious is found, the scanner blocks access. Can be toggled on/off.
 - April 23rd: finalized version 1.7.9
-- May: finalized the file encryption manager, to encrypt files.
+- May: finalized the file encryption manager to encrypt files within SurfView. It now also is a secure file encryption container.
 - May: finalized version 1.8
 
 ## Tor use
