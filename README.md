@@ -42,6 +42,8 @@ See [BUILD.md](BUILD.md)
 
 New in SurfView v1.8:
 
+- Finalized the file encryption manager to encrypt files within SurfView; It now also is a secure file encryption container.
+
 - Tor onion routing is now available inside SurfView. Just toggle the switch, and your're using Tor! It uses the main tor.exe.
 You can also download it from torproject -> expert-package.
 
