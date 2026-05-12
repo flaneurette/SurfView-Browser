@@ -36,9 +36,6 @@ Thumbs.db
 
 # Tests
 test.js
-# Consolidated app files, generated on each launch.
-app.js
-src/core/app.js
 # No need for consecutive updates to these dynamic files.
 src/data/passwords.js
 src/data/bookmarks.js
