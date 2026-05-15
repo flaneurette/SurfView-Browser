@@ -26,7 +26,7 @@ What Image mode genuinely protects against:
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.8 SurfView - Rainbow
+#### v1.8 SurfView - Green Light
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.2/SurfView.Setup.1.8.2.exe)
  
