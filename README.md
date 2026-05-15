@@ -28,9 +28,9 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.8 SurfView - Rainbow
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8/SurfView.Setup.1.8.2.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.2/SurfView.Setup.1.8.2.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8/SurfView-1.8.2-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.2/SurfView-1.8.2-win.zip)
 
 ### 🏄 Build from source
 
