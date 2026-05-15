@@ -196,6 +196,7 @@ async function launchBrowser(url) {
             pageImage.className = 'page-image active';
         `);
         } catch(e) {console.log(e);}
+        renderLinks(); // fetch all links on page.
         livemode = false;
     } 
             
@@ -262,7 +263,6 @@ async function launchBrowser(url) {
             SurfBrowserView.webContents.close();
             SurfBrowserView.webContents.destroy();
             SurfBrowserView = null;
-            
         }
         
         setupWebSecurity();
@@ -288,7 +288,7 @@ async function launchBrowser(url) {
             width: parseInt(mainWindow.getContentSize()[0] - 251),
             height: parseInt(mainWindow.getContentSize()[1] - 105)
         });
-                
+        
         SurfBrowserView.webContents.setUserAgent(spoof.userAgent);
         
         if(privacyEnabled) { 
@@ -310,6 +310,9 @@ async function launchBrowser(url) {
             });
         }
     }
+    
+    renderLinks(); // fetch all links on page.
+
 }
 
 async function addScript(code) {
@@ -354,13 +357,18 @@ async function setupBrowserViewEventListeners() {
         }
     });
 
+    SurfBrowserView.webContents.on('did-finish-load', async () => {
+
+        await renderLinks();
+        
+    });
+
     // Frame finish load event
     SurfBrowserView.webContents.on('did-frame-finish-load', async (event, isMainFrame) => {
-            const { root } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.getDocument');
-            const { outerHTML } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.getOuterHTML', {
-                nodeId: root.nodeId
-            });
-            //console.log(outerHTML);
+        const { root } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.getDocument');
+        const { outerHTML } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.getOuterHTML', {
+        nodeId: root.nodeId
+        });
     });
 
     // Page finish load event
@@ -376,14 +384,10 @@ async function setupBrowserViewEventListeners() {
                     }
                 })();
             `);
+            
         } catch(e) {
             console.error('Error updating URL input:', e);
         }
-    });
-
-    // Page finish load event
-    SurfBrowserView.webContents.on('did-finish-load', async () => {
-
     });
 
     // Navigation event
@@ -405,6 +409,68 @@ async function setupBrowserViewEventListeners() {
     });
     
     return true;
+}
+    
+async function renderLinks() {
+    
+        const { root: { nodeId } } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.getDocument');
+        const { nodeIds } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.querySelectorAll', {
+          nodeId,
+          selector: 'a[href]'
+        });
+        
+        const links = [];
+        const cUrl = SurfBrowserView.webContents.getURL();
+        let hrefUrl = '';
+
+        try { 
+        for (const id of nodeIds) {
+            
+          const { outerHTML } = await SurfBrowserView.webContents.debugger.sendCommand('DOM.getOuterHTML', { nodeId: id });
+          const hrefMatch = outerHTML.match(/href="([^"]+)"\s*>(.*)<\/a>/);
+          const dll = null;
+          
+          try { 
+            if(['.exe','.zip','.rar','.msi','.pdf','.doc','.docx','.xls','.xlsx','.ppt','.pptx','.jpg','.jpeg','.png','.gif','.mp3','.mp4','.mov','.txt','.csv','.7z'].some(dl => hrefMatch.includes(dl))) {
+                dll = true;
+            }
+          } catch(e) {}
+          
+          if(!hrefMatch[1].startsWith('http') || !hrefMatch[1].startsWith('ftp')) {
+            // Relative link?
+            hrefUrl = cUrl + hrefMatch[1].replace(cUrl,'');
+            } else { 
+            hrefUrl = hrefMatch[1];
+          }
+
+          if(dll) {
+            linkType = 'download';
+            } else if(hrefMatch.includes(cUrl)) {
+            linkType = 'anchor';
+            } else if(hrefMatch.includes('mailto:')) {
+            linkType = 'mailto';
+            } else {
+            linkType = 'external'; 
+          }
+              
+          if (hrefMatch) {
+            links.push({ href: hrefUrl.replaceAll('./','/'), label: hrefMatch[2].replaceAll('./','/'), type: linkType });
+          }
+          
+        }
+        
+        } catch(e) {
+            console.log(e);
+        }
+        
+            
+         console.log(links);
+        
+        await mainWindow.webContents.executeJavaScript(`
+            (function() {
+                setLinks(${JSON.stringify(links)});
+            })();
+        `);   
 }
 
 async function takeFullPageScreenshotAsBase64(url) {

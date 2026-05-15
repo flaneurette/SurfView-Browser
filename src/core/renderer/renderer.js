@@ -852,8 +852,8 @@
     }
 
     function renderLinks() {
+        
         var filter = filterInput.value.toLowerCase();
-
         var filtered = allLinks.filter(function(l) {
             var tabOk =
                 currentTab === 'all' ||
@@ -876,11 +876,13 @@
         var html = '';
 
         filtered.forEach(function(link) {
+            
             var safeHref = sanitizeUrl(link.href);
             if (!safeHref) return;
 
             var dotClass = 'dot-' + escHtml(link.type);
             var badge = '';
+            
             if (link.type === 'external') badge = '<span class="link-badge badge-ext">ext</span>';
             else if (link.type === 'mailto') badge = '<span class="link-badge badge-mail">mail</span>';
             else if (link.type === 'download') badge = '<span class="link-badge badge-dl">dl</span>';
@@ -908,7 +910,7 @@
                 if (!url) return;
                 if (type === 'anchor') return;
                 if (type === 'mailto' || type === 'download') {
-                    //window.surfview.openExternal(url);
+                    // window.surfview.openExternal(url);
                     return;
                 }
                 whatIsAllowed(url);

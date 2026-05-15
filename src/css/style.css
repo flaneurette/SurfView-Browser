@@ -33,12 +33,12 @@
     }
 
     :root {
-       --bg:          #0e0f11; 
+       --bg:          #0e0f11;
        --surface:     #16181c;
        --panel:       #1c1e24;
        --border:      #2a2d35;
-       --accent:      #75c974;
-       --accent2:     #75c974;
+       --accent:      #999;
+       --accent2:     #999;
        --danger:      #f04a6a;
        --warn:        #f0b84a;
        --text:        #c8cdd8;
@@ -862,6 +862,7 @@
        overflow: hidden;
        text-overflow: ellipsis;
        margin-bottom: 2px;
+       text-transform: capitalize;
     }
 
     .link-url {
@@ -1408,6 +1409,7 @@
     
     #encryptedFileManager div {
         margin: 10px;
+        margin-left: 0px;
     }
     
     #encryptedPassword {
