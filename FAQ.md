@@ -1,0 +1,9 @@
+# Quick answers
+
+Common answers.
+
+# Encrypted file containers.
+
+Q: I get an error: NOENT, file cannot be found.
+
+A: This is because of Windows defender folder protection (controlled folder access). Either whitelist SurfView as an app, or disable protected folders.
