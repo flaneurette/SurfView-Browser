@@ -6,4 +6,4 @@ Common answers.
 
 Q: I get an error: NOENT, file cannot be found.
 
-A: This is because of Windows defender folder protection (controlled folder access). Either whitelist SurfView as an app, or disable protected folders.
+A: This is because of Windows defender folder protection (controlled folder access). Either whitelist SurfView as an app, or disable protected folders to /Documents/.
