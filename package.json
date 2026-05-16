@@ -1,6 +1,6 @@
 {
   "name": "SurfView",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "A security focused browser.",
   "main": "src/core/main.js",
   "scripts": {
