@@ -51,7 +51,7 @@
     
 async function unlockFile(file,password) {
 
-    const pathLink = await window.surfview.getUserPath() + '\\' + file;
+    const pathLink = await window.surfview.getDocumentsPath() + '\\' + file;
     const pw = document.getElementById(password).value;
     const result = await window.surfview.decryptFile(file, pw);
     const btnEncryptFile = document.getElementById('btnEncryptFile');
@@ -62,11 +62,22 @@ async function unlockFile(file,password) {
         window.surfview.dialog('Error: ' + result.error);
     } 
 }
+
+async function deleteFile(file) {
+    const shouldDelete = await window.surfview.showConfirmation();
+    if(shouldDelete) { 
+        await window.surfview.deleteFile(file);
+        document.location.reload();
+        } else {
+        // nothing to do.
+    }
+}
+
     
 document.addEventListener('DOMContentLoaded', async () => {
 
-    const files = await window.surfview.readDir('private-files');
-    const privateFolderPath = await window.surfview.getUserPath('private-files');
+    const files = await window.surfview.readDocumentsDir('private-files');
+    const privateFolderPath = await window.surfview.getDocumentsPath('private-files');
     const closeButton = document.getElementById('closeRightMenu');
     
     if (closeButton) {
@@ -103,7 +114,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         const password = document.getElementById('encryptedPassword').value;
         const fileName = selectedFilePath.split('\\').pop();
         const outputPath = privateFolderPath + '\\' + `encrypted_${fileName}`;
-        console.log(outputPath);
         
         document.getElementById('btnEncryptFile').textContent = 'Encrypting file...';
         
@@ -119,14 +129,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     if (files.length >= 1) {
+    
         let body = document.getElementById('body');
         body.style.overflowY = 'auto';
 
         let parent = document.getElementById('fileList');
-
+        let privateFolderPath1 = await window.surfview.getDocumentsPath('private-files');
         for (let i = 0; i < files.length; i++) {
             const child = document.createElement('div');
+            let fp = privateFolderPath1 + '\\' + files[i].name;
             child.innerHTML = `<input class="btn btn-primary" type="password" placeholder="password" id="fileListPassword${i}" /><button class="btn1 btn-primary-unlock" onclick="unlockFile('${files[i].name}','fileListPassword${i}');">🔓 - ${files[i].name}</button>`;
+            child.innerHTML += `<button onclick="deleteFile('${fp.replace(/\\/g, '/')}');" class="btn1 btn-primary-unlock">Delete</button>`;
             parent.appendChild(child);
         }
     }

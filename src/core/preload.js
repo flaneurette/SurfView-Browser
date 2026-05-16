@@ -61,8 +61,12 @@ contextBridge.exposeInMainWorld('surfview', {
   openFileDialog: () => ipcRenderer.invoke('open-file-dialog'),
   readDir: (path) => ipcRenderer.invoke('read-dir', path),
   getUserPath: () => ipcRenderer.invoke('get-user-path'),
+  getDocumentsPath: (path) => ipcRenderer.invoke('get-documents-path', path),
+  readDocumentsDir: (path) => ipcRenderer.invoke('read-documents-dir', path),
   createEncryptedFile: (inputPath, outputPath, password) => ipcRenderer.invoke('create-encrypted-file', inputPath, outputPath, password),
   decryptFile: (inputPath, password) => ipcRenderer.invoke('decrypt-file', inputPath, password),
+  deleteFile: (inputPath) => ipcRenderer.invoke('delete-file', inputPath),
+  showConfirmation: () => ipcRenderer.invoke('show-confirmation'),
   getElementById: (id) => document.getElementById(id),
 });
 

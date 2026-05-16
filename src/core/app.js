@@ -483,6 +483,49 @@ ipcMain.handle('read-dir', async (event, dirPath) => {
     }));
 });
 
+ipcMain.handle('read-documents-dir', async (event, dirPath) => {
+    
+    try { 
+
+        const fs = require('fs');
+        
+        const filePath = path.join(app.getPath('documents'), dirPath);
+
+        if (!fs.existsSync(filePath)) {
+            fs.mkdirSync(filePath);
+        }
+
+        const files = fs.readdirSync(filePath, { withFileTypes: true });
+        return files.map(file => ({
+            name: file.name,
+            isDirectory: file.isDirectory()
+        }));
+    
+    } catch(e) {
+        
+          await dialog.showMessageBox({
+            type: 'info',
+            title: 'Surfview Notification',
+            message: 'Cannot access /Documents/ folder. You might want to allow SurfView to access the /Documents/ folder, in Windows defender, or turn off "Controlled folder access".',
+            buttons: ['OK'],
+            cancelId: 0,
+            noLink: true
+          }); 
+    }
+    
+});
+
+ipcMain.handle('get-documents-path', () => {
+    
+    const filePath = path.join(app.getPath('documents'), 'private-files');
+
+    if (!fs.existsSync(filePath)) {
+        fs.mkdirSync(filePath);
+    }
+
+    return filePath;
+});
+
 ipcMain.handle('get-user-path', () => {
     
     const filePath = path.join(app.getPath('userData'), 'private-files');
@@ -1251,6 +1294,28 @@ ipcMain.handle('render-url', async (_event, rawUrl, vT) => {
     
     launchBrowser(url);
    
+});
+
+ipcMain.handle('delete-file', async (event, filePath) => {
+  try {
+    await fs.promises.unlink(filePath);
+    return { success: true };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+});
+
+ipcMain.handle('show-confirmation', async () => {
+  const result = await dialog.showMessageBox({
+    type: 'question',
+    buttons: ['Yes', 'No'],
+    title: 'Confirm Deletion',
+    message: 'Are you sure you want to delete this file?',
+    detail: 'This action cannot be undone.',
+    cancelId: 1 // Index of the "No" button (optional)
+  });
+
+  return result.response === 0; // Returns true if "Yes" was clicked
 });
 
 // ===== END OF browser\ipc.js =====
