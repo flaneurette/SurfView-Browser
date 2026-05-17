@@ -1216,8 +1216,10 @@
     function removeBookmark(url) {
         
         var box = document.getElementById('confirmBox');
+        
         document.getElementById('confirmMsg').textContent = 'Remove ' + sanitizeUrl(shortUrl(url)) + '?';
         box.className = 'confirm-box active';
+        
         document.getElementById('confirmYes').onclick = function() {
             box.className = 'confirm-box hide';
             window.surfview.removeBookmark(url).then(function(ok) {

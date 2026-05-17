@@ -12,14 +12,6 @@ It also bundles tor.exe with it, and it has a tor toggle, so you can surf freely
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
 
-What Image mode genuinely protects against:
-
-- JavaScript execution - fully blocked at the Puppeteer level
-- XSS, XSRF, 3rd party content, drive-by downloads, malicious iframes - all dead
-- CSS-based tracking and fingerprinting - neutered
-- Malicious font/media exploits that need a live DOM - gone
-- Cookie theft, session hijacking via scripts - not possible
-
 ## Ways to Surf
 
 ### 🏄 Run the installer
