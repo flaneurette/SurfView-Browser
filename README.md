@@ -67,7 +67,6 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - March 15th: custom surfview browser locale and timezone headers are injected before requests, spoofing them correctly.
 - March 15th: added spoof.js where you can set your own spoofed profile. (randomized every session)
 - March 15th: WebRTC is now detected when JavaScript is on and blocked before it can execute.
-- March 15th: SurfView passed all browserleaks.com JavaScript tests, except for font fingerprinting. We assume you have default fonts anyway.
 - Mach 15th: When JavaScript is enabled, SurfView inspects JavaScript before it executes and renders, and also runs deobfuscation routines to prevent JavaScript obfuscation and encoding, to hide payloads, or complex RegExp bypassing.  It is also possible to block additional JavaScript tags in strict.js
 - Mach 15th: It is now very difficult to fingerprint SurfView as it emits no detectable prints (passed many tests), but remember: JavaScript comes with a risk. Only enable/toggle it, if you need it in a specific website. If disabled, it's next to impossible to fingerprint.
 - March 16th: all internal nodejs requests also proxy over Tor, if enabled/toggled. No leaking of requests over different IP's
