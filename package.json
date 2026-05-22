@@ -10,22 +10,21 @@
     "build-linux": "electron-builder --linux"
   },
   "dependencies": {
+    "puppeteer": "^24.39.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "scrypt-js": "^3.0.1"
   },
   "devDependencies": {
-    "electron": "^41.0.2",
     "electron-builder": "^26.8.1",
-    "electron-nightly": "^44.0.0-nightly.20260512",
-    "puppeteer": "^24.39.1"
+    "electron-nightly": "^42.0.0-nightly.20260313"
   },
   "build": {
     "appId": "com.surfview.app",
     "productName": "SurfView",
     "icon": "assets/ico.ico",
     "electronDist": "node_modules/electron-nightly/dist",
-    "electronVersion": "44.0.0-nightly.20260512",
+    "electronVersion": "42.0.0-nightly.20260313",
     "directories": {
       "output": "dist"
     },

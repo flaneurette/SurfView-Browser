@@ -19,27 +19,28 @@ git clone https://github.com/flaneurette/SurfView-Browser.git
 cd SurfView-Browser
 ```
 
-## Install dependencies
+#### Clean everything first (prevents conflicts)
+```Delete: node_modules, package-lock.json, dist/, .electron-builder/```
 
-```
-npm install electron@latest puppeteer@latest --save-dev
-npm list puppeteer
-npm list electron
-```
+#### Install dependencies exactly as you specified
+```npm install puppeteer@^24.39.1 puppeteer-extra@^3.3.6 puppeteer-extra-plugin-stealth@^2.11.2```
 
-We use a nightly electron Chrome, which is the lastest from electron:
+#### Install electron-nightly as devDependency
+```npm install electron-nightly@42.0.0-nightly.20260313 --save-dev```
 
-```
-npm install electron-nightly@latest --force --save-dev
+#### Install electron-nightly's native binaries
+```node node_modules/electron-nightly/install.js```
 
-Or:
-------------------------------------------------------------------------
-Go to https://github.com/electron/electron/releases
-Filter by "nightly"
-npm install electron-nightly@42.0.0-nightly.20260313 --save-dev
-node node_modules/electron-nightly/install.js
+#### Check installed versions
+```npm ls puppeteer electron-nightly```
+
+#### Verify electron-nightly installation
+```npx electron-nightly --version```
+
 ```
 Then set:
+```
+
 ```
 In build:
     "electronDist": "node_modules/electron-nightly/dist",
