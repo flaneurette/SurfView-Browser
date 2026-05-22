@@ -43,20 +43,19 @@ cd SurfView-Browser
 
 ```npx electron-nightly --version```
 
-```
-Then set:
-```
+- Then set in package.json:
 
 ```
-In build:
-    "electronDist": "node_modules/electron-nightly/dist",
-    "electronVersion": "42.0.0-nightly.20260313",
-    
-In devDependencies:    
-"devDependencies": {
+  "dependencies": {
+    "puppeteer": "^24.39.1",
+    "puppeteer-extra": "^3.3.6",
+    "puppeteer-extra-plugin-stealth": "^2.11.2",
+    "scrypt-js": "^3.0.1"
+  },
+  "devDependencies": {
     "electron-builder": "^26.8.1",
     "electron-nightly": "^42.0.0-nightly.20260313"
-},
+  },
 ```
 
 In `package.json`
