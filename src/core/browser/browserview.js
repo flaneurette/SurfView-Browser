@@ -131,27 +131,34 @@ async function applySpoofing() {
 
     app.commandLine.appendSwitch('lang', spoof.locale);
     app.commandLine.appendSwitch('timezone', spoof.timezone);
-
+    
     try {
         SurfBrowserView.webContents.debugger.attach('1.3');
     } catch(e){
-        
+        console.log(e);
     }
     
-    await SurfBrowserView.webContents.debugger.sendCommand('Emulation.setUserAgentOverride', {
-        userAgent: spoof.userAgent,
-        userAgentMetadata: {
-            ...spoof.userAgentMetadata
-        }
-    });
+    try {
 
-    await SurfBrowserView.webContents.debugger.sendCommand('Emulation.setTimezoneOverride', {
-        timezoneId: spoof.timezone
-    });
+        await SurfBrowserView.webContents.debugger.sendCommand('Emulation.setUserAgentOverride', {
+            userAgent: spoof.userAgent,
+            userAgentMetadata: {
+                ...spoof.userAgentMetadata
+            }
+        });
 
-    await SurfBrowserView.webContents.debugger.sendCommand('Emulation.setLocaleOverride', {
-        locale: spoof.locale
-    });
+        await SurfBrowserView.webContents.debugger.sendCommand('Emulation.setTimezoneOverride', {
+            timezoneId: spoof.timezone
+        });
+
+        await SurfBrowserView.webContents.debugger.sendCommand('Emulation.setLocaleOverride', {
+            locale: spoof.locale
+        });
+    
+    } catch(e) {
+        console.log(e);
+    }
+    
     
     SurfBrowserView.webContents.debugger.on('message', (event, method, params) => {
         try {
@@ -161,7 +168,7 @@ async function applySpoofing() {
                     userAgentMetadata: spoof.userAgentMetadata
                 });
             }
-         } catch(e) {}
+         } catch(e) { console.log(e); }
     });
     
     SurfBrowserView.webContents.debugger.on('detach', (event, reason) => {
@@ -170,7 +177,7 @@ async function applySpoofing() {
                 if (reason !== 'target_closed' || reason !== 'target closed' ) { 
                     SurfBrowserView.webContents.debugger.attach('1.3');
                 }
-        } catch(e) {}
+        } catch(e) { console.log(e); }
     });          
 }
 

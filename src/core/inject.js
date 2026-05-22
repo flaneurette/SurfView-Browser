@@ -1,10 +1,48 @@
 const { contextBridge, webFrame, ipcRenderer} = require('electron');
- 
 
 const privacy_script = `
 
     //(function() {
-    
+
+    [
+        ['hardwareConcurrency', 4],
+        ['deviceMemory', 8],
+        ['plugins', []],
+        ['mimeTypes', []],
+        ['permissions', { query: () => Promise.reject('Not allowed') }],
+        ['geolocation', { getCurrentPosition: () => {}, watchPosition: () => {} }],
+        ['connection', undefined],
+        ['getUserMedia', undefined],
+        ['webkitGetUserMedia', undefined],
+        ['requestMIDIAccess', undefined],
+        ['requestMediaKeySystemAccess', undefined],
+        ['getInstalledRelatedApps', undefined],
+        ['registerProtocolHandler', () => {}],
+        ['adAuctionComponents', undefined],
+        ['runAdAuction', undefined],
+        ['canLoadAdAuctionFencedFrame', undefined],
+        ['joinAdInterestGroup', undefined],
+        ['leaveAdInterestGroup', undefined],
+        ['updateAdInterestGroups', undefined],
+        ['clearOriginJoinedAdInterestGroups', undefined],
+        ['createAuctionNonce', undefined],
+        ['getInterestGroupAdAuctionData', undefined],
+        ['deprecatedReplaceInURN', undefined],
+        ['deprecatedURNToURL', undefined],
+        ['sendBeacon', false],
+        ['createHandwritingRecognizer', undefined],
+        ['queryHandwritingRecognizer', undefined],
+        ['setAppBadge', undefined],
+        ['clearAppBadge', undefined]
+    ].forEach(([key, value]) => {
+        try {
+            Object.defineProperty(navigator, key, {
+                get: () => value,
+                configurable: true
+            });
+        } catch(e) {  }
+    });
+
     try { 
     
     Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
@@ -69,44 +107,6 @@ const privacy_script = `
         configurable: false
     });
 
-    [
-        ['hardwareConcurrency', 4],
-        ['deviceMemory', 8],
-        ['plugins', []],
-        ['mimeTypes', []],
-        ['permissions', { query: () => Promise.reject('Not allowed') }],
-        ['geolocation', { getCurrentPosition: () => {}, watchPosition: () => {} }],
-        ['connection', undefined],
-        ['getUserMedia', undefined],
-        ['webkitGetUserMedia', undefined],
-        ['requestMIDIAccess', undefined],
-        ['requestMediaKeySystemAccess', undefined],
-        ['getInstalledRelatedApps', undefined],
-        ['registerProtocolHandler', () => {}],
-        ['adAuctionComponents', undefined],
-        ['runAdAuction', undefined],
-        ['canLoadAdAuctionFencedFrame', undefined],
-        ['joinAdInterestGroup', undefined],
-        ['leaveAdInterestGroup', undefined],
-        ['updateAdInterestGroups', undefined],
-        ['clearOriginJoinedAdInterestGroups', undefined],
-        ['createAuctionNonce', undefined],
-        ['getInterestGroupAdAuctionData', undefined],
-        ['deprecatedReplaceInURN', undefined],
-        ['deprecatedURNToURL', undefined],
-        ['sendBeacon', false],
-        ['createHandwritingRecognizer', undefined],
-        ['queryHandwritingRecognizer', undefined],
-        ['setAppBadge', undefined],
-        ['clearAppBadge', undefined]
-    ].forEach(([key, value]) => {
-        try {
-            Object.defineProperty(navigator, key, {
-                get: () => value,
-                configurable: true
-            });
-        } catch(e) {}
-    });
 
     [
         'PluginArray', 'MimeTypeArray', 'NetworkInformation', 'Scheduling',
@@ -123,7 +123,7 @@ const privacy_script = `
         
         try {
             Object.defineProperty(navigator, key, { get: () => undefined });
-        } catch(e) {}
+        } catch(e) {  }
         
     });
     
@@ -148,7 +148,7 @@ const privacy_script = `
                 get: () => value,
                 configurable: true
             });
-        } catch(e) {}
+        } catch(e) {  }
         
     });
 
@@ -163,7 +163,7 @@ const privacy_script = `
             })
         });
         
-    } catch(e) {}
+    } catch(e) {  }
 
     try {
         
@@ -221,12 +221,6 @@ const privacy_script = `
             configurable: true // Allow redefinition later
           });
         });
-
-        /*
-        const originalGetComputedStyle = window.getComputedStyle;
-        window.getComputedStyle = function(element, pseudoElt) {
-          const style = originalGetComputedStyle.call(this, element, pseudoElt);
-        */
         
           Object.defineProperty(style, 'fontFamily', {
             get: () => ['Arial', 'Times New Roman', 'Courier New'][Math.floor(Math.random() * 3)]
@@ -299,7 +293,7 @@ const privacy_script = `
           configurable: true
         });
           
-       } catch(e) {}
+       } catch(e) {  }
 
         Element.getClientRects = function() { return false; }
         Element.getBoundingClientRect = function() { return false; }
@@ -308,9 +302,35 @@ const privacy_script = `
         Object.defineProperty(window, 'speechSynthesis', { value: undefined });
         window.SpeechSynthesisUtterance = undefined;
 
-        } catch(e) {}
+        /*
+            const originalGetComputedStyle = window.getComputedStyle;
+            window.getComputedStyle = function(element, pseudoElt) {
+              const style = originalGetComputedStyle.call(this, element, pseudoElt);
+              
+            } catch(e) {  }
+        */
     
    //})();
 `;
 
 webFrame.executeJavaScript(privacy_script);
+
+// Fallback if anything fails to spoof.
+
+webFrame.executeJavaScript(`
+    Object.defineProperty(window.screen, 'width', { value: 1920, configurable: true });
+    Object.defineProperty(window.screen, 'height', { value: 1080, configurable: true });
+    Object.defineProperty(window.screen, 'availWidth', { value: 1920, configurable: true });
+    Object.defineProperty(window.screen, 'availHeight', { value: 1080, configurable: true });
+    Object.defineProperty(navigator, 'hardwareConcurrency', { value: 4, configurable: true });
+    Object.defineProperty(navigator, 'deviceMemory', { value: 8, configurable: true });
+    Object.defineProperty(navigator, 'connection', { value: false, configurable: true });
+    Object.defineProperty(navigator, 'mozConnection', { value: false, configurable: true });
+    Object.defineProperty(navigator, 'webkitConnection', { value: false, configurable: true });
+    Object.defineProperty(navigator, 'permissions', { value: false, configurable: true  });
+    Object.defineProperty(navigator, 'battery', { value: false, configurable: true  });
+    Object.defineProperty(navigator, 'plugins', { value: false, configurable: true  });
+    Object.defineProperty(window, 'OfflineAudioContext', { value: false, configurable: true  });
+    Object.defineProperty(window, 'webkitOfflineAudioContext', { value: false, configurable: true  });
+`);
+   
