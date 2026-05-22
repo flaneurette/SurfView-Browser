@@ -86,8 +86,8 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - April: integrated website scanner: which analyzes the code of every file on that website and generates a report, this is useful if you want to inspect the safety of that website. If something malicious is found, the scanner blocks access. Can be toggled on/off.
 - April 23rd: finalized version 1.7.9
 - May: finalized the file encryption manager to encrypt files within SurfView. It now also is a secure file encryption container.
-- May: finalized version 1.8
-- May: hardware keys support now enabled: FIDO, Yubikey, Feitan, etc.
+- May: hardware security keys support now supported.
+- May: finalized version 1.8.4
 
 ## Tor use
 
