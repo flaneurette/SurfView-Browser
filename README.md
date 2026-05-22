@@ -87,6 +87,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - April 23rd: finalized version 1.7.9
 - May: finalized the file encryption manager to encrypt files within SurfView. It now also is a secure file encryption container.
 - May: finalized version 1.8
+- May: hardware keys support now enabled: FIDO, Yubikey, Feitan, etc.
 
 ## Tor use
 
