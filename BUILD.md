@@ -19,22 +19,22 @@ git clone https://github.com/flaneurette/SurfView-Browser.git
 cd SurfView-Browser
 ```
 
-#### Clean everything first (prevents conflicts)
+Clean everything first (prevents conflicts)
 ```Delete: node_modules, package-lock.json, dist/, .electron-builder/```
 
-#### Install dependencies exactly as you specified
+Install dependencies exactly as you specified
 ```npm install puppeteer@^24.39.1 puppeteer-extra@^3.3.6 puppeteer-extra-plugin-stealth@^2.11.2```
 
-#### Install electron-nightly as devDependency
+Install electron-nightly as devDependency
 ```npm install electron-nightly@42.0.0-nightly.20260313 --save-dev```
 
-#### Install electron-nightly's native binaries
+Install electron-nightly's native binaries
 ```node node_modules/electron-nightly/install.js```
 
-#### Check installed versions
+Check installed versions
 ```npm ls puppeteer electron-nightly```
 
-#### Verify electron-nightly installation
+Verify electron-nightly installation
 ```npx electron-nightly --version```
 
 ```
@@ -87,30 +87,6 @@ npm run build-linux
 ```
 
 Output is placed in the `dist/` folder.
-
-## Project structure
-
-```
-SurfView-Browser/
-  src/
-    main.js       - Electron main process. Puppeteer rendering pipeline lives here.
-    preload.js    - Narrow IPC bridge between main and renderer.
-    index.html    - App shell. Renderer entry point.
-    renderer.js   - All UI logic. No direct network access.
-  package.json
-  README.md
-  BUILD.md
-```
-
-## How the security model works
-
-- The renderer process is fully sandboxed (contextIsolation, sandbox: true)
-- All network access happens exclusively in the main process via Puppeteer
-- JavaScript is disabled in Puppeteer before the page loads
-- Script, XHR, fetch, and WebSocket requests are blocked at the network level
-- Each page load spawns a fresh Chromium process that is killed after capture
-- The renderer only ever receives a PNG buffer and a structured link list
-- javascript: href schemes are dropped during link extraction
 
 ## Troubleshooting
 
