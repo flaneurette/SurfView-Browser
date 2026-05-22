@@ -58,8 +58,6 @@ cd SurfView-Browser
   },
 ```
 
-In `package.json`
-
 This will take a few minutes on first run as it downloads Electron and
 a bundled Chromium binary (~300MB total).
 
