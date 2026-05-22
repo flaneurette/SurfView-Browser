@@ -23,7 +23,7 @@ cd SurfView-Browser
 
 ```Delete: node_modules, package-lock.json, dist/, .electron-builder/```
 
-- Install dependencies exactly as you specified
+- Install dependencies
 
 ```npm install puppeteer@^24.39.1 puppeteer-extra@^3.3.6 puppeteer-extra-plugin-stealth@^2.11.2```
 
