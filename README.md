@@ -1,4 +1,4 @@
-# SurfView Browser
+# ~ SurfView Browser
 
 SurfView is a security-focused browser, that has 3 security modes.
 
@@ -40,25 +40,25 @@ SurfView uses 2 sandboxes, and incognito mode for extra security.
 |__________________________________________________________________________________________________________________|
 ```
 
-## Ways to Surf
+## ~ Ways to Surf
 
-### 🏄 Run the installer
+### ~ Run the installer
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.8 SurfView - Light Feather
+#### ~ v1.8 SurfView - Light Feather
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView.Setup.1.8.4.exe)
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView-1.8.4-win.zip)
 
-### 🏄 Build from source
+### ~ Build from source
 
 Roll your own:
 
 See [BUILD.md](BUILD.md)
 
-### Updates
+### ~ Updates
 
 New in SurfView v1.8:
 
@@ -76,7 +76,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 - Integrated a vault password manager.
 
-### SurfView browser Changelog
+### ~ SurfView browser Changelog
 
 - Integrated Tor into SurfView browser, now Onion routing is available for Surfview! 
 - Webview loading of live websites (with JavaScript blocked)
@@ -117,14 +117,14 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - May: hardware security keys support.
 - May: finalized version 1.8.4
 
-## Tor use
+## ~ Tor use
 
 If using Tor, try to prevent toggling JavaScript on. While SurfView does detect WebRTC and blocks it before it can run, it cannot detect it 100% bulletproof. The nature of JavaScript, is, that it's extremely difficult to cover all edgecases.
 A persistent attacker could write a sophisticated script, enabling WebRTC and unmasking your real ip. 
 
 To be 100% sure: use a extra tailscale, wireguard or VPN tunnel, and then use Tor as the extra hop. If Tor breaks, only the tunnel IP is then known. This is layered redundancy.
 
-## Checks
+## ~ Checks
 
 These checks should not reveal anything, except default user-agent.
 
@@ -138,21 +138,21 @@ https://amiunique.org/fingerprint - academic project, shows how unique you are a
 
 https://deviceinfo.me - broad device/browser info dump
 
-## Motivation
+## ~ Motivation
 
 After seeing another 50+ security patches land in Firefox and Chrome -
 as happens every few weeks, and has for two decades - it became clear
 that patching an execution engine forever is not a sustainable security
 model. SurfView takes a different approach: remove execution in the viewport entirely.
 
-## Credits
+## ~ Credits
 
 Created by Flaneurette, together with [Claude AI](https://claude.ai) for baseline, code review, analysis, refactoring and second-opinion.
 
 Built on [Node.js](https://nodejs.org) / [npm](https://npmjs.com) /
 [Electron](https://electronjs.org) / [Puppeteer](https://pptr.dev)
 
-## License
+## ~ License
 
 SurfView is free to use, modify, adapt. SurfView is without warranty. 
 The authors cannot be held responsibile for any damage or liability, 
