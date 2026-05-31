@@ -1,5 +1,9 @@
 # ~ SurfView Browser
-
+```
+~~~~~~~~~~~~~~~~~~~~~~~  ~~~~ ~~~~~~~~~~~~ ~~~~~ ~~~~~~~~~~~~~~~~~~ ~~~~~        
+    ~~~~~~~ SurfView Browser ~~~~~~~~ ~~ ~~~~~~ ~~~~ ~~~~~~~~~~~~~~~~~~ ~~ ~~~~ ~~~
+~~~~~~~~~~~~~~~~~~~~~~~ ~ ~~~~~ ~~~~~~~~~~~~~ ~~~ ~~~~~~~~~ ~~ ~~~ ~~~~~~
+```
 SurfView is a security-focused browser, that has 3 security modes.
 
 - `Image mode`: default. No JavaScript, no code. Sandboxed. 
