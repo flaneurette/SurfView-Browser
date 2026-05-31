@@ -10,6 +10,7 @@ It also bundles tor.exe with it, and it has a tor toggle, so you can surf freely
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
 ```
+Impression:
  __________________________________________________________________________________________________________________
 | file   edit   view   window   help                                                                               |
 | SURFVIEW    (LIVE MODE)    BOOKMARKS                                                                   (TOR)     |
