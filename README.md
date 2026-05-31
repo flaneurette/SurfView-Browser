@@ -15,8 +15,8 @@ Impression:
 | file   edit   view   window   help                                                                               |
 | SURFVIEW    (LIVE MODE)    BOOKMARKS                                                                   (TOR)     |
 |__________________________________________________________________________________________________________________|
-|                                                                                                                  | 
-|  < >  O  |https://github.com/flaneurette______________________________________|  [RENDER] []   key  lock folder  |       
+|                                                                                                                  |
+|  < >  O  |https://github.com/flaneurette______________________________________|  [RENDER] []   key  lock folder  |
 |__________________________________________________________________________________________________________________|
 | SurfView Browser                                                                        | LINKS              (3) |
 |                                                                                         | ALL  EXT  INT  OTHER   |
