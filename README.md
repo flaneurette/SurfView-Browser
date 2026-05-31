@@ -43,23 +43,23 @@ Impression:
 
 ## ~ Ways to Surf
 
-### ~ Run the installer
+### Run the installer
 
 Download your preferred version from the Releases page and install it.
 
-#### ~ v1.8 SurfView - Light Feather
+#### v1.8 SurfView - Light Feather
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView.Setup.1.8.4.exe)
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView-1.8.4-win.zip)
 
-### ~ Build from source
+### Build from source
 
 Roll your own:
 
 See [BUILD.md](BUILD.md)
 
-### ~ Updates
+### Updates
 
 New in SurfView v1.8:
 
@@ -77,7 +77,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 
 - Integrated a vault password manager.
 
-### ~ SurfView browser Changelog
+### SurfView browser Changelog
 
 - Integrated Tor into SurfView browser, now Onion routing is available for Surfview! 
 - Webview loading of live websites (with JavaScript blocked)
