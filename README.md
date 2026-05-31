@@ -18,7 +18,7 @@ SurfView uses 2 sandboxes, and incognito mode for extra security.
 
 Download your preferred version from the Releases page and install it.
 
-#### v1.8 SurfView - Green Light
+#### v1.8 SurfView - Light Feather
 
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView.Setup.1.8.4.exe)
  
