@@ -8,8 +8,6 @@ SurfView is a security-focused browser, that has 3 security modes.
 
 It also bundles tor.exe with it, and it has a tor toggle, so you can surf freely and secure.
 
-<img src="https://github.com/flaneurette/SurfView-Browser/blob/main/src/img/SurfView-FirstRun.png">
-
 SurfView uses 2 sandboxes, and incognito mode for extra security.
 
 ## Ways to Surf
