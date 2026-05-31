@@ -9,6 +9,36 @@ SurfView is a security-focused browser, that has 3 security modes.
 It also bundles tor.exe with it, and it has a tor toggle, so you can surf freely and secure.
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
+```
+ __________________________________________________________________________________________________________________
+| file   edit   view   window   help                                                                               |
+| SURFVIEW    (LIVE MODE)    BOOKMARKS                                                                   (TOR)     |
+|__________________________________________________________________________________________________________________|
+|                                                                                                                  | 
+|  < >  O  |https://github.com/flaneurette______________________________________|  [RENDER] []   key  lock folder  |       
+|__________________________________________________________________________________________________________________|
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|                                                                                                                  |
+|__________________________________________________________________________________________________________________|
+|  Image mode  []  Live mod  [v]  Javascrip  [v]  Webscanner  []  Privacy [v]                                      |
+|__________________________________________________________________________________________________________________|
+```
 
 ## Ways to Surf
 
