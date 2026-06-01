@@ -45,9 +45,9 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.8 SurfView - Light Feather
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView.Setup.1.8.4.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.5/SurfView.Setup.1.8.5.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.4/SurfView-1.8.4-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.5/SurfView-1.8.5-win.zip)
 
 ### Build from source
 
@@ -86,7 +86,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - Much code overhaul.
 - Thorough testing, AI peer reviewing.
 - Webview is no longer persistent, but temporary for each request. (better privacy)
-- Updated to Chrome nightly 147.0.7727.0 (will not show, as we spoof user-agent)
+- Updated to Chrome nightly, (will not show, as we spoof user-agent)
 - March 15th: fingerprinting is now made very difficult, even with JavaScript enabled. webgl, geolocation, network, battery, mediaDevices are disabled.
 - March 15th: not leaking through canvas.
 - March 15th: custom surfview browser locale and timezone headers are injected before requests, spoofing them correctly.
@@ -113,6 +113,7 @@ When enabled it runs in a webview sandbox, which is very restricted by default.
 - May: finalized the file encryption manager to encrypt files within SurfView. It now also is a secure file encryption container.
 - May: hardware security keys support.
 - May: finalized version 1.8.4
+- June 2nd: finalized version 1.8.5: Light Feather.
 
 ## ~ Tor use
 
