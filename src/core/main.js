@@ -41,5 +41,4 @@ const files = [
 ];
  
 include.js(files, browserapp, { watch: false, debug: false, backup: false });
-
 require('./app.js');

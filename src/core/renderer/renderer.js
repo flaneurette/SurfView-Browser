@@ -146,7 +146,7 @@
               { forward: false }
             );
         });
-
+        
         pwManager.addEventListener('click', () => {
             let w = parseInt(window.innerWidth / 2.5);
             window.surfview.showWindow(500,500,w,150,'src/core/forms/password-manager.html');
@@ -298,6 +298,10 @@
 
     } catch (e) {}
 
+    function loadDevTools() {
+        window.surfview.modalInspectDev();
+    }
+        
     function getValue(val) {
         window.surfview.getValue(val);    
     }

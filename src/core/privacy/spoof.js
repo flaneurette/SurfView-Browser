@@ -66,6 +66,6 @@ spoof = {
 const SPOOFED_UA = spoof.userAgent;
 
 // Specific Optimizations
-defaultArgs.push('--lang='+spoof.locale); // Avoids locale leaks
-defaultArgs.push('--languages='+spoof.languages); // Avoids locale leaks
-defaultArgs.push('--window-size='+spoof.width+','+spoof.height); // Standardized viewport
+defaultArgs.push('--lang=' + spoof.locale); // Avoids locale leaks
+defaultArgs.push('--languages=' + spoof.languages); // Avoids locale leaks
+defaultArgs.push('--window-size=' + spoof.width+','+spoof.height); // Standardized viewport

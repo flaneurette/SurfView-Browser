@@ -134,8 +134,8 @@ async function applySpoofing() {
     
     try {
         SurfBrowserView.webContents.debugger.attach('1.3');
-    } catch(e){
-        console.log(e);
+        } catch(e){
+        if(devdebug) console.log(e);
     }
     
     try {
@@ -156,7 +156,7 @@ async function applySpoofing() {
         });
     
     } catch(e) {
-        console.log(e);
+        if(devdebug) console.log(e);
     }
     
     
@@ -168,7 +168,7 @@ async function applySpoofing() {
                     userAgentMetadata: spoof.userAgentMetadata
                 });
             }
-         } catch(e) { console.log(e); }
+         } catch(e) { if(devdebug) console.log(e); }
     });
     
     SurfBrowserView.webContents.debugger.on('detach', (event, reason) => {
@@ -177,7 +177,7 @@ async function applySpoofing() {
                 if (reason !== 'target_closed' || reason !== 'target closed' ) { 
                     SurfBrowserView.webContents.debugger.attach('1.3');
                 }
-        } catch(e) { console.log(e); }
+        } catch(e) { if(devdebug) console.log(e); }
     });          
 }
 
@@ -202,7 +202,7 @@ async function launchBrowser(url) {
             pageImage.src = 'data:image/png;base64,${base64Screenshot}';
             pageImage.className = 'page-image active';
         `);
-        } catch(e) {console.log(e);}
+        } catch(e) { if(devdebug) console.log(e);}
         renderLinks(); // fetch all links on page.
         livemode = false;
     } 
@@ -467,11 +467,11 @@ async function renderLinks() {
         }
         
         } catch(e) {
-            console.log(e);
+            if(devdebug) console.log(e);
         }
         
             
-         console.log(links);
+        if(devdebug) console.log(links);
         
         await mainWindow.webContents.executeJavaScript(`
             (function() {

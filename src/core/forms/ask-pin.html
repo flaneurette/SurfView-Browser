@@ -39,7 +39,7 @@
     window.surfview.getValue('url')
     
     .then((url) => {
-        console.log(url);
+        if(devdebug) console.log(url);
         if(url == false) {
             let addWebsite = document.getElementById('addWebsite');
             addWebsite.innerHTML = 'No website loaded to unlock!';

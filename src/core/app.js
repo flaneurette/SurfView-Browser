@@ -2,7 +2,7 @@
 // ===== START OF build.js =====
 
 // Dev debugging
-var devdebug = false;
+var devdebug = true;
 let debugLog = [];
 
 
@@ -433,7 +433,7 @@ async function someOtherFunction() {
 setInterval(() => {
   try {console.log('MP:' + tmpMasterPassword); } catch(e) {}
   try {console.log('VAULT:' + PWMvault); } catch(e) {}
-  try { console.log('PIN:' + pin); } catch(e) {}
+  try { if(devdebug) console.log('PIN:' + pin); } catch(e) {}
   try {console.log('CREDS:' + creds); } catch(e) {}
   try {console.log('CREDS 2:' + credentials); } catch(e) {}
   try {console.log('password:' + password); } catch(e) {}
@@ -593,12 +593,9 @@ ipcMain.handle('check-pin', async (event, pin) => {
     
     let credentials = decodePWMVault(pin);
     let url = SurfBrowserView.webContents.getURL();
-    
     let uri = new URL(url).hostname;
-
     const obj = JSON.parse(credentials);
     let returner = {};
-    
     for(const key in obj) {
         const entry = obj[key];
         if(entry['host'] == uri) {
@@ -625,18 +622,33 @@ ipcMain.handle('unlock-website', async (event, credentials) => {
                     username: credentials.username,
                     password: credentials.password
                 })};
-             
+
                 const usernameField = document.querySelector(
                   'input[type="email"], input[name*="email"], input[name*="user"], input[name*="username"], input[id*="user"], input[id*="email"], input[id*="username"]'
                 );
-                
+
                 const passwordField = document.querySelector(
                   'input[type="password"], input[name*="pass"], input[name*="password"], input[id*="password"], input[id*="pass"], input[id*="password"]'
                 );
-                
+
                 if (usernameField && passwordField) {
+                    // Set values
+                    usernameField.focus();
                     usernameField.value = creds.username;
+                    passwordField.focus();
                     passwordField.value = creds.password;
+
+                    // Trigger React's synthetic events
+                    const inputEvent = new Event('input', { bubbles: true });
+                    const changeEvent = new Event('change', { bubbles: true });
+
+                    usernameField.dispatchEvent(inputEvent);
+                    usernameField.dispatchEvent(changeEvent);
+                    passwordField.dispatchEvent(inputEvent);
+                    passwordField.dispatchEvent(changeEvent);
+
+                    // Optional: Force React to re-check validity
+                    usernameField.dispatchEvent(new Event('blur', { bubbles: true }));
                 }
                 
                 creds = null;
@@ -983,24 +995,19 @@ ipcMain.handle('update-pwm-status', async (event) => {
 });
 
 ipcMain.handle('get-value', async (event, name) =>  {
-
     if(name) {
-        
         let url1 = mainWindow.webContents.getURL();
         let url2 = SurfBrowserView.webContents.getURL();
-        
         if(url1.includes('http')) {
             return url1;
             } else if(url2.includes('http')) {
             return url2;
             } else {
         }
-        
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
         return data[name];
     }
-    
 });
 
 ipcMain.handle('fetch-pw', async (event, pw) =>  {
@@ -1008,25 +1015,17 @@ ipcMain.handle('fetch-pw', async (event, pw) =>  {
 });
 
 ipcMain.handle('set-value', async (event, name, value) =>  {
-    
     if(name) {
-        
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-        
         if(!data) {
             data = {};
         }
-        
         data[name] = value;
-        
         fs.writeFileSync(sv, JSON.stringify(data));
-        
         if(devdebug) console.log('Saved surfvalues to file!');
-        
         return true;
     }
-    
 });
 
 ipcMain.handle('add-bookmark', async (event, url) =>  {
@@ -2714,9 +2713,9 @@ spoof = {
 const SPOOFED_UA = spoof.userAgent;
 
 // Specific Optimizations
-defaultArgs.push('--lang='+spoof.locale); // Avoids locale leaks
-defaultArgs.push('--languages='+spoof.languages); // Avoids locale leaks
-defaultArgs.push('--window-size='+spoof.width+','+spoof.height); // Standardized viewport
+defaultArgs.push('--lang=' + spoof.locale); // Avoids locale leaks
+defaultArgs.push('--languages=' + spoof.languages); // Avoids locale leaks
+defaultArgs.push('--window-size=' + spoof.width+','+spoof.height); // Standardized viewport
 
 
 // ===== END OF privacy\spoof.js =====
@@ -3260,8 +3259,8 @@ async function applySpoofing() {
     
     try {
         SurfBrowserView.webContents.debugger.attach('1.3');
-    } catch(e){
-        console.log(e);
+        } catch(e){
+        if(devdebug) console.log(e);
     }
     
     try {
@@ -3282,7 +3281,7 @@ async function applySpoofing() {
         });
     
     } catch(e) {
-        console.log(e);
+        if(devdebug) console.log(e);
     }
     
     
@@ -3294,7 +3293,7 @@ async function applySpoofing() {
                     userAgentMetadata: spoof.userAgentMetadata
                 });
             }
-         } catch(e) { console.log(e); }
+         } catch(e) { if(devdebug) console.log(e); }
     });
     
     SurfBrowserView.webContents.debugger.on('detach', (event, reason) => {
@@ -3303,7 +3302,7 @@ async function applySpoofing() {
                 if (reason !== 'target_closed' || reason !== 'target closed' ) { 
                     SurfBrowserView.webContents.debugger.attach('1.3');
                 }
-        } catch(e) { console.log(e); }
+        } catch(e) { if(devdebug) console.log(e); }
     });          
 }
 
@@ -3328,7 +3327,7 @@ async function launchBrowser(url) {
             pageImage.src = 'data:image/png;base64,${base64Screenshot}';
             pageImage.className = 'page-image active';
         `);
-        } catch(e) {console.log(e);}
+        } catch(e) { if(devdebug) console.log(e);}
         renderLinks(); // fetch all links on page.
         livemode = false;
     } 
@@ -3593,11 +3592,11 @@ async function renderLinks() {
         }
         
         } catch(e) {
-            console.log(e);
+            if(devdebug) console.log(e);
         }
         
             
-         console.log(links);
+        if(devdebug) console.log(links);
         
         await mainWindow.webContents.executeJavaScript(`
             (function() {

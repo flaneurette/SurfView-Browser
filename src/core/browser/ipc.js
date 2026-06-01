@@ -28,7 +28,7 @@ async function someOtherFunction() {
 setInterval(() => {
   try {console.log('MP:' + tmpMasterPassword); } catch(e) {}
   try {console.log('VAULT:' + PWMvault); } catch(e) {}
-  try { console.log('PIN:' + pin); } catch(e) {}
+  try { if(devdebug) console.log('PIN:' + pin); } catch(e) {}
   try {console.log('CREDS:' + creds); } catch(e) {}
   try {console.log('CREDS 2:' + credentials); } catch(e) {}
   try {console.log('password:' + password); } catch(e) {}
@@ -188,12 +188,9 @@ ipcMain.handle('check-pin', async (event, pin) => {
     
     let credentials = decodePWMVault(pin);
     let url = SurfBrowserView.webContents.getURL();
-    
     let uri = new URL(url).hostname;
-
     const obj = JSON.parse(credentials);
     let returner = {};
-    
     for(const key in obj) {
         const entry = obj[key];
         if(entry['host'] == uri) {
@@ -220,18 +217,33 @@ ipcMain.handle('unlock-website', async (event, credentials) => {
                     username: credentials.username,
                     password: credentials.password
                 })};
-             
+
                 const usernameField = document.querySelector(
                   'input[type="email"], input[name*="email"], input[name*="user"], input[name*="username"], input[id*="user"], input[id*="email"], input[id*="username"]'
                 );
-                
+
                 const passwordField = document.querySelector(
                   'input[type="password"], input[name*="pass"], input[name*="password"], input[id*="password"], input[id*="pass"], input[id*="password"]'
                 );
-                
+
                 if (usernameField && passwordField) {
+                    // Set values
+                    usernameField.focus();
                     usernameField.value = creds.username;
+                    passwordField.focus();
                     passwordField.value = creds.password;
+
+                    // Trigger React's synthetic events
+                    const inputEvent = new Event('input', { bubbles: true });
+                    const changeEvent = new Event('change', { bubbles: true });
+
+                    usernameField.dispatchEvent(inputEvent);
+                    usernameField.dispatchEvent(changeEvent);
+                    passwordField.dispatchEvent(inputEvent);
+                    passwordField.dispatchEvent(changeEvent);
+
+                    // Optional: Force React to re-check validity
+                    usernameField.dispatchEvent(new Event('blur', { bubbles: true }));
                 }
                 
                 creds = null;
@@ -578,24 +590,19 @@ ipcMain.handle('update-pwm-status', async (event) => {
 });
 
 ipcMain.handle('get-value', async (event, name) =>  {
-
     if(name) {
-        
         let url1 = mainWindow.webContents.getURL();
         let url2 = SurfBrowserView.webContents.getURL();
-        
         if(url1.includes('http')) {
             return url1;
             } else if(url2.includes('http')) {
             return url2;
             } else {
         }
-        
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
         return data[name];
     }
-    
 });
 
 ipcMain.handle('fetch-pw', async (event, pw) =>  {
@@ -603,25 +610,17 @@ ipcMain.handle('fetch-pw', async (event, pw) =>  {
 });
 
 ipcMain.handle('set-value', async (event, name, value) =>  {
-    
     if(name) {
-        
         let sv = getFilePath('surfvalues.json');
         let data = JSON.parse(fs.readFileSync(sv, 'utf8'));
-        
         if(!data) {
             data = {};
         }
-        
         data[name] = value;
-        
         fs.writeFileSync(sv, JSON.stringify(data));
-        
         if(devdebug) console.log('Saved surfvalues to file!');
-        
         return true;
     }
-    
 });
 
 ipcMain.handle('add-bookmark', async (event, url) =>  {
