@@ -941,9 +941,9 @@ ipcMain.handle('booklist', async (event, folder) =>  {
         const mousePos = screen.getCursorScreenPoint();
         bookmarkfolderSelected = folder;
         let total = bookmarks.length;
-        let offset = 40;
+        let offset = 60;
         let padding = 30;
-        let height = (total * 12) + offset + padding;
+        let height = (total * 15) + offset + padding;
         showWindow(250, height, (mousePos.x - 60), 80, 'src/core/forms/bookmarks-folder.html');
     }
 });

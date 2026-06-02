@@ -31,9 +31,7 @@ const privacy_script = `
         ['deprecatedURNToURL', undefined],
         ['sendBeacon', false],
         ['createHandwritingRecognizer', undefined],
-        ['queryHandwritingRecognizer', undefined],
-        ['setAppBadge', undefined],
-        ['clearAppBadge', undefined]
+        ['queryHandwritingRecognizer', undefined]
     ].forEach(([key, value]) => {
         try {
             Object.defineProperty(navigator, key, {
