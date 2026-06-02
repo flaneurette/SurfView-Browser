@@ -143,6 +143,7 @@ const privacy_script = `
             
         });
 
+        /*
         try {
             Object.defineProperty(window, 'performance', {
                 get: () => ({
@@ -155,7 +156,8 @@ const privacy_script = `
             });
             
         } catch(e) {  }
-
+        */
+        
    })();
 `;
 
