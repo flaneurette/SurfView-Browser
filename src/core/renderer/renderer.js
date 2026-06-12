@@ -53,7 +53,7 @@
     var statusTitle = document.getElementById('statusTitle');
     var statusLinks = document.getElementById('statusLinks');
     var statusTime = document.getElementById('statusRenderTime');
-    var shieldBadge = document.getElementById('shieldBadge');
+    var shieldlabel = document.getElementById('shieldlabel');
     var shieldDot = document.getElementById('shieldDot');
     var shieldLabel = document.getElementById('shieldLabel');
     var modeLabel = document.getElementById('modeLabel');
@@ -529,15 +529,15 @@
     
     function setShield(safe) {
       // Remove old states
-      shieldBadge.classList.remove('shield-safe', 'shield-danger');
+      shieldlabel.classList.remove('shield-safe', 'shield-danger');
       shieldDot.classList.remove('shield-safe', 'shield-danger');
 
       if (safe) {
-        shieldBadge.classList.add('shield-safe');
+        shieldlabel.classList.add('shield-safe');
         shieldDot.classList.add('shield-safe');
         shieldLabel.textContent = 'SAFE MODE';
       } else {
-        shieldBadge.classList.add('shield-danger');
+        shieldlabel.classList.add('shield-danger');
         shieldDot.classList.add('shield-danger');
         shieldLabel.textContent = 'LIVE MODE';
       }
@@ -885,12 +885,12 @@
             if (!safeHref) return;
 
             var dotClass = 'dot-' + escHtml(link.type);
-            var badge = '';
+            var label = '';
             
-            if (link.type === 'external') badge = '<span class="link-badge badge-ext">ext</span>';
-            else if (link.type === 'mailto') badge = '<span class="link-badge badge-mail">mail</span>';
-            else if (link.type === 'download') badge = '<span class="link-badge badge-dl">dl</span>';
-            else if (link.type === 'anchor') badge = '<span class="link-badge badge-anc">#</span>';
+            if (link.type === 'external') label = '<span class="link-label label-ext">ext</span>';
+            else if (link.type === 'mailto') label = '<span class="link-label label-mail">mail</span>';
+            else if (link.type === 'download') label = '<span class="link-label label-dl">dl</span>';
+            else if (link.type === 'anchor') label = '<span class="link-label label-anc">#</span>';
 
             var displayHref = safeHref.length > 42 ? safeHref.slice(0, 40) + '...' : safeHref;
 
@@ -900,7 +900,7 @@
                 '<div class="link-label">' + escHtml(link.label) + '</div>' +
                 '<div class="link-url">' + escHtml(displayHref) + '</div>' +
                 '</div>' +
-                badge +
+                label +
                 '</div>';
         });
 
