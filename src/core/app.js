@@ -64,7 +64,7 @@ let PWMvault = null;
 let jsEnabled = false; // default: off
 
 // Privacy
-let privacyEnabled = true; // default: on
+let privacyEnabled = true; // default: off
 
 // Webscanner
 let webscannerEnabled = false; // default: off
@@ -126,8 +126,8 @@ let torChromeArgs = [
 
 let defaultArgs = [
 
-    //'--disable-webgl',
-    //'--disable-webgl2',      
+    '--disable-webgl',
+    '--disable-webgl2',      
     '--disable-3d-apis',
     '--disable-udp',
     '--disable-geolocation',
@@ -152,7 +152,7 @@ let defaultArgs = [
     '--use-mock-keychain', // Avoids macOS keychain issues
     '--disable-plugins',
     '--disable-java',
-    //'--disable-reading-from-canvas',    // canvas fingerprint
+    //'--disable-reading-from-canvas', 
     //'--disable-2d-canvas-clip-aa',
     //'--disable-2d-canvas-image-chromium',
     '--disable-file-system',
