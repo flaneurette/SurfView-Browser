@@ -6,6 +6,11 @@ SurfView is a security-focused browser, that has 3 security modes.
 - `Live mode`: user toggled. No JavaScript, only HTML. Sandboxed.
 - `JS mode`: user toggled. HTML + JavaScript. Sandboxed.
 
+Plus these extra toggles:
+
+- `Webscanner mode`: user toggled. JavaScript. Sandboxed. A security webscanner for eachwebsite.
+- `Privacy mode`: user toggled. Makes you practically unrecognizable while surfing, for maximum privacy. Can be turned off when required, as its very strict.
+
 It also bundles tor.exe with it, and it has a tor toggle, so you can surf freely and secure.
 
 SurfView uses 2 sandboxes, and incognito mode for extra security.
@@ -45,9 +50,9 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.8 SurfView - Light Feather
 
-[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.5/SurfView.Setup.1.8.5.exe)
+[Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView.Setup.1.8.5.exe)
  
-[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.5/SurfView-1.8.5-win.zip)
+[Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView-1.8.5-win.zip)
 
 ### Build from source
 
