@@ -3,6 +3,8 @@ const { contextBridge, webFrame, ipcRenderer} = require('electron');
 const privacy_script = `
     (function() {
 
+
+try { 
     Object.defineProperty(navigator, 'gpu', { get: () => "not supported" });
 
     [
@@ -38,18 +40,11 @@ const privacy_script = `
                 get: () => value,
                 configurable: true
             });
-        } catch(e) {
+        } catch(e) { console.log(e);
             Object.defineProperty(navigator, key, { get: () => "not supported" });
              }
     });
 
-        try {
-            Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
-                value: HTMLCanvasElement.prototype.getContext,
-                writable: false,
-                configurable: false
-            });
-        } catch(e) {  }
         
         ['RTCPeerConnection', 'webkitRTCPeerConnection', 'mozRTCPeerConnection',
          'RTCSessionDescription', 'RTCIceCandidate', 'RTCDataChannel',
@@ -63,13 +58,13 @@ const privacy_script = `
                     writable: false,
                     configurable: false
                 });
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
         });
 
         ['OfflineAudioContext', 'AudioContext', 'webkitOfflineAudioContext'].forEach(key => {
             try {
                 Object.defineProperty(window, key, { get: () => undefined });
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
         });
     
         ['GPU', 'GPUAdapter', 'GPUDevice', 'GPUBuffer', 'GPUTexture',
@@ -89,7 +84,7 @@ const privacy_script = `
                         writable: false,
                         configurable: false
                     });
-                } catch(e) {
+                } catch(e) { console.log(e);
                 Object.defineProperty(navigator, key, { value: "not supported" });
                 
             }
@@ -111,7 +106,7 @@ const privacy_script = `
             
             try {
                 Object.defineProperty(navigator, key, { value: "not supported" });
-                } catch(e) { 
+                } catch(e) { console.log(e); 
                 Object.defineProperty(navigator, key, { get: () => undefined });
                  
             }
@@ -137,7 +132,7 @@ const privacy_script = `
                     get: () => value,
                     configurable: true
                 });
-            } catch(e) {    }
+            } catch(e) { console.log(e);    }
             
         });
 
@@ -153,9 +148,9 @@ const privacy_script = `
                 })
             });
             
-        } catch(e) {  }
+        } catch(e) { console.log(e);  }
         */
-        
+} catch(e) { console.log(e); }
    })();
 `;
 
@@ -204,7 +199,7 @@ webFrame.executeJavaScript(`
             Object.defineProperty(navigator, 'misc', { value: "not supported" });
             Object.defineProperty(navigator, 'getGamepads', { value: "not supported" });
             Object.defineProperty(navigator, 'adapters', { value: "not supported" });
-        } catch(e) {
+        } catch(e) { console.log(e);
             
         }
         navigator.getGamepads = () => [];
@@ -215,8 +210,8 @@ webFrame.executeJavaScript(`
         Object.defineProperty(window, 'speechSynthesis', { value: undefined });
         window.SpeechSynthesisUtterance = undefined;
             
-    } catch(e) {
-        
+    } catch(e) { console.log(e);
+        console.log(e);
     }
     
 })();
@@ -236,7 +231,7 @@ webFrame.executeJavaScript(`
               configurable: true
             });
 
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
 
             try {
                 
@@ -245,7 +240,7 @@ webFrame.executeJavaScript(`
               return undefined;
             };
             
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
 
             try {
                 
@@ -282,7 +277,7 @@ webFrame.executeJavaScript(`
               });
             });
             
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
          
             try {
                 
@@ -295,7 +290,7 @@ webFrame.executeJavaScript(`
                   return new OriginalFontFace('Arial', '', {});
                 };
             
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
             
             try {
                 
@@ -315,7 +310,7 @@ webFrame.executeJavaScript(`
                   });
                 });
 
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
 
             try {
                 
@@ -345,7 +340,7 @@ webFrame.executeJavaScript(`
                       configurable: true
                     });
                 */
-            } catch(e) {  }
+            } catch(e) { console.log(e);  }
 })();
   
 `);

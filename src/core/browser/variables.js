@@ -20,7 +20,7 @@ let PWMvault = null;
 let jsEnabled = false; // default: off
 
 // Privacy
-let privacyEnabled = true; // default: on
+let privacyEnabled = true; // default: off
 
 // Webscanner
 let webscannerEnabled = false; // default: off

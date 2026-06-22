@@ -53,9 +53,9 @@ let defaultArgs = [
     '--use-mock-keychain', // Avoids macOS keychain issues
     '--disable-plugins',
     '--disable-java',
-    '--disable-reading-from-canvas',    // canvas fingerprint
-    '--disable-2d-canvas-clip-aa',
-    '--disable-2d-canvas-image-chromium',
+    //'--disable-reading-from-canvas', 
+    //'--disable-2d-canvas-clip-aa',
+    //'--disable-2d-canvas-image-chromium',
     '--disable-file-system',
     '--disable-local-storage',
     '--disable-shared-workers',

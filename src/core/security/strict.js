@@ -9,7 +9,7 @@ const STRICT_PATTERNS = [
     //toDataURL/i,
     ///fillRect/i,
     /captureStream/i,
-    /getImageData/i,
+    ///getImageData/i,
     /getSupportedExtensions/i,
     /SHADING_LANGUAGE_VERSION/i,
     /UNMASKED_VENDOR_WEBGL/i,

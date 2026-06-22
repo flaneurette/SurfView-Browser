@@ -126,8 +126,8 @@ let torChromeArgs = [
 
 let defaultArgs = [
 
-    '--disable-webgl',
-    '--disable-webgl2',      
+    //'--disable-webgl',
+    //'--disable-webgl2',      
     '--disable-3d-apis',
     '--disable-udp',
     '--disable-geolocation',
@@ -152,9 +152,9 @@ let defaultArgs = [
     '--use-mock-keychain', // Avoids macOS keychain issues
     '--disable-plugins',
     '--disable-java',
-    '--disable-reading-from-canvas',    // canvas fingerprint
-    '--disable-2d-canvas-clip-aa',
-    '--disable-2d-canvas-image-chromium',
+    //'--disable-reading-from-canvas',    // canvas fingerprint
+    //'--disable-2d-canvas-clip-aa',
+    //'--disable-2d-canvas-image-chromium',
     '--disable-file-system',
     '--disable-local-storage',
     '--disable-shared-workers',
@@ -2475,7 +2475,7 @@ const STRICT_PATTERNS = [
     //toDataURL/i,
     ///fillRect/i,
     /captureStream/i,
-    /getImageData/i,
+    ///getImageData/i,
     /getSupportedExtensions/i,
     /SHADING_LANGUAGE_VERSION/i,
     /UNMASKED_VENDOR_WEBGL/i,
@@ -3403,6 +3403,10 @@ async function launchBrowser(url) {
         
         if(jsEnabled) { 
             if(devdebug) console.log('JS: ' + jsEnabled);
+            
+        }
+        
+        if(privacyEnabled) { 
             webPreferencesView.preload = path.join(__dirname, 'inject.js');
         }
         

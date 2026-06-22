@@ -278,6 +278,10 @@ async function launchBrowser(url) {
         
         if(jsEnabled) { 
             if(devdebug) console.log('JS: ' + jsEnabled);
+            
+        }
+        
+        if(privacyEnabled) { 
             webPreferencesView.preload = path.join(__dirname, 'inject.js');
         }
         
