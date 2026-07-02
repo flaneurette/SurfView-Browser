@@ -2,7 +2,7 @@
  
 # Resolve the directory this script lives in, regardless of where it's run from
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-REPO_PATH="$SCRIPT_DIR"
+REPO_PATH="$SCRIPT_DIR" 
 
 APPIMAGE=$(find "$REPO_PATH/dist" -iname "SurfView-*.AppImage" 2>/dev/null | head -n1)
 ICON_PATH=$(find "$REPO_PATH/assets" -iname "ico.*" 2>/dev/null | head -n1)
