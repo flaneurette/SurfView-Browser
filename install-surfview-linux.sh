@@ -1,5 +1,5 @@
 #!/bin/bash
-
+ 
 # Resolve the directory this script lives in, regardless of where it's run from
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_PATH="$SCRIPT_DIR"
