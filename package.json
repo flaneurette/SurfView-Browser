@@ -10,7 +10,7 @@
     "build-linux": "electron-builder --linux"
   },
   "dependencies": {
-    "puppeteer": "^24.39.1",
+    "puppeteer": "^24.43.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-stealth": "^2.11.2",
     "scrypt-js": "^3.0.1"

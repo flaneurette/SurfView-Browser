@@ -33,19 +33,19 @@
     }
 
     :root {
-       --bg:          #0e0f11;
-       --surface:     #16181c;
-       --panel:       #1c1e24;
-       --border:      #2a2d35;
-       --accent:      #999;
-       --accent2:     #999;
+       --bg:          #000;
+       --surface:     #000;
+       --panel:       #000;
+       --border:      #333;
+       --accent:      #666;
+       --accent2:     #333;
        --danger:      #f04a6a;
        --warn:        #f0b84a;
        --text:        #c8cdd8;
        --text-dim:    #5a6070;
        --text-mid:    #8890a0;
-       --mono:        'IBM Plex Mono', monospace;
-       --sans:        'IBM Plex Sans', sans-serif;
+       --mono:        Tahoma, 'IBM Plex Mono', monospace;
+       --sans:        Tahoma, 'IBM Plex Sans', sans-serif;
        --radius:      4px;
     }
     
@@ -266,12 +266,10 @@
        border-radius: var(--radius);
        padding: 0 10px;
        gap: 8px;
-       transition: border-color 0.15s;
     }
 
     .urlbar-input-wrap:focus-within {
        background-color: var(--bg);
-       box-shadow: 0 0 0 2px rgba(74, 240, 160, 0.08);
     }
 
     .urlbar-prefix {
@@ -309,7 +307,7 @@
        align-items: center;
        gap: 5px;
        padding: 5px 12px;
-       border: 1px solid var(--border);
+       border: 0px solid var(--border);
        border-radius: var(--radius);
        background: var(--panel);
        color: var(--text-mid);
