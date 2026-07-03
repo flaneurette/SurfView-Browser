@@ -1419,3 +1419,50 @@
         cursor: text;
     }
     
+#tab-bar {
+    display: none;
+    background-color: #000;
+    border-bottom: 1px solid #333;
+    overflow-x: auto;
+    flex-shrink: 0;
+    font-family: Arial;
+    font-size: 12px;
+    padding-top: 5px;
+}
+
+.tab {
+    min-width:120px;
+    padding: 5px;
+    background-color: #000;
+    border: 1px solid #333;
+    border-bottom: none;
+    border-radius: 3px 3px 0px 0px;
+    margin-right: 3px;
+    cursor: pointer;
+    white-space: nowrap;
+    font-family: Arial;
+    font-size: 12px;
+    border-left: 1px solid #333;
+    border-top: 1px solid #333;
+    border-right: 1px solid #333;
+    position: relative;
+    color: #fff;
+}
+
+.tab.active {
+    background-color: #333;
+    border-left: 1px solid #333;
+    border-top: 1px solid #333;
+    border-right: 1px solid #333;
+    color: #fff;
+}
+
+.tab:hover {
+    background-color: green;
+}
+
+.tab-close {
+    display: inline-block;
+    margin-left: 80px;
+    color: #666;
+}

@@ -132,6 +132,24 @@
             window.surfview.searchInWebview(e.target.value);
         });
 
+        document.addEventListener('keydown', function(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 't') {
+                e.preventDefault();
+                // window.surfview.addTab();
+                let tabBar = document.getElementById('tab-bar');
+                tabBar.style.display = 'flex';
+                let tab = document.createElement('div');
+                tab.className = 'tab';
+                tab.textContent = 'New Tab';
+                let close = document.createElement('span');
+                close.textContent = 'x';
+                close.className = 'tab-close';
+                tab.appendChild(close);
+                tabBar.appendChild(tab);
+                urlInput.focus();
+            }
+        });
+        
         // Next/Previous buttons
         document.getElementById('search-next').addEventListener('click', () => {
             window.surfview.searchInWebview(
