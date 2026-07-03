@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Install SurfView
+Exec=gnome-terminal -- bash -c "cd ~/Desktop/Git/SurfView-Browser/build-tools/Linux/ && ./build-surfview.sh; exec bash"
+Type=Application
+Terminal=true
+
