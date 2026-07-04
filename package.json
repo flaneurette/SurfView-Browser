@@ -23,7 +23,6 @@
     "appId": "com.surfview.app",
     "productName": "SurfView",
     "icon": "assets/ico.ico",
-    "electronDist": "node_modules/electron-nightly/dist",
     "electronVersion": "42.0.0-nightly.20260313",
     "directories": {
       "output": "dist"
@@ -64,3 +63,4 @@
     }
   }
 }
+
