@@ -20,7 +20,7 @@ git clone https://github.com/flaneurette/SurfView-Browser.git
 cd SurfView-Browser
 ```
 
-- Clean everything first (prevents conflicts)
+### Manually install (Windows!)
 
 ```Delete: node_modules, package-lock.json, dist/, .electron-builder/```
 
