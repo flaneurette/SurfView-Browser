@@ -59,8 +59,11 @@ Download your preferred version from the Releases page and install it.
 For Linux:
 
 ```
+cd ~
 git clone https://github.com/flaneurette/SurfView-Browser.git
 wget https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView-1.8.5.AppImage
+cp SurfView-1.8.5.AppImage SurfView-Browser/dist
+cd SurfView-Browser/
 bash -x ./install-surfview-linux.sh
 ```
 
