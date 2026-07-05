@@ -64,7 +64,8 @@ git clone https://github.com/flaneurette/SurfView-Browser.git
 wget https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView-1.8.5.AppImage
 cp SurfView-1.8.5.AppImage SurfView-Browser/dist
 cd SurfView-Browser/
-bash -x ./install-surfview-linux.sh
+sudo chmod +x ./install-surfview-linux.sh
+sudo bash -x ./install-surfview-linux.sh
 ```
 
 ### Build from source
