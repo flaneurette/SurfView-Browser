@@ -20,47 +20,13 @@ git clone https://github.com/flaneurette/SurfView-Browser.git
 cd SurfView-Browser
 ```
 
-### Manually install (Windows!)
-
-```Delete: node_modules, package-lock.json, dist/, .electron-builder/```
-
-- Install dependencies
-
-```npm install puppeteer@^24.39.1 puppeteer-extra@^3.3.6 puppeteer-extra-plugin-stealth@^2.11.2```
-
-- Install electron-nightly as devDependency
-
-```npm install electron-nightly@42.0.0-nightly.20260313 --save-dev```
-
-- Install electron-nightly's native binaries
-
-```node node_modules/electron-nightly/install.js```
-
-- Check installed versions
-
-```npm ls puppeteer electron-nightly```
-
-- Verify electron-nightly installation
-
-```npx electron-nightly --version```
-
-- Then set in package.json:
+### Manually install
 
 ```
-  "dependencies": {
-    "puppeteer": "^24.39.1",
-    "puppeteer-extra": "^3.3.6",
-    "puppeteer-extra-plugin-stealth": "^2.11.2",
-    "scrypt-js": "^3.0.1"
-  },
-  "devDependencies": {
-    "electron-builder": "^26.8.1",
-    "electron-nightly": "^42.0.0-nightly.20260313"
-  },
+npm install puppeteer@^24.39.1 puppeteer-extra@^3.3.6 puppeteer-extra-plugin-stealth@^2.11.2
+npm install electron-nightly@42.0.0-nightly.20260313 --save-dev
+node node_modules/electron-nightly/install.js
 ```
-
-This will take a few minutes on first run as it downloads Electron and
-a bundled Chromium binary (~300MB total).
 
 ### On  Linux: you'll need wine 32 bit!
 
