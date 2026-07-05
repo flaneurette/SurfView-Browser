@@ -8,6 +8,7 @@
 - [Tor Expert Bundle](https://torproject.org/download/tor/)
 - [NSIS](https://sourceforge.net/projects/nsis/) (required for installers)
 - Windows CMD console.
+- Perhaps Wine 32bit for code signing on linux.
 
 No need to install Chrome or Chromium separately. The build process
 downloads a bundled Chromium automatically via Puppeteer.
@@ -60,6 +61,18 @@ cd SurfView-Browser
 
 This will take a few minutes on first run as it downloads Electron and
 a bundled Chromium binary (~300MB total).
+
+### On  Linux: you'll need wine 32 bit!
+
+```
+sudo dpkg --add-architecture i386
+sudo apt update
+sudo mkdir -p /etc/apt/keyrings
+wget -O /etc/apt/keyrings/winehq-archive.key https://dl.winehq.org/wine-builds/winehq.key
+echo "deb [signed-by=/etc/apt/keyrings/winehq-archive.key] https://dl.winehq.org/wine-builds/ubuntu/ $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/winehq.list
+sudo apt update
+sudo apt install --install-recommends winehq-stable wine32
+```
 
 ## Run in development
 
