@@ -50,9 +50,18 @@ Download your preferred version from the Releases page and install it.
 
 #### v1.8 SurfView - Light Feather
 
+[Linux AppImage](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView-1.8.5.AppImage)
+
 [Windows x64 executable](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView.Setup.1.8.5.exe)
  
 [Windows x64 portable (with source)](https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView-1.8.5-win.zip)
+
+For Linux:
+
+```
+wget https://github.com/flaneurette/SurfView-Browser/releases/download/v1.8.51/SurfView-1.8.5.AppImage
+bash -x ./install-surfview-linux.sh
+```
 
 ### Build from source
 
