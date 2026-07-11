@@ -56,35 +56,20 @@ The app will launch immediately. No additional configuration needed.
 npm run build-win
 ```
 
-### macOS (produces a .dmg)
-
-```
-npm run build-mac
-```
-
 ### Linux (produces an .AppImage)
 
 ```
 npm run build-linux
 ```
 
-Output is placed in the `dist/` folder.
+### macOS (produces a .dmg)
 
-## Troubleshooting
-
-**App launches but pages fail to render**
-Make sure npm install completed successfully and the Puppeteer Chromium
-download finished without errors. Try deleting node_modules and running
-npm install again.
-
-**Build fails on Windows**
-Make sure you are running the terminal as a normal user, not as Administrator.
-electron-builder can behave unexpectedly with elevated permissions.
-
-**Build fails on macOS with code signing errors**
-For local/unsigned builds, set the following before building:
+Best to do this on a mac.
 
 ```
 export CSC_IDENTITY_AUTO_DISCOVERY=false
+npm install dmg-license --save-dev
 npm run build-mac
 ```
+
+Output is placed in the `dist/` folder.
